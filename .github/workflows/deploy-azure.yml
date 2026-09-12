@@ -9,7 +9,7 @@ on:
 
 # Environment Configuration (Public resource names)
 env:
-  ACR_NAME: riditstackerpnextregistry
+  ACR_NAME: riditstackerpnextregistry-adexhta0crd8b4e3
   CONTAINER_APP_NAME: riditstackerpnextregistry
   RESOURCE_GROUP: erpnext-rg
 
