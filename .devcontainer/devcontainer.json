@@ -1,0 +1,28 @@
+{
+  "name": "ERPNext Development Container",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "frappe",
+  "workspaceFolder": "/workspace/development/apps/erpnext",
+  "forwardPorts": [8000, 9000, 6787],
+  "portsAttributes": {
+    "8000": {
+      "label": "ERPNext Web Server",
+      "protocol": "http",
+      "onAutoForward": "notify"
+    },
+    "9000": {
+      "label": "Socket.io Realtime",
+      "onAutoForward": "silent"
+    }
+  },
+  "remoteUser": "frappe",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "esbenp.prettier-vscode",
+        "charliermarsh.ruff"
+      ]
+    }
+  }
+}

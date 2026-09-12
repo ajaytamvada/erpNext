@@ -1,0 +1,51 @@
+name: erpnext-dev
+
+services:
+  mariadb:
+    image: mariadb:11.8
+    container_name: erpnext_mariadb
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --innodb-file-format=barracuda
+      - --innodb-file-per-table=1
+      - --innodb-large-prefix=1
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MARIADB_AUTO_UPGRADE: 1
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  redis-cache:
+    image: redis:alpine
+    container_name: erpnext_redis_cache
+    restart: unless-stopped
+
+  redis-queue:
+    image: redis:alpine
+    container_name: erpnext_redis_queue
+    restart: unless-stopped
+
+  frappe:
+    image: frappe/bench:latest
+    container_name: erpnext_frappe_bench
+    restart: unless-stopped
+    command: sleep infinity
+    environment:
+      - SHELL=/bin/bash
+    volumes:
+      - .:/workspace/development/apps/erpnext
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+    depends_on:
+      - mariadb
+      - redis-cache
+      - redis-queue
+
+volumes:
+  mariadb-data:
