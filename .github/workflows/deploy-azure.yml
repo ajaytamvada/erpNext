@@ -5,6 +5,8 @@ on:
     branches:
       - version-15
       - main
+  workflow_dispatch:
+
 
 jobs:
   build-and-deploy:
