@@ -44,6 +44,8 @@ jobs:
         uses: azure/container-apps-deploy-action@v1
         with:
           acrName: ${{ env.ACR_NAME }}
+          acrUsername: ${{ secrets.ACR_USERNAME }}
+          acrPassword: ${{ secrets.ACR_PASSWORD }}
           containerAppName: ${{ env.CONTAINER_APP_NAME }}
           resourceGroup: ${{ env.RESOURCE_GROUP }}
           imageToDeploy: ${{ env.ACR_NAME }}.azurecr.io/erpnext:${{ github.sha }}
