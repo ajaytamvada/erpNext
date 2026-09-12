@@ -53,4 +53,6 @@ jobs:
           az containerapp update \
             --name ${{ env.CONTAINER_APP_NAME }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --image ${{ env.ACR_LOGIN_SERVER }}/erpnext:${{ github.sha }}
+            --image ${{ env.ACR_LOGIN_SERVER }}/erpnext:${{ github.sha }} \
+            --target-port 8000 \
+            --ingress external
