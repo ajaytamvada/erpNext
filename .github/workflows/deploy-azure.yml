@@ -7,7 +7,6 @@ on:
       - main
   workflow_dispatch:
 
-
 jobs:
   build-and-deploy:
     name: Build & Deploy to Azure Container Apps
@@ -25,23 +24,20 @@ jobs:
       - name: Log in to Azure Container Registry (ACR)
         uses: azure/docker-login@v2
         with:
-          login-server: ${{ secrets.ACR_NAME }}.azurecr.io
+          login-server: riditstackerpnextregistry.azurecr.io
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build & Push Docker Image to ACR
         run: |
-          IMAGE_TAG=${{ secrets.ACR_NAME }}.azurecr.io/erpnext:${{ github.sha }}
-          LATEST_TAG=${{ secrets.ACR_NAME }}.azurecr.io/erpnext:latest
-
-          docker build -t $IMAGE_TAG -t $LATEST_TAG .
-          docker push $IMAGE_TAG
-          docker push $LATEST_TAG
+          docker build -t riditstackerpnextregistry.azurecr.io/erpnext:${{ github.sha }} -t riditstackerpnextregistry.azurecr.io/erpnext:latest .
+          docker push riditstackerpnextregistry.azurecr.io/erpnext:${{ github.sha }}
+          docker push riditstackerpnextregistry.azurecr.io/erpnext:latest
 
       - name: Deploy Image to Azure Container Apps
         uses: azure/container-apps-deploy-action@v1
         with:
-          acrName: ${{ secrets.ACR_NAME }}
-          containerAppName: ${{ secrets.AZURE_CONTAINER_APP_NAME }}
-          resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
-          imageToDeploy: ${{ secrets.ACR_NAME }}.azurecr.io/erpnext:${{ github.sha }}
+          acrName: riditstackerpnextregistry
+          containerAppName: riditstackerpnextregistry
+          resourceGroup: erpnext-rg
+          imageToDeploy: riditstackerpnextregistry.azurecr.io/erpnext:${{ github.sha }}
