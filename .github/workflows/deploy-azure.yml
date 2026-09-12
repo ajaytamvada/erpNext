@@ -7,11 +7,10 @@ on:
       - main
   workflow_dispatch:
 
-# Environment Configuration (Public resource names)
 env:
-  ACR_NAME: riditstackerpnextregistry
+  ACR_LOGIN_SERVER: riditstackerpnextregistry-adexhta0crd8b4e3.azurecr.io
   CONTAINER_APP_NAME: riditstackerpnextregistry
-  RESOURCE_GROUP: erpnext-rg
+  RESOURCE_GROUP: rg-erpnext
 
 jobs:
   build-and-deploy:
@@ -30,22 +29,28 @@ jobs:
       - name: Log in to Azure Container Registry (ACR)
         uses: azure/docker-login@v2
         with:
-          login-server: ${{ env.ACR_NAME }}.azurecr.io
+          login-server: ${{ env.ACR_LOGIN_SERVER }}
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build & Push Docker Image to ACR
         run: |
-          docker build -t ${{ env.ACR_NAME }}.azurecr.io/erpnext:${{ github.sha }} -t ${{ env.ACR_NAME }}.azurecr.io/erpnext:latest .
-          docker push ${{ env.ACR_NAME }}.azurecr.io/erpnext:${{ github.sha }}
-          docker push ${{ env.ACR_NAME }}.azurecr.io/erpnext:latest
+          docker build -t ${{ env.ACR_LOGIN_SERVER }}/erpnext:${{ github.sha }} -t ${{ env.ACR_LOGIN_SERVER }}/erpnext:latest .
+          docker push ${{ env.ACR_LOGIN_SERVER }}/erpnext:${{ github.sha }}
+          docker push ${{ env.ACR_LOGIN_SERVER }}/erpnext:latest
 
-      - name: Deploy Image to Azure Container Apps
-        uses: azure/container-apps-deploy-action@v1
-        with:
-          acrName: ${{ env.ACR_NAME }}
-          acrUsername: ${{ secrets.ACR_USERNAME }}
-          acrPassword: ${{ secrets.ACR_PASSWORD }}
-          containerAppName: ${{ env.CONTAINER_APP_NAME }}
-          resourceGroup: ${{ env.RESOURCE_GROUP }}
-          imageToDeploy: ${{ env.ACR_NAME }}.azurecr.io/erpnext:${{ github.sha }}
+      - name: Set Container App Registry Credentials
+        run: |
+          az containerapp registry set \
+            --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --server ${{ env.ACR_LOGIN_SERVER }} \
+            --username "${{ secrets.ACR_USERNAME }}" \
+            --password "${{ secrets.ACR_PASSWORD }}"
+
+      - name: Deploy Image to Azure Container App
+        run: |
+          az containerapp update \
+            --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image ${{ env.ACR_LOGIN_SERVER }}/erpnext:${{ github.sha }}
