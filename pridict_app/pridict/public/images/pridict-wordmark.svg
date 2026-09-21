@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="132" height="28" viewBox="0 0 132 28" fill="none">
+  <g fill="#9DB7FF">
+    <path d="M1 9h4v15H1z"/>
+    <path d="M7 5h4v17H7z"/>
+    <path d="M13 1h4v19h-4z"/>
+    <path d="M19 7h4v11h-4z"/>
+  </g>
+  <text x="34" y="20" fill="#F4F7FC" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="500" letter-spacing="3">PRIDICT</text>
+</svg>

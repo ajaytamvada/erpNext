@@ -1,0 +1,22 @@
+ARG ERPNEXT_BASE_IMAGE=frappe/erpnext:v15.121.2
+FROM ${ERPNEXT_BASE_IMAGE}
+
+ARG BUILD_REVISION=unknown
+LABEL org.opencontainers.image.title="Pridict ERPNext"
+LABEL org.opencontainers.image.description="ERPNext with the Pridict branding and Enterprise UI app"
+LABEL org.opencontainers.image.revision="${BUILD_REVISION}"
+
+USER frappe
+WORKDIR /home/frappe/frappe-bench
+
+COPY --chown=frappe:frappe pridict_app/ apps/pridict/
+
+RUN ./env/bin/pip install --no-cache-dir --no-deps --editable apps/pridict \
+    && printf 'frappe\nerpnext\npridict\n' > sites/apps.txt \
+    && ln -s /home/frappe/frappe-bench/assets sites/assets \
+    && ln -s /home/frappe/frappe-bench/apps/pridict/pridict/public assets/pridict \
+    && cd apps/frappe && node esbuild --apps pridict --production && cd ../.. \
+    && test -f apps/pridict/pridict/hooks.py \
+    && test -n "$(find apps/pridict/pridict/public/dist/css -type f -name 'pridict.bundle.*.css' -print -quit)" \
+    && test -n "$(find apps/pridict/pridict/public/dist/js -type f -name 'pridict.bundle.*.js' -print -quit)" \
+    && ./env/bin/python -c "import json; from pathlib import Path; a=json.loads(Path('assets/assets.json').read_text()); assert all(Path('sites'+a[k]).is_file() for k in ('pridict.bundle.css', 'pridict.bundle.js', 'desk.bundle.css'))"

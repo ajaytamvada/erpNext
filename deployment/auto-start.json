@@ -1,0 +1,52 @@
+{
+  "identity": {
+    "type": "SystemAssigned"
+  },
+  "tags": {
+    "environment": "demo",
+    "application": "erpnext"
+  },
+  "properties": {
+    "definition": {
+      "contentVersion": "1.0.0.0",
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "actions": {
+        "Start_ERPNext_VM": {
+          "runAfter": {},
+          "type": "Http",
+          "operationOptions": "DisableAsyncPattern",
+          "inputs": {
+            "authentication": {
+              "audience": "https://management.azure.com/",
+              "type": "ManagedServiceIdentity"
+            },
+            "uri": "https://management.azure.com/subscriptions/ab14cf7b-0ed0-4736-bbed-369540c08251/resourceGroups/rg-erpnext/providers/Microsoft.Compute/virtualMachines/erpnext-demo-vm/start?api-version=2024-03-01",
+            "method": "POST"
+          }
+        }
+      },
+      "triggers": {
+        "Daily_7AM_India": {
+          "type": "Recurrence",
+          "recurrence": {
+            "schedule": {
+              "hours": [
+                7
+              ],
+              "minutes": [
+                0
+              ]
+            },
+            "frequency": "Day",
+            "interval": 1,
+            "startTime": "2026-09-14T07:00:00",
+            "timeZone": "India Standard Time"
+          }
+        }
+      },
+      "outputs": {}
+    },
+    "state": "Disabled"
+  },
+  "location": "centralindia"
+}

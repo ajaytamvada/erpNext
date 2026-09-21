@@ -27,6 +27,14 @@ if [ ! -d "$BENCH_DIR/apps/erpnext" ]; then
     bench get-app --skip-assets erpnext /workspace/development/apps/erpnext
 fi
 
+if [ ! -d "$BENCH_DIR/apps/pridict" ]; then
+    echo "Linking local Pridict source code..."
+    ln -s /workspace/development/apps/erpnext/pridict_app "$BENCH_DIR/apps/pridict"
+    bench setup requirements --python pridict
+fi
+
+grep -qxF pridict sites/apps.txt || printf '\npridict\n' >> sites/apps.txt
+
 SITE_NAME="development.localhost"
 
 if [ ! -d "$BENCH_DIR/sites/$SITE_NAME" ]; then
@@ -36,6 +44,14 @@ if [ ! -d "$BENCH_DIR/sites/$SITE_NAME" ]; then
     bench --site "$SITE_NAME" install-app erpnext
     bench --site "$SITE_NAME" set-config developer_mode 1
 fi
+
+if ! bench --site "$SITE_NAME" list-apps | awk '{print $1}' | grep -qx pridict; then
+    echo "Installing Pridict onto $SITE_NAME..."
+    bench --site "$SITE_NAME" install-app pridict
+fi
+
+echo "Building Pridict assets..."
+bench build --app pridict
 
 bench use "$SITE_NAME"
 

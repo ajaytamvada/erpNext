@@ -1,0 +1,6 @@
+*
+!pridict_app/
+!pridict_app/**
+pridict_app/**/__pycache__/
+pridict_app/**/*.pyc
+pridict_app/pridict/public/dist/

@@ -1,0 +1,98 @@
+name: erpnext-demo
+x-app: &app
+  image: ${ERPNEXT_IMAGE:-frappe/erpnext:v15.121.2}
+  restart: unless-stopped
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: '3'
+services:
+  db:
+    image: mariadb:10.6
+    restart: unless-stopped
+    command: [--character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci, --skip-character-set-client-handshake]
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?required}
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+  redis-cache:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+  redis-queue:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+    command: [redis-server, --appendonly, 'yes']
+    volumes:
+      - redis-data:/data
+  configurator:
+    <<: *app
+    restart: 'no'
+    entrypoint: [bash, -ec]
+    command:
+      - |
+        ls -1 apps > sites/apps.txt
+        bench set-config -g db_host db
+        bench set-config -gp db_port 3306
+        bench set-config -g redis_cache redis://redis-cache:6379
+        bench set-config -g redis_queue redis://redis-queue:6379
+        bench set-config -g redis_socketio redis://redis-queue:6379
+        bench set-config -gp socketio_port 9000
+  backend:
+    <<: *app
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+  frontend:
+    <<: *app
+    command: [nginx-entrypoint.sh]
+    environment:
+      BACKEND: backend:8000
+      FRAPPE_SITE_NAME_HEADER: ${SITE_NAME:?required}
+      SOCKETIO: websocket:9000
+      UPSTREAM_REAL_IP_ADDRESS: 172.16.0.0/12
+      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
+      UPSTREAM_REAL_IP_RECURSIVE: 'on'
+      PROXY_READ_TIMEOUT: '120'
+      CLIENT_MAX_BODY_SIZE: 50m
+    depends_on: [backend, websocket]
+  websocket:
+    <<: *app
+    command: [node, /home/frappe/frappe-bench/apps/frappe/socketio.js]
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+  worker:
+    <<: *app
+    command: [bench, worker, --queue, 'long,default,short']
+    depends_on: [backend, redis-queue]
+  scheduler:
+    <<: *app
+    command: [bench, schedule]
+    depends_on: [backend, redis-queue]
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ['80:80', '443:443']
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on: [frontend]
+volumes:
+  sites:
+  logs:
+  db-data:
+  redis-data:
+  caddy-data:
+  caddy-config:

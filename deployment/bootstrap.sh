@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -qq
+apt-get install -y docker.io docker-compose-v2 openssl
+systemctl enable --now docker
+if ! swapon --show | grep -q /swapfile; then
+  if [ ! -f /swapfile ]; then
+    fallocate -l 2G /swapfile
+    chmod 600 /swapfile
+    mkswap /swapfile
+  fi
+  swapon /swapfile
+  grep -q '^/swapfile ' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
+install -d -m 700 /opt/erpnext
+echo 'Bootstrap completed'

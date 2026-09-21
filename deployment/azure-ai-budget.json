@@ -1,0 +1,49 @@
+{
+  "properties": {
+    "category": "Cost",
+    "amount": 4000,
+    "timeGrain": "Monthly",
+    "timePeriod": {
+      "startDate": "2026-09-01T00:00:00Z",
+      "endDate": "2030-09-01T00:00:00Z"
+    },
+    "notifications": {
+      "actual100": {
+        "operator": "GreaterThanOrEqualTo",
+        "enabled": true,
+        "thresholdType": "Actual",
+        "contactGroups": [],
+        "contactEmails": [
+          "pavan@riditstack.com",
+          "suman@riditstack.com"
+        ],
+        "contactRoles": [],
+        "threshold": 100
+      },
+      "actual50": {
+        "operator": "GreaterThanOrEqualTo",
+        "enabled": true,
+        "thresholdType": "Actual",
+        "contactGroups": [],
+        "contactEmails": [
+          "pavan@riditstack.com",
+          "suman@riditstack.com"
+        ],
+        "contactRoles": [],
+        "threshold": 50
+      },
+      "actual80": {
+        "operator": "GreaterThanOrEqualTo",
+        "enabled": true,
+        "thresholdType": "Actual",
+        "contactGroups": [],
+        "contactEmails": [
+          "pavan@riditstack.com",
+          "suman@riditstack.com"
+        ],
+        "contactRoles": [],
+        "threshold": 80
+      }
+    }
+  }
+}

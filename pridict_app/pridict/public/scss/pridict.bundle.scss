@@ -1,0 +1,2908 @@
+html.pridict-ui {
+	--pridict-navy-950: #18263a;
+	--pridict-navy-900: #243348;
+	--pridict-blue-700: #284ba9;
+	--pridict-blue-600: #2f63c7;
+	--pridict-blue-100: #eef3ff;
+	--pridict-canvas: #ffffff;
+	--pridict-sidebar: #15365f;
+	--pridict-surface: #ffffff;
+	--pridict-surface-muted: #f6f7f9;
+	--pridict-border: #e7e8ea;
+	--pridict-border-strong: #d7dbe2;
+	--pridict-text: #252a34;
+	--pridict-text-muted: #697386;
+	--pridict-success-bg: #e9f4ee;
+	--pridict-success-text: #39745a;
+	--pridict-warning-bg: #fff4df;
+	--pridict-warning-text: #94601e;
+	--pridict-danger-bg: #fff0ee;
+	--pridict-danger-text: #a7473e;
+	--pridict-shadow: 0 1px 2px rgb(20 31 48 / 6%);
+	--navbar-height: 56px;
+	--navbar-bg: var(--pridict-navy-900);
+	--bg-color: var(--pridict-canvas);
+	--fg-color: var(--pridict-surface);
+	--card-bg: var(--pridict-surface);
+	--subtle-fg: var(--pridict-surface-muted);
+	--border-color: var(--pridict-border);
+	--dark-border-color: rgb(255 255 255 / 14%);
+	--text-color: var(--pridict-text);
+	--text-muted: var(--pridict-text-muted);
+	--text-light: #aeb8c8;
+	--primary: var(--pridict-blue-600);
+	--primary-color: var(--pridict-blue-600);
+	--highlight-color: var(--pridict-blue-100);
+	--border-radius-sm: 4px;
+	--border-radius: 6px;
+	--border-radius-md: 6px;
+	--border-radius-lg: 8px;
+}
+
+html.pridict-ui[data-theme="dark"] {
+	--pridict-navy-950: #0c1420;
+	--pridict-navy-900: #111d2d;
+	--pridict-blue-700: #5f8ee8;
+	--pridict-blue-600: #6f9df2;
+	--pridict-blue-100: rgb(111 157 242 / 14%);
+	--pridict-canvas: #101824;
+	--pridict-sidebar: #102c4e;
+	--pridict-surface: #182334;
+	--pridict-surface-muted: #1d2a3d;
+	--pridict-border: #2a394d;
+	--pridict-border-strong: #3b4b61;
+	--pridict-text: #e8edf5;
+	--pridict-text-muted: #9ba8ba;
+	--pridict-success-bg: rgb(58 132 94 / 18%);
+	--pridict-success-text: #8bd4ac;
+	--pridict-warning-bg: rgb(174 118 40 / 18%);
+	--pridict-warning-text: #efc47f;
+	--pridict-danger-bg: rgb(174 75 65 / 18%);
+	--pridict-danger-text: #ef9a91;
+	--pridict-shadow: 0 1px 2px rgb(0 0 0 / 24%);
+	--text-light: #8290a4;
+}
+
+html.pridict-ui {
+	--pridict-executive-bg: #f1f4f8;
+	--pridict-executive-panel: #ffffff;
+	--pridict-executive-soft: #f6f8fb;
+	--pridict-executive-sidebar: #15365f;
+	--pridict-executive-sidebar-active: #2d6098;
+	--pridict-executive-accent: #3478c8;
+	--pridict-executive-accent-soft: #eaf3ff;
+	--pridict-executive-income: #4388da;
+	--pridict-executive-expense: #d3994c;
+}
+
+html.pridict-ui[data-theme="dark"] {
+	--pridict-executive-bg: #0e1725;
+	--pridict-executive-panel: #172337;
+	--pridict-executive-soft: #1b2b42;
+	--pridict-executive-sidebar: #12345d;
+	--pridict-executive-sidebar-active: #2e6299;
+	--pridict-executive-accent: #72a8ea;
+	--pridict-executive-accent-soft: rgb(72 134 206 / 16%);
+	--pridict-executive-income: #78aff1;
+	--pridict-executive-expense: #e2a956;
+}
+
+html.pridict-ui .pridict-executive-page .page-body,
+html.pridict-ui .pridict-executive-page .layout-main-section-wrapper,
+html.pridict-ui .pridict-executive-page .layout-main-section {
+	padding: 0;
+	margin: 0;
+	max-width: none;
+}
+
+html.pridict-ui .pridict-executive-page .pridict-executive-page-head {
+	display: none;
+}
+
+html.pridict-ui .pridict-executive-home {
+	min-height: calc(100vh - var(--navbar-height));
+	color: var(--pridict-text);
+	background: var(--pridict-executive-bg);
+}
+
+html.pridict-ui .pridict-executive-layout {
+	display: grid;
+	grid-template-columns: 208px minmax(0, 1fr);
+	min-height: calc(100vh - var(--navbar-height));
+}
+
+html.pridict-ui .pridict-executive-sidebar {
+	position: sticky;
+	top: var(--navbar-height);
+	height: calc(100vh - var(--navbar-height));
+	padding: 18px 12px;
+	color: #dce9f8;
+	background: var(--pridict-executive-sidebar);
+	overflow-y: auto;
+}
+
+html.pridict-ui .pridict-sidebar-brand {
+	display: none;
+}
+
+html.pridict-ui .pridict-company-summary {
+	display: grid;
+	gap: 3px;
+	padding: 12px;
+	margin-bottom: 16px;
+	background: rgb(255 255 255 / 6%);
+	border: 1px solid rgb(255 255 255 / 10%);
+	border-radius: 7px;
+}
+
+html.pridict-ui .pridict-company-summary strong {
+	color: #ffffff;
+	font-size: 13px;
+}
+
+html.pridict-ui .pridict-company-summary span {
+	color: #b8cce3;
+	font-size: 11px;
+}
+
+html.pridict-ui .pridict-executive-sidebar nav {
+	display: grid;
+	gap: 4px;
+}
+
+html.pridict-ui .pridict-sidebar-link {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	min-height: 40px;
+	padding: 8px 10px;
+	color: #dce9f8;
+	text-align: left;
+	background: transparent;
+	border: 0;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+html.pridict-ui .pridict-sidebar-link:hover,
+html.pridict-ui .pridict-sidebar-link:focus-visible,
+html.pridict-ui .pridict-sidebar-link.is-active {
+	color: #ffffff;
+	background: var(--pridict-executive-sidebar-active);
+}
+
+html.pridict-ui .pridict-sidebar-link svg {
+	--icon-stroke: currentColor;
+	flex: 0 0 auto;
+}
+
+html.pridict-ui .pridict-executive-main {
+	min-width: 0;
+	padding: 0 22px 24px;
+}
+
+html.pridict-ui .pridict-executive-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 52px;
+	margin: 0 -22px;
+	padding: 8px 22px;
+	color: var(--pridict-text-muted);
+	background: var(--pridict-executive-panel);
+	border-bottom: 1px solid var(--pridict-border);
+	font-size: 12px;
+}
+
+html.pridict-ui .pridict-toolbar-actions,
+html.pridict-ui .pridict-period-controls {
+	display: flex;
+	align-items: end;
+	gap: 8px;
+}
+
+html.pridict-ui .pridict-toolbar-actions label,
+html.pridict-ui .pridict-period-controls label {
+	display: grid;
+	gap: 3px;
+	margin: 0;
+	color: var(--pridict-text-muted);
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+html.pridict-ui .pridict-toolbar-actions select,
+html.pridict-ui .pridict-period-controls input {
+	height: 32px;
+	padding: 5px 9px;
+	color: var(--pridict-text);
+	background: var(--pridict-executive-soft);
+	border: 1px solid var(--pridict-border);
+	border-radius: 5px;
+	font-size: 12px;
+	text-transform: none;
+}
+
+html.pridict-ui .pridict-executive-hero {
+	display: flex;
+	align-items: end;
+	justify-content: space-between;
+	gap: 24px;
+	padding: 24px 0 18px;
+}
+
+html.pridict-ui .pridict-eyebrow {
+	display: block;
+	margin-bottom: 5px;
+	color: var(--pridict-executive-accent);
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+html.pridict-ui .pridict-executive-hero h1 {
+	margin: 0;
+	color: var(--pridict-text);
+	font-size: clamp(23px, 2.2vw, 31px);
+	font-weight: 650;
+	letter-spacing: -0.025em;
+}
+
+html.pridict-ui .pridict-executive-hero p {
+	margin: 5px 0 0;
+	color: var(--pridict-text-muted);
+	font-size: 13px;
+}
+
+html.pridict-ui .pridict-kpi-grid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 10px;
+	margin-bottom: 12px;
+}
+
+html.pridict-ui .pridict-kpi-card,
+html.pridict-ui .pridict-dashboard-panel {
+	background: var(--pridict-executive-panel);
+	border: 1px solid var(--pridict-border);
+	border-radius: 7px;
+	box-shadow: var(--pridict-shadow);
+}
+
+html.pridict-ui .pridict-kpi-card {
+	min-width: 0;
+	padding: 16px;
+}
+
+html.pridict-ui .pridict-kpi-heading {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	color: var(--pridict-text-muted);
+	font-size: 12px;
+}
+
+html.pridict-ui .pridict-kpi-heading svg {
+	--icon-stroke: var(--pridict-executive-accent);
+}
+
+html.pridict-ui .pridict-kpi-card strong {
+	display: block;
+	margin: 9px 0 5px;
+	color: var(--pridict-text);
+	font-size: clamp(21px, 2vw, 28px);
+	font-weight: 650;
+	letter-spacing: -0.025em;
+	overflow-wrap: anywhere;
+}
+
+html.pridict-ui .pridict-kpi-card small {
+	display: block;
+	color: var(--pridict-text-muted);
+	font-size: 10px;
+	line-height: 1.45;
+}
+
+html.pridict-ui .pridict-dashboard-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1.75fr) minmax(270px, 1fr);
+	gap: 12px;
+}
+
+html.pridict-ui .pridict-dashboard-primary,
+html.pridict-ui .pridict-dashboard-secondary {
+	display: grid;
+	align-content: start;
+	gap: 12px;
+	min-width: 0;
+}
+
+html.pridict-ui .pridict-panel-heading {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	min-height: 46px;
+	padding: 0 14px;
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui .pridict-panel-heading h2 {
+	margin: 0;
+	color: var(--pridict-text);
+	font-size: 13px;
+	font-weight: 650;
+}
+
+html.pridict-ui .pridict-panel-heading span {
+	color: var(--pridict-text-muted);
+	font-size: 10px;
+}
+
+html.pridict-ui .pridict-task-filters {
+	display: flex;
+	gap: 20px;
+	padding: 0 14px;
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui .pridict-task-filters button {
+	position: relative;
+	padding: 11px 0 9px;
+	color: var(--pridict-text-muted);
+	background: transparent;
+	border: 0;
+	font-size: 11px;
+	cursor: pointer;
+}
+
+html.pridict-ui .pridict-task-filters button[aria-pressed="true"] {
+	color: var(--pridict-executive-accent);
+	font-weight: 600;
+}
+
+html.pridict-ui .pridict-task-filters button[aria-pressed="true"]::after {
+	position: absolute;
+	right: 0;
+	bottom: -1px;
+	left: 0;
+	height: 2px;
+	background: var(--pridict-executive-accent);
+	content: "";
+}
+
+html.pridict-ui .pridict-task-row {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 10px;
+	min-height: 56px;
+	padding: 9px 14px;
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui .pridict-task-row:last-child {
+	border-bottom: 0;
+}
+
+html.pridict-ui .pridict-task-row[hidden] {
+	display: none;
+}
+
+html.pridict-ui .pridict-task-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	color: var(--pridict-executive-accent);
+	background: var(--pridict-executive-accent-soft);
+	border-radius: 6px;
+}
+
+html.pridict-ui .pridict-task-row strong,
+html.pridict-ui .pridict-task-row span {
+	display: block;
+}
+
+html.pridict-ui .pridict-task-row strong {
+	color: var(--pridict-text);
+	font-size: 11px;
+}
+
+html.pridict-ui .pridict-task-row div > span {
+	margin-top: 3px;
+	color: var(--pridict-text-muted);
+	font-size: 10px;
+}
+
+html.pridict-ui .pridict-business-areas {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+	padding: 14px;
+}
+
+html.pridict-ui .pridict-business-areas button {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 42px;
+	padding: 9px 11px;
+	color: var(--pridict-text);
+	text-align: left;
+	background: var(--pridict-executive-soft);
+	border: 1px solid transparent;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+html.pridict-ui .pridict-business-areas button:hover,
+html.pridict-ui .pridict-business-areas button:focus-visible {
+	color: var(--pridict-executive-accent);
+	border-color: var(--pridict-executive-accent);
+}
+
+html.pridict-ui .pridict-activity-list > button {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	gap: 10px;
+	width: 100%;
+	padding: 11px 14px;
+	color: inherit;
+	text-align: left;
+	background: transparent;
+	border: 0;
+	cursor: pointer;
+}
+
+html.pridict-ui .pridict-activity-list > button:hover,
+html.pridict-ui .pridict-activity-list > button:focus-visible {
+	background: var(--pridict-executive-soft);
+}
+
+html.pridict-ui .pridict-activity-dot {
+	width: 6px;
+	height: 6px;
+	margin-top: 5px;
+	background: var(--pridict-executive-accent);
+	border-radius: 50%;
+}
+
+html.pridict-ui .pridict-activity-list strong,
+html.pridict-ui .pridict-activity-list small {
+	display: block;
+}
+
+html.pridict-ui .pridict-activity-list strong {
+	color: var(--pridict-text);
+	font-size: 11px;
+}
+
+html.pridict-ui .pridict-activity-list small {
+	margin-top: 3px;
+	color: var(--pridict-text-muted);
+	font-size: 10px;
+}
+
+html.pridict-ui .pridict-panel-note {
+	padding: 10px 14px;
+	color: var(--pridict-text-muted);
+	background: var(--pridict-executive-soft);
+	border-top: 1px solid var(--pridict-border);
+	font-size: 10px;
+}
+
+html.pridict-ui .pridict-chart-legend {
+	display: flex;
+	gap: 18px;
+	padding: 12px 16px 0;
+	color: var(--pridict-text-muted);
+	font-size: 10px;
+}
+
+html.pridict-ui .pridict-chart-legend span::before {
+	display: inline-block;
+	width: 12px;
+	height: 2px;
+	margin-right: 6px;
+	vertical-align: middle;
+	background: currentColor;
+	content: "";
+}
+
+html.pridict-ui .pridict-chart-legend .is-income {
+	color: var(--pridict-executive-income);
+}
+
+html.pridict-ui .pridict-chart-legend .is-expense {
+	color: var(--pridict-executive-expense);
+}
+
+html.pridict-ui .pridict-trend-chart {
+	padding: 8px 12px 12px;
+	overflow-x: auto;
+}
+
+html.pridict-ui .pridict-trend-chart svg {
+	display: block;
+	width: 100%;
+	min-width: 480px;
+	height: auto;
+}
+
+html.pridict-ui .pridict-chart-grid line {
+	stroke: var(--pridict-border);
+	stroke-width: 1;
+}
+
+html.pridict-ui .pridict-trend-chart polyline {
+	fill: none;
+	stroke-width: 2.5;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+html.pridict-ui .pridict-income-line {
+	stroke: var(--pridict-executive-income);
+}
+
+html.pridict-ui .pridict-expense-line {
+	stroke: var(--pridict-executive-expense);
+}
+
+html.pridict-ui .pridict-trend-chart text {
+	fill: var(--pridict-text-muted);
+	font-size: 10px;
+}
+
+html.pridict-ui .pridict-empty-state,
+html.pridict-ui .pridict-executive-state {
+	display: grid;
+	place-items: center;
+	gap: 8px;
+	min-height: 150px;
+	padding: 24px;
+	color: var(--pridict-text-muted);
+	text-align: center;
+}
+
+html.pridict-ui .pridict-executive-state {
+	min-height: calc(100vh - var(--navbar-height));
+}
+
+html.pridict-ui .pridict-executive-state strong {
+	color: var(--pridict-text);
+	font-size: 16px;
+}
+
+html.pridict-ui .pridict-executive-spinner {
+	width: 28px;
+	height: 28px;
+	border: 3px solid var(--pridict-border);
+	border-top-color: var(--pridict-executive-accent);
+	border-radius: 50%;
+	animation: pridict-executive-spin 0.8s linear infinite;
+}
+
+html.pridict-ui .pridict-state-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+html.pridict-ui .pridict-executive-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 16px 2px 0;
+	color: var(--pridict-text-muted);
+	font-size: 10px;
+}
+
+@keyframes pridict-executive-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (max-width: 1080px) {
+	html.pridict-ui .pridict-kpi-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	html.pridict-ui .pridict-dashboard-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 768px) {
+	html.pridict-ui .pridict-executive-layout {
+		grid-template-columns: 1fr;
+	}
+
+	html.pridict-ui .pridict-executive-sidebar {
+		position: static;
+		display: block;
+		height: auto;
+		padding: 10px 12px;
+		overflow-x: auto;
+	}
+
+	html.pridict-ui .pridict-company-summary {
+		margin-bottom: 8px;
+	}
+
+	html.pridict-ui .pridict-executive-sidebar nav {
+		display: flex;
+		width: max-content;
+	}
+
+	html.pridict-ui .pridict-sidebar-link {
+		width: auto;
+		white-space: nowrap;
+	}
+
+	html.pridict-ui .pridict-executive-main {
+		padding-inline: 14px;
+	}
+
+	html.pridict-ui .pridict-executive-toolbar {
+		margin-inline: -14px;
+		padding-inline: 14px;
+	}
+
+	html.pridict-ui .pridict-executive-hero {
+		align-items: stretch;
+		flex-direction: column;
+	}
+}
+
+@media (max-width: 480px) {
+	html.pridict-ui .pridict-executive-toolbar,
+	html.pridict-ui .pridict-toolbar-actions,
+	html.pridict-ui .pridict-period-controls,
+	html.pridict-ui .pridict-executive-footer {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	html.pridict-ui .pridict-kpi-grid,
+	html.pridict-ui .pridict-business-areas {
+		grid-template-columns: 1fr;
+	}
+
+	html.pridict-ui .pridict-task-row {
+		grid-template-columns: auto minmax(0, 1fr);
+	}
+
+	html.pridict-ui .pridict-task-row .btn {
+		grid-column: 2;
+		justify-self: start;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html.pridict-ui .pridict-executive-spinner {
+		animation: none;
+	}
+}
+
+html.pridict-ui body {
+	background: var(--pridict-canvas);
+	color: var(--pridict-text);
+}
+
+html.pridict-ui .page-container > .container,
+html.pridict-ui .page-head .container,
+html.pridict-ui .page-body.container,
+html.pridict-ui .layout-main.container {
+	width: 100%;
+	max-width: none;
+}
+
+html.pridict-ui .page-container > .container,
+html.pridict-ui .page-body.container {
+	box-sizing: border-box;
+	padding-inline: 16px;
+	overflow-x: clip;
+}
+
+html.pridict-ui .layout-main-section-wrapper {
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
+	padding-inline: 0;
+}
+
+html.pridict-ui .layout-main,
+html.pridict-ui .layout-main-section,
+html.pridict-ui .form-layout,
+html.pridict-ui .frappe-list,
+html.pridict-ui .report-wrapper {
+	min-width: 0;
+	max-width: 100%;
+}
+
+html.pridict-ui .form-grid-container,
+html.pridict-ui .datatable,
+html.pridict-ui .report-wrapper {
+	overflow-x: auto;
+	overflow-y: visible;
+}
+
+html.pridict-ui .navbar {
+	background: var(--pridict-navy-900);
+	border-bottom: 0;
+	box-shadow: 0 1px 0 rgb(9 17 29 / 24%);
+}
+
+html.pridict-ui .navbar .container {
+	max-width: none;
+	padding-inline: 18px;
+}
+
+html.pridict-ui .navbar-home img {
+	height: 28px;
+	max-height: 28px;
+	width: auto;
+}
+
+html.pridict-ui .navbar .search-bar {
+	max-width: 420px;
+}
+
+html.pridict-ui .navbar .search-bar .awesomplete input {
+	height: 34px;
+	color: #e9eef7;
+	background: rgb(255 255 255 / 6%);
+	border: 1px solid rgb(255 255 255 / 15%);
+	border-radius: 6px;
+}
+
+html.pridict-ui .navbar .search-bar .awesomplete input::placeholder {
+	color: #b8c2d1;
+}
+
+html.pridict-ui .navbar .search-bar svg,
+html.pridict-ui .navbar .nav-link svg {
+	--icon-stroke: #d5ddea;
+	color: #d5ddea;
+	stroke: #d5ddea;
+}
+
+html.pridict-ui .navbar .nav-link {
+	color: #e9eef7;
+}
+
+html.pridict-ui #navbar-breadcrumbs a,
+html.pridict-ui #navbar-breadcrumbs li::before {
+	color: #d5ddea;
+}
+
+html.pridict-ui .navbar .pridict-theme-toggle-item {
+	display: flex;
+	align-items: center;
+	margin-left: 8px;
+}
+
+html.pridict-ui .navbar .pridict-theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	padding: 0;
+	color: #e9eef7;
+	background: rgb(255 255 255 / 7%);
+	border: 1px solid rgb(255 255 255 / 14%);
+	border-radius: 50%;
+	font-size: 18px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+html.pridict-ui .navbar .pridict-theme-toggle:hover,
+html.pridict-ui .navbar .pridict-theme-toggle:focus-visible {
+	color: #ffffff;
+	background: rgb(255 255 255 / 14%);
+	border-color: rgb(255 255 255 / 28%);
+	outline: none;
+	box-shadow: 0 0 0 2px rgb(157 183 255 / 28%);
+}
+
+html.pridict-ui .layout-side-section {
+	background: var(--pridict-sidebar);
+	border-right: 1px solid rgb(8 25 46 / 36%);
+	padding: 18px 14px;
+}
+
+html.pridict-ui .layout-side-section .sidebar-label {
+	color: #9fb8d5;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+html.pridict-ui .layout-side-section .standard-sidebar-item,
+html.pridict-ui .layout-side-section .sidebar-item-container {
+	border-radius: 6px;
+}
+
+html.pridict-ui .layout-side-section .standard-sidebar-item {
+	min-height: 36px;
+	color: #dce9f8;
+	padding: 8px 10px;
+}
+
+html.pridict-ui .layout-side-section .standard-sidebar-item svg,
+html.pridict-ui .layout-side-section .sidebar-item-icon svg {
+	--icon-stroke: currentColor;
+	color: currentColor;
+}
+
+html.pridict-ui .layout-side-section .standard-sidebar-item:hover,
+html.pridict-ui .layout-side-section .standard-sidebar-item.selected,
+html.pridict-ui .layout-side-section .sidebar-item-container.selected > .standard-sidebar-item {
+	color: #ffffff;
+	background: #2d6098;
+}
+
+html.pridict-ui .layout-side-section .list-sidebar-button,
+html.pridict-ui .layout-side-section .btn,
+html.pridict-ui .layout-side-section .form-control,
+html.pridict-ui .layout-side-section .input-with-feedback {
+	color: #e8f1fb;
+	background: rgb(255 255 255 / 7%);
+	border-color: rgb(255 255 255 / 15%);
+}
+
+html.pridict-ui .layout-side-section .text-muted,
+html.pridict-ui .layout-side-section .sidebar-menu a,
+html.pridict-ui .layout-side-section .list-link,
+html.pridict-ui .layout-side-section .checkbox label {
+	color: #c4d5e8 !important;
+}
+
+html.pridict-ui .layout-side-section .sidebar-section {
+	color: #dce9f8;
+	background: rgb(255 255 255 / 6%);
+	border-color: rgb(255 255 255 / 12%);
+}
+
+html.pridict-ui .layout-side-section .sidebar-section .list-sidebar-button {
+	color: #dce9f8 !important;
+	background: transparent !important;
+	border-color: transparent !important;
+}
+
+html.pridict-ui .layout-side-section .sidebar-section .list-sidebar-button:hover,
+html.pridict-ui .layout-side-section .sidebar-section .list-sidebar-button:focus-visible {
+	color: #ffffff !important;
+	background: rgb(255 255 255 / 10%) !important;
+}
+
+html.pridict-ui .page-head {
+	background: var(--pridict-canvas);
+	border-bottom: 1px solid var(--pridict-border);
+	margin-bottom: 0;
+}
+
+html.pridict-ui .page-head .page-head-content {
+	height: 64px;
+	padding-block: 12px;
+}
+
+html.pridict-ui .page-title .title-text,
+html.pridict-ui .page-title h3 {
+	color: var(--pridict-text);
+	font-size: 24px;
+	font-weight: 500;
+	letter-spacing: -0.02em;
+}
+
+html.pridict-ui .layout-main-section.frappe-card,
+html.pridict-ui .frappe-card {
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 6px;
+	box-shadow: var(--pridict-shadow);
+}
+
+html.pridict-ui .btn {
+	border-radius: 5px;
+	font-weight: 500;
+}
+
+html.pridict-ui .btn-primary {
+	color: #ffffff;
+	background: var(--pridict-blue-600);
+	border-color: var(--pridict-blue-600);
+	box-shadow: 0 1px 2px rgb(20 55 120 / 16%);
+}
+
+html.pridict-ui .btn-primary:hover,
+html.pridict-ui .btn-primary:focus {
+	color: #ffffff;
+	background: var(--pridict-blue-700);
+	border-color: var(--pridict-blue-700);
+}
+
+html.pridict-ui .form-control,
+html.pridict-ui .control-input-wrapper input,
+html.pridict-ui .control-input-wrapper select,
+html.pridict-ui .control-input-wrapper textarea {
+	color: var(--pridict-text);
+	background: var(--pridict-surface);
+	border-color: var(--pridict-border-strong);
+	border-radius: 5px;
+}
+
+html.pridict-ui .form-control {
+	border: 1px solid var(--pridict-border-strong);
+}
+
+html.pridict-ui .form-control:focus,
+html.pridict-ui .control-input-wrapper input:focus,
+html.pridict-ui .control-input-wrapper select:focus,
+html.pridict-ui .control-input-wrapper textarea:focus {
+	border-color: var(--pridict-blue-600);
+	box-shadow: 0 0 0 2px rgb(47 99 199 / 14%);
+}
+
+html.pridict-ui .list-row-head {
+	height: 40px;
+	background: var(--pridict-surface-muted);
+	border-radius: 0;
+	color: var(--pridict-text-muted);
+	font-size: 12px;
+	font-weight: 500;
+}
+
+html.pridict-ui .list-row {
+	height: 44px;
+	padding-block: 12px;
+	border-radius: 0;
+}
+
+html.pridict-ui .list-row-container:not(:last-child) {
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui .list-row-container .list-row-border {
+	display: none;
+}
+
+html.pridict-ui .list-row-container:focus .list-row,
+html.pridict-ui .list-row:hover:not(.list-row-head) {
+	background: var(--pridict-blue-100);
+}
+
+html.pridict-ui .list-paging-area,
+html.pridict-ui .footnote-area {
+	background: var(--pridict-surface-muted);
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui .indicator-pill {
+	border-radius: 4px;
+	font-weight: 500;
+}
+
+html.pridict-ui .indicator-pill.green,
+html.pridict-ui .indicator-pill.blue {
+	color: var(--pridict-success-text);
+	background: var(--pridict-success-bg);
+}
+
+html.pridict-ui .indicator-pill.orange,
+html.pridict-ui .indicator-pill.yellow {
+	color: var(--pridict-warning-text);
+	background: var(--pridict-warning-bg);
+}
+
+html.pridict-ui .indicator-pill.red {
+	color: var(--pridict-danger-text);
+	background: var(--pridict-danger-bg);
+}
+
+html.pridict-ui .form-tabs-list {
+	background: var(--pridict-surface);
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui .form-tabs-list .nav-link.active {
+	color: var(--pridict-blue-600);
+	border-color: var(--pridict-blue-600);
+}
+
+html.pridict-ui .page-form,
+html.pridict-ui .filter-section,
+html.pridict-ui .filter-box {
+	background: var(--pridict-surface-muted);
+	border: 1px solid var(--pridict-border);
+	border-radius: 6px;
+}
+
+html.pridict-ui .form-layout,
+html.pridict-ui .form-section,
+html.pridict-ui .form-dashboard-section {
+	background: var(--pridict-surface);
+}
+
+html.pridict-ui .form-section .section-head,
+html.pridict-ui .form-dashboard-section .section-head {
+	color: var(--pridict-text);
+	font-weight: 600;
+}
+
+html.pridict-ui .frappe-control .control-label,
+html.pridict-ui .form-group .control-label {
+	color: var(--pridict-text-muted);
+	font-size: 12px;
+	font-weight: 500;
+}
+
+html.pridict-ui .form-grid {
+	background: var(--pridict-surface);
+	border-color: var(--pridict-border);
+	border-radius: 6px;
+	box-shadow: none;
+}
+
+html.pridict-ui .form-grid .grid-heading-row {
+	color: var(--pridict-text-muted);
+	background: var(--pridict-surface-muted);
+	border-color: var(--pridict-border);
+	font-size: 12px;
+	font-weight: 500;
+}
+
+html.pridict-ui .form-grid .grid-row,
+html.pridict-ui .form-grid .data-row {
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui .form-grid .grid-row:hover .data-row {
+	background: var(--pridict-blue-100);
+}
+
+html.pridict-ui .modal-content {
+	color: var(--pridict-text);
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 8px;
+	box-shadow: 0 18px 48px rgb(10 20 35 / 20%);
+}
+
+html.pridict-ui .modal-header,
+html.pridict-ui .modal-footer {
+	background: var(--pridict-surface);
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui .modal-title {
+	color: var(--pridict-text);
+	font-weight: 600;
+}
+
+html.pridict-ui .dropdown-menu,
+html.pridict-ui .awesomplete > ul {
+	color: var(--pridict-text);
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 6px;
+	box-shadow: 0 10px 30px rgb(18 31 50 / 14%);
+}
+
+html.pridict-ui .dropdown-item {
+	color: var(--pridict-text);
+	border-radius: 4px;
+}
+
+html.pridict-ui .dropdown-item:hover,
+html.pridict-ui .dropdown-item:focus,
+html.pridict-ui .dropdown-item.active,
+html.pridict-ui .awesomplete > ul > li[aria-selected="true"] {
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+}
+
+html.pridict-ui .widget,
+html.pridict-ui .dashboard-widget-box,
+html.pridict-ui .number-widget-box,
+html.pridict-ui .shortcut-widget-box,
+html.pridict-ui .links-widget-box,
+html.pridict-ui .quick-list-widget-box {
+	color: var(--pridict-text);
+	background: var(--pridict-surface);
+	border-color: var(--pridict-border);
+	border-radius: 6px;
+	box-shadow: var(--pridict-shadow);
+}
+
+html.pridict-ui .widget .widget-title,
+html.pridict-ui .widget-group-title {
+	color: var(--pridict-text);
+	font-weight: 600;
+}
+
+html.pridict-ui .shortcut-widget-box:hover,
+html.pridict-ui .number-widget-box:hover,
+html.pridict-ui .quick-list-widget-box:hover {
+	border-color: var(--pridict-blue-600);
+	box-shadow: 0 4px 16px rgb(40 75 169 / 10%);
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .layout-main-section {
+	padding: 20px;
+	border-color: var(--pridict-border);
+	box-shadow: var(--pridict-shadow);
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .widget-group {
+	margin-bottom: 28px;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .widget-group-head {
+	min-height: 34px;
+	margin-bottom: 10px;
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .widget-group-title {
+	margin-bottom: 10px;
+	color: var(--pridict-text);
+	font-size: 15px;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .widget-group .grid-col-3,
+html.pridict-ui .page-container[data-page-route="Workspaces"] .widget-group .grid-col-2,
+html.pridict-ui .page-container[data-page-route="Workspaces"] .widget-group .grid-col-1,
+html.pridict-ui .dashboard-page .dashboard-view .grid-col-2 {
+	column-gap: 12px;
+	row-gap: 12px;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .widget {
+	padding: 10px;
+	transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .widget.widget-shadow:hover {
+	box-shadow: 0 6px 18px rgb(30 55 95 / 10%);
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .shortcut-widget-box {
+	min-height: 48px;
+	padding: 9px 11px;
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 6px;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .shortcut-widget-box .widget-head {
+	width: 100%;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .shortcut-widget-box .widget-title {
+	color: var(--pridict-text);
+	font-size: 13px;
+	font-weight: 500;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .shortcut-widget-box .widget-title svg {
+	width: 18px;
+	height: 18px;
+	padding: 2px;
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+	border-radius: 4px;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .shortcut-widget-box:hover {
+	transform: translateY(-1px);
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .links-widget-box {
+	padding: 14px;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .links-widget-box .widget-head {
+	padding-bottom: 9px;
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .links-widget-box .link-item {
+	min-height: 34px;
+	margin: 0;
+	padding: 7px 8px;
+	color: var(--pridict-text-muted);
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .links-widget-box .link-item:first-child {
+	margin-top: 8px;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .links-widget-box .link-item:hover {
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .number-widget-box,
+html.pridict-ui .dashboard-page .number-widget-box {
+	min-height: 108px;
+	padding: 14px;
+	font-variant-numeric: tabular-nums;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .number-widget-box .widget-head .widget-title,
+html.pridict-ui .dashboard-page .number-widget-box .widget-head .widget-title {
+	margin-top: 0;
+	color: var(--pridict-text-muted);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .number-widget-box .widget-content,
+html.pridict-ui .dashboard-page .number-widget-box .widget-content {
+	padding-top: 12px;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .number-widget-box .number,
+html.pridict-ui .dashboard-page .number-widget-box .number {
+	color: var(--pridict-text);
+	font-size: 28px;
+	font-weight: 600;
+	letter-spacing: -0.025em;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .dashboard-widget-box,
+html.pridict-ui .dashboard-page .dashboard-widget-box {
+	min-width: 0;
+	padding: 12px;
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .dashboard-widget-box .widget-head,
+html.pridict-ui .dashboard-page .dashboard-widget-box .widget-head {
+	min-height: 38px;
+	padding: 0 2px 10px;
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .dashboard-widget-box .widget-body,
+html.pridict-ui .dashboard-page .dashboard-widget-box .widget-body {
+	min-width: 0;
+	padding-top: 12px;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .dashboard-widget-box .chart-container,
+html.pridict-ui .dashboard-page .dashboard-widget-box .chart-container {
+	max-width: 100%;
+	overflow: hidden;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .dashboard-widget-box .chart-label,
+html.pridict-ui .page-container[data-page-route="Workspaces"] .dashboard-widget-box .chart-legend,
+html.pridict-ui .dashboard-page .dashboard-widget-box .chart-label,
+html.pridict-ui .dashboard-page .dashboard-widget-box .chart-legend {
+	color: var(--pridict-text-muted);
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .quick-list-widget-box {
+	padding: 12px;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .quick-list-widget-box .widget-head {
+	min-height: 36px;
+	padding: 0 2px 8px;
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .quick-list-widget-box .widget-body {
+	margin: 6px 0;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .quick-list-widget-box .quick-list-item {
+	min-height: 40px;
+	margin: 0;
+	padding: 7px 6px;
+	border-bottom: 1px solid var(--pridict-border);
+	border-radius: 0;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .quick-list-widget-box .quick-list-item:last-child {
+	border-bottom: 0;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .quick-list-widget-box .quick-list-item:hover {
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .onboarding-widget-box {
+	padding: 16px;
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 6px;
+	box-shadow: var(--pridict-shadow);
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .onboarding-widget-box .onboarding-step {
+	min-height: 38px;
+	padding: 8px 10px;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .onboarding-widget-box .onboarding-step:hover,
+html.pridict-ui .page-container[data-page-route="Workspaces"] .onboarding-widget-box .onboarding-step.active {
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .new-widget,
+html.pridict-ui .dashboard-page .new-widget {
+	color: var(--pridict-text-muted);
+	background: var(--pridict-surface-muted);
+	border-color: var(--pridict-border-strong);
+	border-radius: 6px;
+}
+
+html.pridict-ui .page-container[data-page-route="Workspaces"] .new-widget:hover,
+html.pridict-ui .dashboard-page .new-widget:hover {
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+	border-color: var(--pridict-blue-600);
+}
+
+html.pridict-ui .dashboard-page .dashboard-view {
+	padding-block: 16px;
+}
+
+html.pridict-ui .report-wrapper,
+html.pridict-ui .datatable,
+html.pridict-ui .dt-scrollable {
+	color: var(--pridict-text);
+	background: var(--pridict-surface);
+}
+
+html.pridict-ui .datatable .dt-header .dt-cell,
+html.pridict-ui .datatable .dt-row-header .dt-cell {
+	color: var(--pridict-text-muted);
+	background: var(--pridict-surface-muted);
+	border-color: var(--pridict-border);
+	font-size: 12px;
+	font-weight: 500;
+}
+
+html.pridict-ui .datatable .dt-cell,
+html.pridict-ui .datatable .dt-row {
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui .datatable .dt-row:hover .dt-cell {
+	background: var(--pridict-blue-100);
+}
+
+html.pridict-ui .kanban {
+	--kanban-column-bg: var(--pridict-surface-muted);
+	--kanban-card-bg: var(--pridict-surface);
+	--kanban-card-hover-bg: var(--pridict-blue-100);
+	--kanban-new-card-bg: var(--pridict-surface-muted);
+	--kanban-new-card-hover-bg: var(--pridict-blue-100);
+}
+
+html.pridict-ui .kanban .kanban-column,
+html.pridict-ui .kanban .kanban-card {
+	border-color: var(--pridict-border);
+	border-radius: 6px;
+}
+
+html.pridict-ui .nav-tabs {
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui .nav-tabs .nav-link {
+	color: var(--pridict-text-muted);
+}
+
+html.pridict-ui .nav-tabs .nav-link.active {
+	color: var(--pridict-blue-600);
+	background: transparent;
+	border-color: transparent transparent var(--pridict-blue-600);
+}
+
+html.pridict-ui .ql-toolbar,
+html.pridict-ui .ql-container,
+html.pridict-ui .ql-editor {
+	color: var(--pridict-text);
+	background: var(--pridict-surface);
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui .timeline-item,
+html.pridict-ui .timeline-content {
+	color: var(--pridict-text);
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui .alert,
+html.pridict-ui .msgprint-dialog .modal-content,
+html.pridict-ui .toast-message {
+	border-radius: 6px;
+	box-shadow: var(--pridict-shadow);
+}
+
+html.pridict-ui .page-card,
+html.pridict-ui .login-content .page-card {
+	color: var(--pridict-text);
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 8px;
+	box-shadow: 0 18px 48px rgb(10 20 35 / 12%);
+}
+
+html.pridict-ui .page-card .page-card-head img {
+	content: url("/assets/pridict/images/pridict-wordmark.svg");
+	height: 32px;
+	width: auto;
+}
+
+html.pridict-ui .btn-login,
+html.pridict-ui .page-card .btn-primary {
+	color: #ffffff;
+	background: var(--pridict-blue-600);
+	border-color: var(--pridict-blue-600);
+}
+
+html.pridict-ui .navbar.navbar-light {
+	min-height: var(--navbar-height);
+	background: var(--pridict-navy-900);
+	border-bottom: 1px solid rgb(255 255 255 / 10%);
+}
+
+html.pridict-ui .navbar.navbar-light .navbar-brand img {
+	display: block;
+	width: auto;
+	height: 28px;
+}
+
+html.pridict-ui .navbar.navbar-light .navbar-nav .nav-link,
+html.pridict-ui .navbar.navbar-light .navbar-brand,
+html.pridict-ui .navbar.navbar-light .navbar-toggler {
+	color: #f4f7fc;
+}
+
+html.pridict-ui .navbar.navbar-light .navbar-toggler {
+	border-color: rgb(255 255 255 / 18%);
+}
+
+html.pridict-ui .navbar.navbar-light .navbar-toggler svg {
+	color: #f4f7fc;
+	stroke: currentcolor;
+}
+
+html.pridict-ui .page-content-wrapper {
+	min-height: calc(100vh - var(--navbar-height));
+	color: var(--pridict-text);
+	background: var(--pridict-canvas);
+}
+
+html.pridict-ui .page-content-wrapper > .container,
+html.pridict-ui .page-content-wrapper main.container {
+	max-width: 1180px;
+}
+
+html.pridict-ui .page-breadcrumbs {
+	padding-top: 18px;
+	color: var(--pridict-text-muted);
+}
+
+html.pridict-ui .page-header-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 20px;
+}
+
+html.pridict-ui .page-header :is(h1, h2, h3) {
+	margin: 0;
+	color: var(--pridict-navy-950);
+	font-weight: 650;
+	letter-spacing: -0.02em;
+}
+
+html.pridict-ui[data-theme="dark"] .page-header :is(h1, h2, h3) {
+	color: var(--pridict-text);
+}
+
+html.pridict-ui .web-sidebar {
+	padding: 14px;
+	background: var(--pridict-sidebar);
+	border-radius: 8px;
+}
+
+html.pridict-ui .web-sidebar :is(.title, h6) {
+	color: #9db7d8;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+html.pridict-ui .web-sidebar .sidebar-item a {
+	display: block;
+	padding: 8px 10px;
+	color: #dce9f8;
+	border-radius: 5px;
+}
+
+html.pridict-ui .web-sidebar .sidebar-item a:hover,
+html.pridict-ui .web-sidebar .sidebar-item a.active {
+	color: #ffffff;
+	background: rgb(255 255 255 / 12%);
+	text-decoration: none;
+}
+
+html.pridict-ui .web-list-item,
+html.pridict-ui .page_content > .card,
+html.pridict-ui .page_content .list-group {
+	color: var(--pridict-text);
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 7px;
+	box-shadow: var(--pridict-shadow);
+}
+
+html.pridict-ui .web-list-item {
+	margin-bottom: 8px;
+	padding: 14px 16px;
+}
+
+html.pridict-ui .web-list-item:hover {
+	border-color: var(--pridict-border-strong);
+	background: var(--pridict-surface-muted);
+}
+
+html.pridict-ui .web-footer {
+	color: var(--pridict-text-muted);
+	background: var(--pridict-surface-muted);
+	border-top: 1px solid var(--pridict-border);
+}
+
+@media (max-width: 767px) {
+	html.pridict-ui .page-header-wrapper {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	html.pridict-ui .web-sidebar {
+		margin-block: 12px;
+	}
+
+	html.pridict-ui .web-list-item {
+		padding: 12px;
+	}
+}
+
+html.pridict-ui body[data-route^="List/Sales Invoice"] .layout-main-section.frappe-card,
+html.pridict-ui .page-container[data-page-route^="List/Sales Invoice"] .layout-main-section.frappe-card {
+	overflow: hidden;
+}
+
+html.pridict-ui body[data-route^="List/Sales Invoice"] .frappe-list,
+html.pridict-ui .page-container[data-page-route^="List/Sales Invoice"] .frappe-list {
+	font-variant-numeric: tabular-nums;
+}
+
+html.pridict-ui body[data-route^="List/Sales Invoice"] .list-row-head,
+html.pridict-ui .page-container[data-page-route^="List/Sales Invoice"] .list-row-head {
+	height: 42px;
+	padding-block: 11px;
+	border-bottom: 1px solid var(--pridict-border);
+	letter-spacing: 0.01em;
+}
+
+html.pridict-ui body[data-route^="List/Sales Invoice"] .list-row,
+html.pridict-ui .page-container[data-page-route^="List/Sales Invoice"] .list-row {
+	height: auto;
+	min-height: 48px;
+	padding-block: 11px;
+}
+
+html.pridict-ui body[data-route^="List/Sales Invoice"] .list-row .level-left,
+html.pridict-ui body[data-route^="List/Sales Invoice"] .list-row .level-right,
+html.pridict-ui .page-container[data-page-route^="List/Sales Invoice"] .list-row .level-left,
+html.pridict-ui .page-container[data-page-route^="List/Sales Invoice"] .list-row .level-right {
+	min-width: 0;
+}
+
+html.pridict-ui body[data-route^="List/Sales Invoice"] .list-row .level-right,
+html.pridict-ui body[data-route^="List/Sales Invoice"] .list-row-head .level-right,
+html.pridict-ui .page-container[data-page-route^="List/Sales Invoice"] .list-row .level-right,
+html.pridict-ui .page-container[data-page-route^="List/Sales Invoice"] .list-row-head .level-right {
+	font-variant-numeric: tabular-nums;
+	text-align: right;
+}
+
+html.pridict-ui body[data-route^="List/Sales Invoice"] .list-subject a,
+html.pridict-ui .page-container[data-page-route^="List/Sales Invoice"] .list-subject a {
+	color: var(--pridict-text);
+	font-weight: 600;
+}
+
+html.pridict-ui body[data-route^="List/Sales Invoice"] .list-row:hover .list-subject a,
+html.pridict-ui .page-container[data-page-route^="List/Sales Invoice"] .list-row:hover .list-subject a {
+	color: var(--pridict-blue-600);
+}
+
+html.pridict-ui body[data-route^="List/Sales Invoice"] .list-paging-area,
+html.pridict-ui .page-container[data-page-route^="List/Sales Invoice"] .list-paging-area {
+	min-height: 50px;
+	padding: 10px 14px;
+	border-top: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .form-layout {
+	font-variant-numeric: tabular-nums;
+}
+
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .form-tabs-list {
+	position: sticky;
+	top: var(--navbar-height);
+	z-index: 4;
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .form-section {
+	margin-bottom: 12px;
+	border: 1px solid var(--pridict-border);
+	border-radius: 6px;
+	box-shadow: var(--pridict-shadow);
+}
+
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .form-section .section-head {
+	min-height: 42px;
+	padding: 12px 14px;
+	background: var(--pridict-surface-muted);
+	border-bottom: 1px solid var(--pridict-border);
+	border-radius: 6px 6px 0 0;
+}
+
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .form-section .section-body {
+	padding-inline: 14px;
+}
+
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .form-section .section-head.collapsed {
+	border-bottom: 0;
+	border-radius: 6px;
+}
+
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="items"] .form-grid,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="taxes"] .form-grid,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="payment_schedule"] .form-grid {
+	overflow: hidden;
+	border-color: var(--pridict-border-strong);
+}
+
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="items"] .form-grid-container,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="taxes"] .form-grid-container,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="payment_schedule"] .form-grid-container {
+	overscroll-behavior-inline: contain;
+}
+
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="items"] .grid-heading-row,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="taxes"] .grid-heading-row,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="payment_schedule"] .grid-heading-row {
+	min-height: 40px;
+}
+
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="items"] .grid-row .data-row,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="taxes"] .grid-row .data-row,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="payment_schedule"] .grid-row .data-row {
+	min-height: 42px;
+}
+
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="items"] .grid-footer,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="taxes"] .grid-footer,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="payment_schedule"] .grid-footer {
+	background: var(--pridict-surface-muted);
+	border-top: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="grand_total"] .control-value,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="rounded_total"] .control-value,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="outstanding_amount"] .control-value {
+	color: var(--pridict-text);
+	font-size: 16px;
+	font-weight: 700;
+}
+
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="grand_total"] .control-label,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="rounded_total"] .control-label,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .frappe-control[data-fieldname="outstanding_amount"] .control-label {
+	font-weight: 600;
+}
+
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .form-dashboard-section,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .form-attachments,
+html.pridict-ui body[data-route^="Form/Sales Invoice"] .timeline {
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .std-form-layout > .form-layout > .form-page {
+	overflow: hidden;
+	border-color: var(--pridict-border);
+	border-radius: 6px;
+	box-shadow: var(--pridict-shadow);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-tabs-list {
+	padding-inline: 8px;
+	background: var(--pridict-surface);
+	border-bottom-color: var(--pridict-border);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-tabs-list .nav-link {
+	margin-inline: 10px;
+	padding-block: 12px;
+	font-size: 13px;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-tabs-list .nav-link.active {
+	color: var(--pridict-blue-600);
+	border-bottom-width: 2px;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-section.card-section,
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-dashboard-section {
+	padding: 8px 10px 12px;
+	border-bottom-color: var(--pridict-border);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-section .section-head,
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-dashboard-section .section-head {
+	min-height: 38px;
+	padding: 10px 4px;
+	margin-bottom: 8px;
+	color: var(--pridict-text);
+	font-size: 14px;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-section .section-head.collapsed {
+	margin-bottom: 0;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-section-description {
+	padding: 0 4px 8px;
+	color: var(--pridict-text-muted);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .frappe-control {
+	min-width: 0;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .frappe-control[data-fieldtype="Attach Image"] .attach-image,
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .frappe-control[data-fieldtype="Attach Image"] .missing-image {
+	background: var(--pridict-surface-muted);
+	border: 1px solid var(--pridict-border);
+	border-radius: 6px;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .address-box,
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .contact-box {
+	position: relative;
+	min-height: 118px;
+	padding: 14px;
+	color: var(--pridict-text);
+	background: var(--pridict-surface-muted);
+	border: 1px solid var(--pridict-border);
+	border-radius: 6px;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .address-box .h6,
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .contact-box .h6 {
+	padding-right: 32px;
+	color: var(--pridict-text);
+	font-size: 13px;
+	font-weight: 600;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .address-box .edit-btn,
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .contact-box .edit-btn {
+	top: 10px;
+	right: 10px;
+	background: var(--pridict-surface);
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .address-box a,
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .contact-box a {
+	color: var(--pridict-blue-600);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-grid {
+	overflow: hidden;
+	border-color: var(--pridict-border-strong);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-grid-container {
+	overscroll-behavior-inline: contain;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-grid .grid-heading-row {
+	min-height: 40px;
+	background: var(--pridict-surface-muted);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-grid .grid-row .data-row {
+	min-height: 42px;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-grid .grid-footer {
+	background: var(--pridict-surface-muted);
+	border-top: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-dashboard-section {
+	background: var(--pridict-surface);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-dashboard-section .section-body {
+	padding: 0 4px 12px;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-dashboard .form-links,
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-dashboard .form-stats,
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-dashboard .form-graph,
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-dashboard .form-heatmap {
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .form-attachments,
+html.pridict-ui body:is(
+	[data-route^="Form/Customer"],
+	[data-route^="Form/Supplier"],
+	[data-route^="Form/Item"],
+	[data-route^="Form/Employee"]
+) .timeline {
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui body:is(
+	[data-route^="List/Purchase Order"],
+	[data-route^="List/Purchase Invoice"],
+	[data-route^="List/Delivery Note"],
+	[data-route^="List/Stock Entry"]
+) .layout-main-section.frappe-card,
+html.pridict-ui .page-container:is(
+	[data-page-route^="List/Purchase Order"],
+	[data-page-route^="List/Purchase Invoice"],
+	[data-page-route^="List/Delivery Note"],
+	[data-page-route^="List/Stock Entry"]
+) .layout-main-section.frappe-card {
+	overflow: hidden;
+}
+
+html.pridict-ui body:is(
+	[data-route^="List/Purchase Order"],
+	[data-route^="List/Purchase Invoice"],
+	[data-route^="List/Delivery Note"],
+	[data-route^="List/Stock Entry"]
+) .frappe-list,
+html.pridict-ui .page-container:is(
+	[data-page-route^="List/Purchase Order"],
+	[data-page-route^="List/Purchase Invoice"],
+	[data-page-route^="List/Delivery Note"],
+	[data-page-route^="List/Stock Entry"]
+) .frappe-list {
+	font-variant-numeric: tabular-nums;
+}
+
+html.pridict-ui body:is(
+	[data-route^="List/Purchase Order"],
+	[data-route^="List/Purchase Invoice"],
+	[data-route^="List/Delivery Note"],
+	[data-route^="List/Stock Entry"]
+) .list-row-head,
+html.pridict-ui .page-container:is(
+	[data-page-route^="List/Purchase Order"],
+	[data-page-route^="List/Purchase Invoice"],
+	[data-page-route^="List/Delivery Note"],
+	[data-page-route^="List/Stock Entry"]
+) .list-row-head {
+	height: 42px;
+	padding-block: 11px;
+	border-bottom: 1px solid var(--pridict-border);
+	letter-spacing: 0.01em;
+}
+
+html.pridict-ui body:is(
+	[data-route^="List/Purchase Order"],
+	[data-route^="List/Purchase Invoice"],
+	[data-route^="List/Delivery Note"],
+	[data-route^="List/Stock Entry"]
+) .list-row,
+html.pridict-ui .page-container:is(
+	[data-page-route^="List/Purchase Order"],
+	[data-page-route^="List/Purchase Invoice"],
+	[data-page-route^="List/Delivery Note"],
+	[data-page-route^="List/Stock Entry"]
+) .list-row {
+	height: auto;
+	min-height: 48px;
+	padding-block: 11px;
+}
+
+html.pridict-ui body:is(
+	[data-route^="List/Purchase Order"],
+	[data-route^="List/Purchase Invoice"],
+	[data-route^="List/Delivery Note"],
+	[data-route^="List/Stock Entry"]
+) .list-row :is(.level-left, .level-right),
+html.pridict-ui .page-container:is(
+	[data-page-route^="List/Purchase Order"],
+	[data-page-route^="List/Purchase Invoice"],
+	[data-page-route^="List/Delivery Note"],
+	[data-page-route^="List/Stock Entry"]
+) .list-row :is(.level-left, .level-right) {
+	min-width: 0;
+}
+
+html.pridict-ui body:is(
+	[data-route^="List/Purchase Order"],
+	[data-route^="List/Purchase Invoice"],
+	[data-route^="List/Delivery Note"],
+	[data-route^="List/Stock Entry"]
+) :is(.list-row, .list-row-head) .level-right,
+html.pridict-ui .page-container:is(
+	[data-page-route^="List/Purchase Order"],
+	[data-page-route^="List/Purchase Invoice"],
+	[data-page-route^="List/Delivery Note"],
+	[data-page-route^="List/Stock Entry"]
+) :is(.list-row, .list-row-head) .level-right {
+	font-variant-numeric: tabular-nums;
+	text-align: right;
+}
+
+html.pridict-ui body:is(
+	[data-route^="List/Purchase Order"],
+	[data-route^="List/Purchase Invoice"],
+	[data-route^="List/Delivery Note"],
+	[data-route^="List/Stock Entry"]
+) .list-subject a,
+html.pridict-ui .page-container:is(
+	[data-page-route^="List/Purchase Order"],
+	[data-page-route^="List/Purchase Invoice"],
+	[data-page-route^="List/Delivery Note"],
+	[data-page-route^="List/Stock Entry"]
+) .list-subject a {
+	color: var(--pridict-text);
+	font-weight: 600;
+}
+
+html.pridict-ui body:is(
+	[data-route^="List/Purchase Order"],
+	[data-route^="List/Purchase Invoice"],
+	[data-route^="List/Delivery Note"],
+	[data-route^="List/Stock Entry"]
+) .list-row:hover .list-subject a,
+html.pridict-ui .page-container:is(
+	[data-page-route^="List/Purchase Order"],
+	[data-page-route^="List/Purchase Invoice"],
+	[data-page-route^="List/Delivery Note"],
+	[data-page-route^="List/Stock Entry"]
+) .list-row:hover .list-subject a {
+	color: var(--pridict-blue-600);
+}
+
+html.pridict-ui body:is(
+	[data-route^="List/Purchase Order"],
+	[data-route^="List/Purchase Invoice"],
+	[data-route^="List/Delivery Note"],
+	[data-route^="List/Stock Entry"]
+) .list-paging-area,
+html.pridict-ui .page-container:is(
+	[data-page-route^="List/Purchase Order"],
+	[data-page-route^="List/Purchase Invoice"],
+	[data-page-route^="List/Delivery Note"],
+	[data-page-route^="List/Stock Entry"]
+) .list-paging-area {
+	min-height: 50px;
+	padding: 10px 14px;
+	border-top: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Purchase Order"],
+	[data-route^="Form/Purchase Invoice"],
+	[data-route^="Form/Delivery Note"],
+	[data-route^="Form/Stock Entry"]
+) .form-layout {
+	font-variant-numeric: tabular-nums;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Purchase Order"],
+	[data-route^="Form/Purchase Invoice"],
+	[data-route^="Form/Delivery Note"],
+	[data-route^="Form/Stock Entry"]
+) .form-tabs-list {
+	position: sticky;
+	top: var(--navbar-height);
+	z-index: 4;
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Purchase Order"],
+	[data-route^="Form/Purchase Invoice"],
+	[data-route^="Form/Delivery Note"],
+	[data-route^="Form/Stock Entry"]
+) .form-section {
+	margin-bottom: 12px;
+	border: 1px solid var(--pridict-border);
+	border-radius: 6px;
+	box-shadow: var(--pridict-shadow);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Purchase Order"],
+	[data-route^="Form/Purchase Invoice"],
+	[data-route^="Form/Delivery Note"],
+	[data-route^="Form/Stock Entry"]
+) .form-section .section-head {
+	min-height: 42px;
+	padding: 12px 14px;
+	background: var(--pridict-surface-muted);
+	border-bottom: 1px solid var(--pridict-border);
+	border-radius: 6px 6px 0 0;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Purchase Order"],
+	[data-route^="Form/Purchase Invoice"],
+	[data-route^="Form/Delivery Note"],
+	[data-route^="Form/Stock Entry"]
+) .form-section .section-body {
+	padding-inline: 14px;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Purchase Order"],
+	[data-route^="Form/Purchase Invoice"],
+	[data-route^="Form/Delivery Note"],
+	[data-route^="Form/Stock Entry"]
+) .form-section .section-head.collapsed {
+	border-bottom: 0;
+	border-radius: 6px;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Purchase Order"],
+	[data-route^="Form/Purchase Invoice"],
+	[data-route^="Form/Delivery Note"],
+	[data-route^="Form/Stock Entry"]
+) .frappe-control[data-fieldtype="Table"] .form-grid {
+	overflow: hidden;
+	border-color: var(--pridict-border-strong);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Purchase Order"],
+	[data-route^="Form/Purchase Invoice"],
+	[data-route^="Form/Delivery Note"],
+	[data-route^="Form/Stock Entry"]
+) .frappe-control[data-fieldtype="Table"] .form-grid-container {
+	overscroll-behavior-inline: contain;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Purchase Order"],
+	[data-route^="Form/Purchase Invoice"],
+	[data-route^="Form/Delivery Note"],
+	[data-route^="Form/Stock Entry"]
+) .frappe-control[data-fieldtype="Table"] .grid-heading-row {
+	min-height: 40px;
+	background: var(--pridict-surface-muted);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Purchase Order"],
+	[data-route^="Form/Purchase Invoice"],
+	[data-route^="Form/Delivery Note"],
+	[data-route^="Form/Stock Entry"]
+) .frappe-control[data-fieldtype="Table"] .grid-row .data-row {
+	min-height: 42px;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Purchase Order"],
+	[data-route^="Form/Purchase Invoice"],
+	[data-route^="Form/Delivery Note"],
+	[data-route^="Form/Stock Entry"]
+) .frappe-control[data-fieldtype="Table"] .grid-footer {
+	background: var(--pridict-surface-muted);
+	border-top: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Purchase Order"],
+	[data-route^="Form/Purchase Invoice"],
+	[data-route^="Form/Delivery Note"],
+	[data-route^="Form/Stock Entry"]
+) .frappe-control:is(
+	[data-fieldname="grand_total"],
+	[data-fieldname="rounded_total"],
+	[data-fieldname="outstanding_amount"],
+	[data-fieldname="total_amount"],
+	[data-fieldname="total_outgoing_value"],
+	[data-fieldname="total_incoming_value"],
+	[data-fieldname="value_difference"]
+) :is(.control-value, input) {
+	color: var(--pridict-text);
+	font-size: 16px;
+	font-weight: 700;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Purchase Order"],
+	[data-route^="Form/Purchase Invoice"],
+	[data-route^="Form/Delivery Note"],
+	[data-route^="Form/Stock Entry"]
+) .frappe-control:is(
+	[data-fieldname="grand_total"],
+	[data-fieldname="rounded_total"],
+	[data-fieldname="outstanding_amount"],
+	[data-fieldname="total_amount"],
+	[data-fieldname="total_outgoing_value"],
+	[data-fieldname="total_incoming_value"],
+	[data-fieldname="value_difference"]
+) .control-label {
+	font-weight: 600;
+}
+
+html.pridict-ui body[data-route^="Form/Stock Entry"] .frappe-control:is(
+	[data-fieldname="stock_entry_type"],
+	[data-fieldname="purpose"],
+	[data-fieldname="from_warehouse"],
+	[data-fieldname="to_warehouse"]
+) .control-input-wrapper {
+	padding-left: 8px;
+	border-left: 3px solid var(--pridict-blue-600);
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Purchase Order"],
+	[data-route^="Form/Purchase Invoice"],
+	[data-route^="Form/Delivery Note"],
+	[data-route^="Form/Stock Entry"]
+) :is(.address-box, .contact-box) {
+	padding: 12px;
+	background: var(--pridict-surface-muted);
+	border: 1px solid var(--pridict-border);
+	border-radius: 6px;
+}
+
+html.pridict-ui body:is(
+	[data-route^="Form/Purchase Order"],
+	[data-route^="Form/Purchase Invoice"],
+	[data-route^="Form/Delivery Note"],
+	[data-route^="Form/Stock Entry"]
+) :is(.form-dashboard-section, .form-attachments, .timeline) {
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui #page-query-report .page-form,
+html.pridict-ui body[data-route^="query-report"] .page-form,
+html.pridict-ui .report-view .page-form {
+	padding: 10px 12px;
+	background: var(--pridict-surface-muted);
+	border: 1px solid var(--pridict-border);
+	border-radius: 6px;
+}
+
+html.pridict-ui #page-query-report .page-form .form-group,
+html.pridict-ui body[data-route^="query-report"] .page-form .form-group,
+html.pridict-ui .report-view .page-form .form-group {
+	min-width: 160px;
+	margin-block: 4px;
+	padding-inline: 6px;
+}
+
+html.pridict-ui .report-summary {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 10px;
+	margin: 12px 0;
+	padding: 12px;
+	background: var(--pridict-surface-muted);
+	border: 1px solid var(--pridict-border);
+	border-radius: 6px;
+}
+
+html.pridict-ui .report-summary .summary-item {
+	min-width: 0;
+	max-width: none;
+	height: auto;
+	min-height: 72px;
+	margin: 0;
+	padding: 12px;
+	align-items: flex-start;
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 6px;
+}
+
+html.pridict-ui .report-summary .summary-label,
+html.pridict-ui .report-summary .summary-value,
+html.pridict-ui .report-summary .summary-value div {
+	max-width: 100%;
+	text-align: left;
+}
+
+html.pridict-ui .report-summary .summary-label {
+	color: var(--pridict-text-muted);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+html.pridict-ui .report-summary .summary-value {
+	padding-top: 10px;
+	color: var(--pridict-text);
+	font-size: 22px;
+	font-variant-numeric: tabular-nums;
+}
+
+html.pridict-ui .report-wrapper {
+	border: 1px solid var(--pridict-border);
+	border-radius: 6px;
+	box-shadow: var(--pridict-shadow);
+}
+
+html.pridict-ui .report-wrapper .datatable {
+	min-width: 720px;
+}
+
+html.pridict-ui .datatable .dt-cell__content {
+	font-variant-numeric: tabular-nums;
+}
+
+html.pridict-ui .datatable .dt-cell--focus .dt-cell__content,
+html.pridict-ui .datatable .dt-scrollable--highlight-all .dt-cell__content {
+	background: var(--pridict-blue-100);
+	border-color: var(--pridict-blue-600);
+}
+
+html.pridict-ui .report-footer {
+	padding: 10px 12px;
+	color: var(--pridict-text-muted);
+	background: var(--pridict-surface-muted);
+	border-top-color: var(--pridict-border);
+}
+
+html.pridict-ui .report-wrapper + .report-footer,
+html.pridict-ui .report-view .report-footer {
+	border-radius: 0 0 6px 6px;
+}
+
+html.pridict-ui .filter-popover {
+	color: var(--pridict-text);
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 8px;
+	box-shadow: 0 14px 38px rgb(18 31 50 / 18%);
+}
+
+html.pridict-ui .filter-popover .popover-body,
+html.pridict-ui .filter-popover .popover-content {
+	padding: 0;
+}
+
+html.pridict-ui .filter-area {
+	min-width: 0;
+	padding: 12px;
+	background: var(--pridict-surface);
+	border-radius: 8px;
+}
+
+html.pridict-ui .filter-edit-area {
+	max-height: min(420px, 58vh);
+	overflow-y: auto;
+}
+
+html.pridict-ui .filter-edit-area > * {
+	padding-block: 6px;
+}
+
+html.pridict-ui .filter-area .divider {
+	margin: 10px 0;
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui .filter-action-buttons {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+html.pridict-ui .filter-tag .btn {
+	border-color: var(--pridict-border-strong);
+}
+
+html.pridict-ui .filter-tag .toggle-filter {
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+}
+
+html.pridict-ui .filter-tag .remove-filter {
+	background: var(--pridict-surface);
+}
+
+html.pridict-ui .modal-backdrop.show {
+	opacity: 0.38;
+}
+
+html.pridict-ui .modal-header {
+	min-height: 54px;
+	padding: 14px 16px;
+}
+
+html.pridict-ui .modal-body {
+	padding: 16px;
+}
+
+html.pridict-ui .modal-footer {
+	min-height: 58px;
+	padding: 12px 16px;
+}
+
+html.pridict-ui .modal-header .modal-title {
+	font-size: 17px;
+	letter-spacing: -0.01em;
+}
+
+html.pridict-ui .modal-header .btn-modal-close,
+html.pridict-ui .modal-header .btn-modal-minimize {
+	border-radius: 5px;
+}
+
+html.pridict-ui .modal-body .form-section {
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui .modal-body .form-grid {
+	overflow: hidden;
+	border-color: var(--pridict-border-strong);
+}
+
+html.pridict-ui .msgprint-dialog .modal-body,
+html.pridict-ui .dialog-message {
+	color: var(--pridict-text);
+	line-height: 1.55;
+}
+
+html.pridict-ui .form-print-wrapper,
+html.pridict-ui .preview-beta-wrapper {
+	overflow: hidden;
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 6px;
+	box-shadow: var(--pridict-shadow);
+}
+
+html.pridict-ui .print-toolbar {
+	min-height: 58px;
+	padding: 10px 12px;
+	background: var(--pridict-surface);
+	border-bottom-color: var(--pridict-border);
+}
+
+html.pridict-ui .print-preview-wrapper {
+	padding: 48px 20px;
+	background: var(--pridict-surface-muted);
+	border-radius: 0;
+}
+
+html.pridict-ui .print-preview {
+	overflow: hidden;
+	background: #ffffff;
+	border: 1px solid #dfe3e8;
+	border-radius: 4px;
+	box-shadow: 0 14px 38px rgb(18 31 50 / 14%);
+}
+
+html.pridict-ui .print-preview .print-format {
+	color: #1f2937;
+	background: #ffffff;
+}
+
+html.pridict-ui .layout-side-section.print-preview-sidebar {
+	background: var(--pridict-sidebar);
+	border-right: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui :where(
+	a,
+	button,
+	[role="button"],
+	input,
+	select,
+	textarea,
+	.list-row,
+	.standard-sidebar-item,
+	.nav-link
+):focus-visible {
+	outline: 2px solid var(--pridict-blue-600);
+	outline-offset: 2px;
+}
+
+html.pridict-ui :where(.btn, .list-row, .standard-sidebar-item, .nav-link)[aria-disabled="true"],
+html.pridict-ui :where(.btn, .list-row, .standard-sidebar-item, .nav-link):disabled {
+	opacity: 0.55;
+}
+
+html.pridict-ui * {
+	scrollbar-color: var(--pridict-border-strong) transparent;
+	scrollbar-width: thin;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html.pridict-ui,
+	html.pridict-ui * {
+		scroll-behavior: auto !important;
+		transition-duration: 0.01ms !important;
+		transition-delay: 0ms !important;
+	}
+}
+
+@media print {
+	html.pridict-ui .print-preview-wrapper,
+	html.pridict-ui .print-preview,
+	html.pridict-ui .print-preview .print-format {
+		padding: 0;
+		background: #ffffff;
+		border: 0;
+		border-radius: 0;
+		box-shadow: none;
+	}
+}
+
+@media (max-width: 991px) {
+	html.pridict-ui .navbar .search-bar {
+		max-width: 300px;
+	}
+
+	html.pridict-ui .layout-side-section {
+		flex: 0 0 0;
+		width: 0;
+		max-width: 0;
+		padding: 0;
+		border: 0;
+		background: transparent;
+	}
+
+	html.pridict-ui .layout-side-section > .overlay-sidebar {
+		padding: 18px 14px;
+		background: var(--pridict-sidebar);
+		border-right: 1px solid rgb(8 25 46 / 36%);
+	}
+
+	html.pridict-ui .layout-main-section-wrapper {
+		min-width: 0;
+		width: 100%;
+	}
+
+	html.pridict-ui .page-container[data-page-route="Workspaces"] .layout-main-section {
+		padding: 14px;
+	}
+
+	html.pridict-ui .report-wrapper .datatable {
+		min-width: 640px;
+	}
+
+	html.pridict-ui .print-preview-wrapper {
+		padding: 24px 10px;
+	}
+
+	html.pridict-ui .page-container[data-page-route="Workspaces"] .widget-group .grid-col-3,
+	html.pridict-ui .page-container[data-page-route="Workspaces"] .widget-group .grid-col-2,
+	html.pridict-ui .page-container[data-page-route="Workspaces"] .widget-group .grid-col-1,
+	html.pridict-ui .dashboard-page .dashboard-view .grid-col-2 {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+@media (max-width: 767px) {
+	html.pridict-ui {
+		--navbar-height: 52px;
+	}
+
+	html.pridict-ui .navbar .container {
+		padding-inline: 12px;
+	}
+
+	html.pridict-ui .layout-main-section-wrapper {
+		padding-inline: 0;
+	}
+
+	html.pridict-ui .page-container > .container,
+	html.pridict-ui .page-body.container {
+		padding-inline: 10px;
+	}
+
+	html.pridict-ui .page-head .page-head-content {
+		height: 56px;
+	}
+
+	html.pridict-ui .page-title .title-text,
+	html.pridict-ui .page-title h3 {
+		font-size: 20px;
+	}
+
+	html.pridict-ui body[data-route^="List/Sales Invoice"] .list-row,
+	html.pridict-ui .page-container[data-page-route^="List/Sales Invoice"] .list-row {
+		min-height: 52px;
+	}
+
+	html.pridict-ui body[data-route^="Form/Sales Invoice"] .form-tabs-list {
+		position: static;
+	}
+
+	html.pridict-ui body[data-route^="Form/Sales Invoice"] .form-section .section-head,
+	html.pridict-ui body[data-route^="Form/Sales Invoice"] .form-section .section-body {
+		padding-inline: 10px;
+	}
+
+	html.pridict-ui .page-container[data-page-route="Workspaces"] .layout-main-section {
+		padding: 10px;
+	}
+
+	html.pridict-ui .page-container[data-page-route="Workspaces"] .widget-group {
+		margin-bottom: 20px;
+	}
+
+	html.pridict-ui .page-container[data-page-route="Workspaces"] .onboarding-widget-box .widget-body {
+		flex-direction: column;
+	}
+
+	html.pridict-ui .page-container[data-page-route="Workspaces"] .onboarding-widget-box .onboarding-steps-wrapper {
+		min-width: 0;
+	}
+
+	html.pridict-ui .page-container[data-page-route="Workspaces"] .onboarding-widget-box .onboarding-step-preview {
+		padding-top: 12px;
+		padding-left: 0;
+	}
+
+	html.pridict-ui body:is(
+		[data-route^="Form/Customer"],
+		[data-route^="Form/Supplier"],
+		[data-route^="Form/Item"],
+		[data-route^="Form/Employee"]
+	) .form-section.card-section,
+	html.pridict-ui body:is(
+		[data-route^="Form/Customer"],
+		[data-route^="Form/Supplier"],
+		[data-route^="Form/Item"],
+		[data-route^="Form/Employee"]
+	) .form-dashboard-section {
+		padding-inline: 6px;
+	}
+
+	html.pridict-ui body:is(
+		[data-route^="Form/Customer"],
+		[data-route^="Form/Supplier"],
+		[data-route^="Form/Item"],
+		[data-route^="Form/Employee"]
+	) .form-tabs-list .nav-link {
+		margin-inline: 8px;
+	}
+
+	html.pridict-ui body:is(
+		[data-route^="Form/Customer"],
+		[data-route^="Form/Supplier"],
+		[data-route^="Form/Item"],
+		[data-route^="Form/Employee"]
+	) .address-box,
+	html.pridict-ui body:is(
+		[data-route^="Form/Customer"],
+		[data-route^="Form/Supplier"],
+		[data-route^="Form/Item"],
+		[data-route^="Form/Employee"]
+	) .contact-box {
+		min-height: 0;
+		padding: 12px;
+	}
+
+	html.pridict-ui body:is(
+		[data-route^="List/Purchase Order"],
+		[data-route^="List/Purchase Invoice"],
+		[data-route^="List/Delivery Note"],
+		[data-route^="List/Stock Entry"]
+	) .list-row,
+	html.pridict-ui .page-container:is(
+		[data-page-route^="List/Purchase Order"],
+		[data-page-route^="List/Purchase Invoice"],
+		[data-page-route^="List/Delivery Note"],
+		[data-page-route^="List/Stock Entry"]
+	) .list-row {
+		min-height: 52px;
+	}
+
+	html.pridict-ui body:is(
+		[data-route^="List/Purchase Order"],
+		[data-route^="List/Purchase Invoice"],
+		[data-route^="List/Delivery Note"],
+		[data-route^="List/Stock Entry"]
+	) .list-row:not(.list-row-head),
+	html.pridict-ui .page-container:is(
+		[data-page-route^="List/Purchase Order"],
+		[data-page-route^="List/Purchase Invoice"],
+		[data-page-route^="List/Delivery Note"],
+		[data-page-route^="List/Stock Entry"]
+	) .list-row:not(.list-row-head) {
+		column-gap: 8px;
+	}
+
+	html.pridict-ui body:is(
+		[data-route^="List/Purchase Order"],
+		[data-route^="List/Purchase Invoice"],
+		[data-route^="List/Delivery Note"],
+		[data-route^="List/Stock Entry"]
+	) .list-row:not(.list-row-head) .level-left,
+	html.pridict-ui .page-container:is(
+		[data-page-route^="List/Purchase Order"],
+		[data-page-route^="List/Purchase Invoice"],
+		[data-page-route^="List/Delivery Note"],
+		[data-page-route^="List/Stock Entry"]
+	) .list-row:not(.list-row-head) .level-left {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	html.pridict-ui body:is(
+		[data-route^="List/Purchase Order"],
+		[data-route^="List/Purchase Invoice"],
+		[data-route^="List/Delivery Note"],
+		[data-route^="List/Stock Entry"]
+	) .list-row:not(.list-row-head) .level-right,
+	html.pridict-ui .page-container:is(
+		[data-page-route^="List/Purchase Order"],
+		[data-page-route^="List/Purchase Invoice"],
+		[data-page-route^="List/Delivery Note"],
+		[data-page-route^="List/Stock Entry"]
+	) .list-row:not(.list-row-head) .level-right {
+		flex: 0 1 auto;
+		max-width: 45%;
+		overflow: visible;
+	}
+
+	html.pridict-ui body:is(
+		[data-route^="Form/Purchase Order"],
+		[data-route^="Form/Purchase Invoice"],
+		[data-route^="Form/Delivery Note"],
+		[data-route^="Form/Stock Entry"]
+	) .form-tabs-list {
+		position: static;
+	}
+
+	html.pridict-ui body:is(
+		[data-route^="Form/Purchase Order"],
+		[data-route^="Form/Purchase Invoice"],
+		[data-route^="Form/Delivery Note"],
+		[data-route^="Form/Stock Entry"]
+	) .form-section :is(.section-head, .section-body) {
+		padding-inline: 10px;
+	}
+
+	html.pridict-ui .report-summary {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	html.pridict-ui .report-wrapper .datatable {
+		min-width: 560px;
+	}
+
+	html.pridict-ui .filter-action-buttons {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	html.pridict-ui .filter-action-buttons > div {
+		display: flex;
+		justify-content: flex-end;
+		gap: 6px;
+	}
+
+	html.pridict-ui .modal-header,
+	html.pridict-ui .modal-body,
+	html.pridict-ui .modal-footer {
+		padding-inline: 12px;
+	}
+
+	html.pridict-ui .print-preview-wrapper {
+		padding: 0;
+	}
+}

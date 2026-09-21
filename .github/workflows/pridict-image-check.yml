@@ -1,0 +1,21 @@
+name: Validate Pridict image
+
+on:
+  pull_request:
+    paths:
+      - "pridict_app/**"
+      - "deployment/Dockerfile.pridict"
+      - "deployment/Dockerfile.pridict.dockerignore"
+      - "deployment/build-pridict-image.sh"
+      - ".github/workflows/pridict-image-check.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build and validate versioned image
+        run: bash deployment/build-pridict-image.sh "pridict-erpnext:ci-${GITHUB_SHA}"

@@ -9,9 +9,6 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       - --skip-character-set-client-handshake
-      - --innodb-file-format=barracuda
-      - --innodb-file-per-table=1
-      - --innodb-large-prefix=1
     environment:
       MYSQL_ROOT_PASSWORD: 123
       MARIADB_AUTO_UPGRADE: 1
@@ -21,12 +18,12 @@ services:
       - "3306:3306"
 
   redis-cache:
-    image: redis:alpine
+    image: redis:6.2-alpine
     container_name: erpnext_redis_cache
     restart: unless-stopped
 
   redis-queue:
-    image: redis:alpine
+    image: redis:6.2-alpine
     container_name: erpnext_redis_queue
     restart: unless-stopped
 
