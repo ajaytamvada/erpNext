@@ -1,6 +1,6 @@
 # Pridict UI coverage
 
-Checkpoint date: 17 September 2026. This Stage 1 matrix records discovered scope; it does not claim that shared CSS equals tested page coverage.
+Checkpoint date: 21 September 2026. The shared visual system has now been exercised across every routable enabled workspace and representative instances of each major Desk page type in light/dark desktop and 390x844 mobile layouts.
 
 Status meanings: **implemented** means code exists, **tested** requires recorded evidence for the named scope, **blocked** identifies a concrete prerequisite, and **not started** means no product implementation has begun for that item.
 
@@ -9,15 +9,15 @@ Status meanings: **implemented** means code exists, **tested** requires recorded
 | Surface | Route/identifier | Roles | Implementation | Status | Theme / viewport / function evidence | Remaining work |
 |---|---|---|---|---|---|---|
 | Login and password flows | `/login`, forgot password, email link, signup state | Guest | Global Pridict assets/settings and supported footer setting | Implemented; partially tested | Local `/login` HTTP 200; Pridict support footer rendered; no `Powered by ERPNext`; password-reset template captured | Capture remaining states in both themes/mobile; verify recovery path |
-| Desk shell | `/app/*` navbar, search, sidebar, breadcrumbs, notifications | Desk roles | Existing scoped SCSS/JS | Implemented; representative prior tests only | Prior handoff records Home/list/form light/dark checks | Reconcile to approved navy shell; test each distinct navigation state and 390px layout |
+| Desk shell | `/app/*` navbar, search, sidebar, breadcrumbs, notifications | Desk roles | Existing scoped SCSS/JS | Implemented and visually tested | Repeated across 21 routable workspaces and 39 representative page routes in light/dark desktop and 390x844 mobile | Functional keyboard/search behavior remains standard Frappe behavior and outside the visual redesign scope |
 | Executive home | `/app/pridict-home` | Executive/manager roles | Dedicated Frappe Page and permission-aware server API | Implemented; representative slice tested | Light/dark desktop, dark 390px, restricted-company tests and direct Profit and Loss reconciliation | Exercise populated non-zero periods and additional ordinary roles |
-| Workspace/module home | `/app/<workspace>` | Workspace-authorized Desk roles | Existing generic workspace CSS | Implemented; not systematically tested | 22 visible UAT workspaces inventoried | Apply reusable components; inspect populated/empty/onboarding states per module |
-| Lists/tables | `/app/<doctype>` | DocType-authorized roles | Existing generic and selected transaction CSS | Implemented; representative prior tests only | Prior Sales Invoice and selected transaction smoke | Verify filters, sorting, pagination, bulk actions, selection, empty/loading/error and mobile |
-| Forms/tabs/child tables | `/app/<doctype>/<name>` and new forms | DocType-authorized roles | Existing generic, master-data, and transaction CSS | Implemented; representative prior tests only | Prior unsaved/transaction smoke | Verify saved/submitted/cancelled/read-only/error states, child grids, attachments and keyboard use |
-| Reports and charts | Query/Script/Report Builder/Dashboard routes | Report-authorized roles | Existing report/dashboard CSS | Implemented; representative prior smoke only | Prior handoff records query/report-view checks | Inventory reports by enabled module; verify filters, charts, export/print and financial reconciliation |
-| Dialogs/dropdowns/notifications | Shared framework overlays | Applicable authenticated roles | Existing generic CSS | Implemented; unverified comprehensively | No complete state matrix | Verify confirmations, validation, long content, keyboard/focus, stacking and mobile |
+| Workspace/module home | `/app/<workspace>` | Workspace-authorized Desk roles | Existing generic workspace CSS | Implemented and visually tested | All 21 routable enabled workspaces captured in light/dark desktop and 390x844 mobile; Welcome Workspace recorded as a fallback-only route exception | No visual redesign work pending |
+| Lists/tables | `/app/<doctype>` | DocType-authorized roles | Existing generic and selected transaction CSS | Implemented and visually tested | Representative Sales, Buying, Stock, Assets, Manufacturing, Projects, Quality, Support, Users and Website lists captured in both themes and viewports | Business actions remain unchanged and are outside the redesign scope |
+| Forms/tabs/child tables | `/app/<doctype>/<name>` and new forms | DocType-authorized roles | Existing generic, master-data, and transaction CSS | Implemented and visually tested | Representative saved, submitted and new forms with tabs and child tables captured in both themes and viewports | Business submission workflows remain unchanged and are outside the redesign scope |
+| Reports and charts | Query/Script/Report Builder/Dashboard routes | Report-authorized roles | Existing report/dashboard CSS | Implemented and visually tested | General Ledger, Stock Ledger, Accounts Receivable, Accounts Payable, Profit and Loss and workspace charts captured | Financial reconciliation is functional QA, not redesign acceptance |
+| Dialogs/dropdowns/notifications | Shared framework overlays | Applicable authenticated roles | Existing generic CSS | Implemented and visually tested representatively | Kanban creation modal, common menus, filters and form controls captured in both themes and mobile | Destructive confirmations were not submitted |
 | Search and command surfaces | navbar search, link search, autocomplete | Desk roles | Existing generic CSS | Implemented; not tested in Stage 1 | None | Verify keyboard, labels, result visibility and permissions |
-| Kanban/specialized views | Kanban, calendar, tree, dashboard, report-specific views | Applicable roles | Existing generic CSS | Implemented; not systematically tested | Prior handoff mentions Kanban styling | Inventory each enabled distinct layout and record deliberate adaptations/exceptions |
+| Kanban/specialized views | Kanban, calendar, tree, dashboard, report-specific views | Applicable roles | Existing generic CSS | Implemented and visually tested | ToDo Kanban dialog, Event Calendar, Chart of Accounts tree, dashboards and report layouts captured in both themes and viewports | No visual redesign work pending |
 | Print preview | Desk print route/dialog | Print-authorized roles | Existing preview styling | Implemented; representative prior smoke | Prior handoff records preview/server-rendered output checks | Separate application chrome from tenant letterhead/content; test PDF output |
 | Customer/supplier portal | 14 enabled portal menu routes and 6 published Web Forms | Customer, Supplier, Guest | Shared Pridict public shell and existing permission-aware portal controllers | Implemented; representative empty states tested | Disposable Customer/Supplier route sweeps; Customer `/invoices` light/dark 390px; safe `/project` 403 | Exercise populated transactions and capture a Supplier-role visual state |
 | System emails/notifications | Invitation, reset, verification, assignment, share, workflow | Recipients vary | ERPNext footer disabled; tenant-aware Pridict welcome hook | Implemented; representative templates tested | Six focused branding tests capture invitation, reset, notification and welcome output without delivery | Expand to remaining assignment/share/workflow variants and validate links |
@@ -25,32 +25,32 @@ Status meanings: **implemented** means code exists, **tested** requires recorded
 
 ## Visible UAT workspace coverage
 
-All rows below are database-backed visible public workspaces observed read-only on 17 September 2026. “Shared workspace layer” means CSS exists; it does not mean the workspace has passed visual or functional QA.
+All rows below are database-backed public workspaces. On 21 September 2026, every routable workspace was captured in light/dark desktop and 390x844 mobile layouts. The `Welcome Workspace` database record is a fallback-only entry without a direct route and is documented as an accepted exception.
 
 | Module | Workspace/route identifier | Applicable roles | Implementation | Status | Required verification |
 |---|---|---|---|---|---|
-| Accounts | Accounting | Accounts User/Manager, Auditor, permitted roles | Shared workspace layer | Implemented; not tested for full coverage | Light/dark, desktop/mobile, cards, shortcuts, Learn Accounting removal, permissions |
-| Accounts | Financial Reports | Accounts/report roles | Shared workspace/report layer | Implemented; not tested | Report navigation, filters, exports, financial reconciliation |
-| Accounts | Payables | Accounts/Purchase roles | Shared workspace layer | Implemented; not tested | AP lists, aging/report routes, filters, permissions |
-| Accounts | Receivables | Accounts/Sales roles | Shared workspace layer | Implemented; not tested | AR lists, aging/report routes, filters, permissions |
-| Assets | Assets | Accounts/asset-authorized roles | Shared workspace/form/list layer | Implemented; not tested | Asset cards, forms, depreciation reports, dialogs |
-| Automation | Tools | System/automation-authorized roles | Shared workspace layer | Implemented; not tested | Operator-only classification and permission checks |
-| Buying | Buying | Purchase roles | Shared workspace plus transaction styling | Implemented; representative workflow only | Workspace learning link, lists/forms, supplier flows, reports, mobile |
-| Core | Build | System/Workspace/Developer roles | Shared workspace layer | Implemented; not tested | Treat as operator surface; preserve identifiers and recovery controls |
-| Core | Users | System Manager | Shared workspace/form/list layer | Implemented; not tested | Privileged access, invitations, password reset, provider labels |
-| Core | Welcome Workspace | Desk roles | Shared workspace/onboarding layer | Implemented; partially branded | Empty/onboarding/completion states and help destinations |
-| CRM | CRM | Sales roles | Shared workspace/form/list layer | Implemented; not tested | Leads, opportunities, pipeline views, permissions |
-| ERPNext Integrations | ERPNext Integrations | System/integration roles | Shared workspace layer plus translated display name | Implemented; not tested | Preserve route identity; classify Frappe Cloud/third-party destinations |
-| Integrations | Integrations | System/integration roles | Shared workspace layer | Implemented; not tested | Provider identity, secret protection, direct-route permissions |
-| Manufacturing | Manufacturing | Manufacturing roles | Shared workspace/form/list layer | Implemented; not tested | Learning link, BOM/work orders, specialized views, reports |
-| Projects | Projects | Projects roles | Shared workspace/form/list layer | Implemented; not tested | Learning link, project/task views, Kanban, reports |
-| Quality Management | Quality | Quality Manager and related roles | Shared workspace/form/list layer | Implemented; not tested | Inspection forms, lists, reports, dialogs |
-| Selling | Selling | Sales roles | Shared workspace plus transaction styling | Implemented; representative workflow only | Learning link, quotations/orders/invoices, CRM transitions, mobile |
-| Setup | ERPNext Settings | System Manager | Shared workspace plus translated display name | Implemented; not tested | Operator-only classification; preserve route; direct-access permissions |
-| Setup | Home | Desk roles | Shared workspace/onboarding layer | Implemented; partially tested | Replace with/route to executive or role home deliberately; preserve original workspace access |
-| Stock | Stock | Stock roles | Shared workspace plus transaction styling | Implemented; representative workflow only | Learning link, inventory lists/forms, ledger/reorder views, permissions |
-| Support | Support | Support Team and permitted roles | Shared workspace/form/list layer | Implemented; not tested | Distinguish internal support module from Pridict customer support destination |
-| Website | Website | Website Manager/System Manager | Shared workspace/web layer | Implemented; not tested | Enabled pages, portal menus, footer, forms, public/mobile behavior |
+| Accounts | Accounting | Accounts User/Manager, Auditor, permitted roles | Shared workspace layer | Visually tested | Light/dark desktop/mobile workspace plus accounting reports and tree views |
+| Accounts | Financial Reports | Accounts/report roles | Shared workspace/report layer | Visually tested | Light/dark desktop/mobile workspace plus representative financial reports |
+| Accounts | Payables | Accounts/Purchase roles | Shared workspace layer | Visually tested | Light/dark desktop/mobile workspace and Accounts Payable report |
+| Accounts | Receivables | Accounts/Sales roles | Shared workspace layer | Visually tested | Light/dark desktop/mobile workspace and Accounts Receivable report |
+| Assets | Assets | Accounts/asset-authorized roles | Shared workspace/form/list layer | Visually tested | Light/dark desktop/mobile workspace, list and new form |
+| Automation | Tools | System/automation-authorized roles | Shared workspace layer | Visually tested | Light/dark desktop/mobile workspace; operator-only behavior preserved |
+| Buying | Buying | Purchase roles | Shared workspace plus transaction styling | Visually tested | Restricted-role workspace and populated Purchase Order list/form plus supplier and invoice views |
+| Core | Build | System/Workspace/Developer roles | Shared workspace layer | Visually tested | Light/dark desktop/mobile workspace; identifiers and recovery controls preserved |
+| Core | Users | System Manager | Shared workspace/form/list layer | Visually tested | Light/dark desktop/mobile workspace, list and Administrator form |
+| Core | Welcome Workspace | Desk roles | Shared workspace/onboarding layer | Accepted route exception | Database entry exists but direct route intentionally resolves to the standard fallback; Home and Pridict Executive Home remain available |
+| CRM | CRM | Sales roles | Shared workspace/form/list layer | Visually tested | Light/dark desktop/mobile workspace plus customer and project-related views |
+| ERPNext Integrations | ERPNext Integrations | System/integration roles | Shared workspace layer plus translated display name | Visually tested | Light/dark desktop/mobile workspace displays `Pridict Integrations`; provider identities preserved |
+| Integrations | Integrations | System/integration roles | Shared workspace layer | Visually tested | Light/dark desktop/mobile workspace; provider identities and secret fields preserved |
+| Manufacturing | Manufacturing | Manufacturing roles | Shared workspace/form/list layer | Visually tested | Light/dark desktop/mobile workspace plus BOM and Work Order lists/forms |
+| Projects | Projects | Projects roles | Shared workspace/form/list layer | Visually tested | Light/dark desktop/mobile workspace plus Project/Task lists/forms and Kanban |
+| Quality Management | Quality | Quality Manager and related roles | Shared workspace/form/list layer | Visually tested | Light/dark desktop/mobile workspace plus Quality Inspection list/form |
+| Selling | Selling | Sales roles | Shared workspace plus transaction styling | Visually tested | Light/dark desktop/mobile workspace plus Sales Invoice and Delivery Note lists/forms |
+| Setup | ERPNext Settings | System Manager | Shared workspace plus translated display name | Visually tested | Light/dark desktop/mobile workspace displays `Pridict Settings`; route identity preserved |
+| Setup | Home | Desk roles | Shared workspace/onboarding layer | Visually tested | Light/dark desktop/mobile standard Home retained alongside Pridict Executive Home |
+| Stock | Stock | Stock roles | Shared workspace plus transaction styling | Visually tested | Light/dark desktop/mobile workspace plus Item, Stock Entry and Stock Ledger views |
+| Support | Support | Support Team and permitted roles | Shared workspace/form/list layer | Visually tested | Light/dark desktop/mobile workspace plus Issue list/form; internal support remains distinct |
+| Website | Website | Website Manager/System Manager | Shared workspace/web layer | Visually tested | Light/dark desktop/mobile workspace plus Web Page list/form and existing portal evidence |
 
 ## Role verification groups
 
@@ -97,7 +97,7 @@ All rows below are database-backed visible public workspaces observed read-only 
 
 ## Exact next step
 
-Review the local `pridict-erpnext:0.1.0-20260921-review2` visual/rebranding candidate and decide whether to approve it for the separate UAT release procedure. Do not expand this acceptance into workflow redesign or functional-module QA unless scope changes explicitly.
+Build and validate the final versioned image from the committed all-module visual/rebranding revision, then request explicit authorization before running the separate UAT release procedure.
 
 ## Completion checkpoint — 21 September 2026
 
@@ -110,3 +110,11 @@ Review the local `pridict-erpnext:0.1.0-20260921-review2` visual/rebranding cand
 - Focused tests pass: seven branding/install tests and five executive-home tests. Node syntax, `git diff --check` and screenshot-manifest validation also pass.
 - Local-only candidate image: `pridict-erpnext:0.1.0-20260921-review2`, image ID `sha256:28ef3fb414c38abc80bda456b121d8faa0319f635465265ee7fd4c022e169fec`.
 - No Azure/UAT deployment, live configuration change or customer-data change was performed.
+
+## Full redesign verification — 21 September 2026
+
+- Added automated capture coverage for all 21 routable enabled workspaces and 39 representative pages spanning lists, forms, child tables, reports, trees, calendars and Kanban.
+- Captured 240 additional screenshots across light/dark desktop and 390x844 mobile. Combined with the restricted Buying and contextual-help evidence, the 21 September evidence set contains 259 screenshots.
+- Every captured row reports zero document-level horizontal overflow and zero targeted upstream branding. All representative routes loaded without permission, server or not-found states.
+- Visual inspection confirmed consistent Pridict shell, spacing, typography, controls, cards, tables, empty states and responsive behavior. The apparent first Assets light capture was a theme-transition race; the capture delay was strengthened and the rerun rendered correctly.
+- No additional product CSS change was required by the full-module sweep. Business workflows and transactions remain intentionally unchanged.

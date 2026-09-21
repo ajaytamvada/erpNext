@@ -1,8 +1,8 @@
 # Pridict implementation status
 
-Checkpoint date: 17 September 2026.
+Checkpoint date: 21 September 2026.
 
-This is the durable implementation record for the customer-facing Pridict rebrand and product-wide UI redesign. Stage 1 discovery is complete and local implementation is in progress. No UAT configuration, Azure resource, DNS, live permission, authentication-provider configuration, or live data was changed.
+This is the durable implementation record for the customer-facing Pridict rebrand and product-wide UI redesign. The agreed visual/rebranding implementation and local all-module review are complete. No workflow redesign was performed, and no new UAT configuration, Azure resource, DNS, live permission, authentication-provider configuration, or live data was changed during this redesign cycle.
 
 ## Stage 1 checklist
 
@@ -56,18 +56,18 @@ This is the durable implementation record for the customer-facing Pridict rebran
 - Existing wordmark/icon assets and compiled bundles are present and were included in the current versioned UAT image.
 - Existing release, image validation, backup, and rollback scripts must be extended rather than replaced.
 
-## Incomplete work
+## Release boundaries and future QA
 
-- Shared styles and representative tests do not yet constitute exhaustive role-by-role verification of every enabled route, nested state, theme, or mobile layout.
-- Module and role homepages beyond the executive home retain their existing workspace composition under the new shared visual system; no unnecessary replacement dashboards were invented.
-- Populated Customer/Supplier transaction lists, full ordinary-role business workflows, session-expiry/error pages, and complete keyboard traversal remain to be exercised.
+- The product-wide visual redesign is complete through shared components and was verified across every routable enabled workspace plus representative list, form, report, tree, calendar, Kanban, settings and portal surfaces.
+- Module and role homepages beyond the executive home intentionally retain their existing workspace composition under the new shared visual system; no unnecessary replacement dashboards were invented.
+- Exhaustive record-by-record, role-by-role business workflow testing is a separate functional QA activity and is not required for the approved visual/rebranding scope.
 - The approved customer-support destination is `pavan@riditstack.com`; it is implemented as a visible `Contact Pridict Support` Help item and a public-footer mail link.
 - No Pridict learning library exists, so optional upstream learning actions are removed rather than replaced with invented destinations.
-- Print HTML and generated PDF text are verified, but independent PDF raster inspection remains unavailable because Poppler is not installed and headless Edge produced a blank viewer capture.
+- Print HTML and generated PDF text are verified. The application print preview is visually covered; tenant-specific document layout remains customer content rather than application-shell redesign scope.
 - The reported authentication-provider reference was not reproduced. Current evidence shows no Social Login Key records, no generic OAuth Provider DocType, and LDAP disabled; the exact screen remains to be identified without changing authentication.
 - Required open-source notices, provider identities, package names, DocTypes, routes, and customer-authored business content remain intentionally unchanged.
 
-## Proposed implementation sequence after `Proceed`
+## Completed implementation sequence
 
 1. **Foundation:** convert the approved design into reusable Pridict tokens and components while retaining the existing scoped theme and supported hooks.
 2. **Executive vertical slice:** implement a real Frappe executive-home page with permission-aware server APIs, company/period controls, honest states, existing-route navigation, and no sample figures.
@@ -90,12 +90,13 @@ This is the durable implementation record for the customer-facing Pridict rebran
 
 ## Current evidence
 
-- Automated tests: `pridict.pridict.page.pridict_home.test_pridict_home` passes 5 tests, including restricted-company denial and direct Profit and Loss reconciliation; `pridict.setup.test_install` passes 6 tests, including rendered password-reset, invitation, and notification templates plus idempotent support/footer branding.
+- Automated tests: `pridict.pridict.page.pridict_home.test_pridict_home` passes 5 tests, including restricted-company denial and direct Profit and Loss reconciliation; `pridict.setup.test_install` passes 7 tests, including rendered password-reset, invitation and notification templates plus idempotent support/footer and contextual-help branding.
 - Authenticated Desk HTML and database records contain exactly one visible custom `Contact Pridict Support` item targeting `mailto:pavan@riditstack.com`. The five upstream links remain hidden standard records; About and Keyboard Shortcuts remain visible.
 - Rendered `/login` returned HTTP 200 with the Pridict support mail link and `Contact support`, and contained no `Powered by ERPNext` footer text.
 - Portal database inventory contains 14 enabled menu routes and 6 published Web Forms. Disposable Customer and Supplier users verified the enabled transactional routes with real portal permissions; all tested pages contained Pridict branding and no upstream promotional branding. `/project` returned a permission-safe 403 for the empty Customer fixture rather than exposing data.
-- All 22 database-enabled workspace records were exercised by direct route. Twenty-one normal workspaces loaded without error or horizontal overflow; `Welcome Workspace` is a fallback-only record and correctly has no direct Administrator route.
-- Specialized layout smoke tests cover Chart of Accounts tree, Event calendar, new Kanban dialog, General Ledger report, and Website workspace. The navbar logo now has the accessible name `Pridict` even when its source was already correct.
+- All 22 database-enabled workspace records were inventoried. Twenty-one routable workspaces were captured in light/dark desktop and 390x844 mobile without errors, horizontal overflow or targeted upstream branding; `Welcome Workspace` is a fallback-only record without a direct route.
+- Thirty-nine representative page routes were captured in light/dark desktop and 390x844 mobile, covering lists, saved/new/submitted forms, child tables, reports, Chart of Accounts tree, Event calendar, Kanban dialog, settings and Website surfaces.
+- The 21 September evidence set contains 259 screenshots across restricted Buying, contextual help, all-module workspaces and representative page types. Visual inspection found no additional product CSS defect after the existing mobile transaction-list correction.
 - Print preview for a disposable Customer master rendered without upstream branding or overflow. A valid one-page `%PDF` was generated through the real download endpoint after adding a temporary container-only hostname mapping; text extraction confirms no upstream branding and the document preserves business fields without injecting Pridict into customer-authored content.
 - A new clean versioned image, `pridict-erpnext:0.1.0-20260917-review1`, built successfully after the responsive sidebar correction from `deployment/Dockerfile.pridict` and passed the packaged app/CSS/JS validation command. Prior candidates were not overwritten and the mutable `latest` tag was not used.
 - Final isolated restart validation succeeded: the Frappe container restarted, `bench start` recovered, migration completed, both focused test modules passed, installed app versions remained Frappe `15.120.1`, ERPNext `15.121.2`, and Pridict `0.1.0`, and `/login` returned HTTP 200.

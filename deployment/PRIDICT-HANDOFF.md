@@ -5,9 +5,13 @@ Rebrand ERPNext as Pridict with the approved Enterprise visual design in light a
 
 The design preview is https://pridict-enterprise-preview.ajay-tamvada.chatgpt.site (owner-private). It is a mockup, not the running ERP system.
 
-## Next work — customer-facing rebrand completion
+## Local redesign completion — 21 September 2026
 
-See `deployment/PRIDICT-WHITE-LABEL-PLAN.md` (17 September 2026) for the detailed implementation plan and CLI handoff prompt. Remaining scope includes learning/help links, system communications and a reported authentication-provider reference. The plan distinguishes customer branding from functional provider identities, internal identifiers and required notices. Only planning documents were changed when this plan was prepared; no new product changes or deployment were performed.
+The agreed customer-facing rebrand and product-wide visual redesign are complete locally. The shared Pridict visual system covers the Desk shell, all enabled module workspaces, lists, forms, child tables, reports, dashboards, dialogs, trees, calendars, Kanban, login, portal and print-preview surfaces in light and dark themes with responsive behavior.
+
+The 21 September review added 240 screenshots covering all 21 routable enabled workspaces and 39 representative page routes at 1440px and 390x844. Together with the restricted Buying and contextual-help matrices, the current checkpoint contains 259 screenshots with zero document-level horizontal overflow, zero targeted upstream branding and zero unexpected route errors. `Welcome Workspace` remains an accepted fallback-only database record without a direct route.
+
+The user approved the visual result on 21 September 2026. No workflow redesign or business-function change was introduced. The next step is to commit the final evidence/tooling update, build and validate an immutable image from that commit, and obtain separate authorization before updating UAT.
 
 ## Current UAT release and public hostname — 16 September 2026
 
@@ -37,10 +41,10 @@ The audit and rc1 preparation entries below are historical and are superseded by
 1. Audit the installed ERPNext/Frappe versions, source state, customizations and deployment scripts; verify backups and recovery.
 2. Build a separate Frappe customization app for branding and styles, preserving required license notices and minimizing core changes.
 3. Implement the shell, navigation and Sales Invoice list/form in both themes as the first review milestone.
-4. Extend consistent styling across workspaces, forms, reports, dialogs and other modules after review.
-5. Validate representative accounting, selling, buying and stock operations and responsive/keyboard behavior.
+4. Extend consistent styling across workspaces, forms, reports, dialogs and all enabled modules.
+5. Validate every routable module workspace and representative lists, forms, reports, trees, calendars, Kanban, settings, portal and print surfaces in light/dark desktop and mobile layouts.
 6. Build versioned images and establish CI/CD and rollback, including database/file backups before migrations.
-7. Obtain review of the completed UI before releasing to UAT.
+7. Obtain review of the completed UI before releasing to UAT. User approval was received on 21 September 2026.
 
 ## Audit and recovery status
 The read-only deployment audit was completed on 16 September 2026. The live VM is healthy and runs ERPNext 15.121.2 with Frappe 15.120.1. It still uses the pinned official `frappe/erpnext:v15.121.2` image and does not have the Pridict app installed.

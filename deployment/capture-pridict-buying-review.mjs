@@ -134,7 +134,7 @@ async function setTheme(client, theme) {
     client,
     `document.documentElement.getAttribute('data-theme') === ${JSON.stringify(theme)}`,
   );
-  await delay(750);
+  await delay(1500);
 }
 
 async function capture(client, screen, theme) {
@@ -163,6 +163,9 @@ async function capture(client, screen, theme) {
         .flatMap((steps) => Array.isArray(steps) ? steps : [])
         .map((step) => step?.description || '')
         .filter((description) => /(?:docs\.erpnext\.com|docs\.frappe\.io\\/erpnext)/i.test(description)),
+      errorVisible: /(?:not found|not permitted|permission error|server error|internal server error)/i.test(
+        document.body.innerText,
+      ),
       firstDataRow: (() => {
         const row = document.querySelector('.list-row-container .list-row');
         if (!row) return null;
@@ -265,20 +268,86 @@ try {
         { name: "stock-settings", route: "/app/stock-settings" },
         { name: "stock-entry", route: "/app/stock-entry/new-stock-entry-1" },
       ]
-    : [
-        { name: "buying-workspace", route: "/app/buying" },
-        {
-          name: "purchase-order-list",
-          route:
-            "/app/purchase-order?company=%5B%22%3D%22%2C%22_Test%20Company%22%5D&status=%5B%22in%22%2C%5B%22To%20Receive%22%2C%22To%20Receive%20and%20Bill%22%5D%5D",
-        },
-        {
-          name: "purchase-order-form",
-          route: `/app/purchase-order/${purchaseOrder}`,
-          beforeCapture:
-            'document.querySelector("[data-fieldname=items]")?.scrollIntoView({ block: "center" })',
-        },
-      ];
+    : screenSet === "all-modules"
+      ? [
+          { name: "accounting", route: "/app/accounting" },
+          { name: "assets", route: "/app/assets" },
+          { name: "build", route: "/app/build" },
+          { name: "buying", route: "/app/buying" },
+          { name: "crm", route: "/app/crm" },
+          { name: "erpnext-integrations", route: "/app/erpnext-integrations" },
+          { name: "pridict-settings", route: "/app/erpnext-settings" },
+          { name: "financial-reports", route: "/app/financial-reports" },
+          { name: "home", route: "/app/home" },
+          { name: "integrations", route: "/app/integrations" },
+          { name: "manufacturing", route: "/app/manufacturing" },
+          { name: "payables", route: "/app/payables" },
+          { name: "projects", route: "/app/projects" },
+          { name: "quality", route: "/app/quality" },
+          { name: "receivables", route: "/app/receivables" },
+          { name: "selling", route: "/app/selling" },
+          { name: "stock", route: "/app/stock" },
+          { name: "support", route: "/app/support" },
+          { name: "tools", route: "/app/tools" },
+          { name: "users", route: "/app/users" },
+          { name: "website", route: "/app/website" },
+        ]
+      : screenSet === "representative-pages"
+        ? [
+            { name: "sales-invoice-list", route: "/app/sales-invoice" },
+            { name: "sales-invoice-form", route: "/app/sales-invoice/new-sales-invoice-1" },
+            { name: "customer-list", route: "/app/customer" },
+            { name: "customer-form", route: "/app/customer/new-customer-1" },
+            { name: "item-list", route: "/app/item" },
+            { name: "item-form", route: "/app/item/PRIDICT-QA-CHAIR" },
+            { name: "supplier-list", route: "/app/supplier" },
+            { name: "supplier-form", route: "/app/supplier/Pridict%20QA%20Office%20Supplies" },
+            { name: "asset-list", route: "/app/asset" },
+            { name: "asset-form", route: "/app/asset/new-asset-1" },
+            { name: "bom-list", route: "/app/bom" },
+            { name: "bom-form", route: "/app/bom/new-bom-1" },
+            { name: "work-order-list", route: "/app/work-order" },
+            { name: "work-order-form", route: "/app/work-order/new-work-order-1" },
+            { name: "project-list", route: "/app/project" },
+            { name: "project-form", route: "/app/project/_T-Project-00001" },
+            { name: "task-list", route: "/app/task" },
+            { name: "task-form", route: "/app/task/new-task-1" },
+            { name: "quality-inspection-list", route: "/app/quality-inspection" },
+            { name: "quality-inspection-form", route: "/app/quality-inspection/new-quality-inspection-1" },
+            { name: "issue-list", route: "/app/issue" },
+            { name: "issue-form", route: "/app/issue/new-issue-1" },
+            { name: "user-list", route: "/app/user" },
+            { name: "user-form", route: "/app/user/Administrator" },
+            { name: "web-page-list", route: "/app/web-page" },
+            { name: "web-page-form", route: "/app/web-page/new-web-page-1" },
+            { name: "stock-entry-list", route: "/app/stock-entry" },
+            { name: "stock-entry-form", route: "/app/stock-entry/MAT-STE-2026-00002" },
+            { name: "delivery-note-list", route: "/app/delivery-note" },
+            { name: "delivery-note-form", route: "/app/delivery-note/new-delivery-note-1" },
+            { name: "purchase-invoice-list", route: "/app/purchase-invoice" },
+            { name: "purchase-invoice-form", route: "/app/purchase-invoice/new-purchase-invoice-1" },
+            { name: "general-ledger", route: "/app/query-report/General%20Ledger" },
+            { name: "stock-ledger", route: "/app/query-report/Stock%20Ledger" },
+            { name: "accounts-receivable", route: "/app/query-report/Accounts%20Receivable" },
+            { name: "accounts-payable", route: "/app/query-report/Accounts%20Payable" },
+            { name: "account-tree", route: "/app/account/view/tree" },
+            { name: "event-calendar", route: "/app/event/view/calendar" },
+            { name: "todo-kanban", route: "/app/todo/view/kanban" },
+          ]
+      : [
+          { name: "buying-workspace", route: "/app/buying" },
+          {
+            name: "purchase-order-list",
+            route:
+              "/app/purchase-order?company=%5B%22%3D%22%2C%22_Test%20Company%22%5D&status=%5B%22in%22%2C%5B%22To%20Receive%22%2C%22To%20Receive%20and%20Bill%22%5D%5D",
+          },
+          {
+            name: "purchase-order-form",
+            route: `/app/purchase-order/${purchaseOrder}`,
+            beforeCapture:
+              'document.querySelector("[data-fieldname=items]")?.scrollIntoView({ block: "center" })',
+          },
+        ];
 
   const evidence = [];
   for (const screen of screens) {
