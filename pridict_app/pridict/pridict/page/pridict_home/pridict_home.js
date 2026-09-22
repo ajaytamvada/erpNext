@@ -118,6 +118,9 @@ class PridictExecutiveHome {
 			...this.data.business_areas.map((area) => [area.route, area.label, area.icon]),
 			["query-report/Profit and Loss Statement", __("Reports"), "chart"],
 			["workflow-action", __("Approvals"), "check-circle"],
+			...(frappe.user_roles.includes("System Manager")
+				? [["schema-intelligence", __("Schema Intelligence"), "branch"]]
+				: []),
 		];
 		return `
 			<aside class="pridict-executive-sidebar" aria-label="${__("Executive navigation")}">

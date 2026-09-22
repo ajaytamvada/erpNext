@@ -1,0 +1,72 @@
+flowchart LR
+    n_56ef8f20955f["Address"]
+    n_0a5865059249["Auto Repeat"]
+    n_268286d2ef75["Campaign"]
+    n_de4743c87973["Company"]
+    n_2b5c3d26721a["Contact"]
+    n_e905a99d65ba["Cost Center"]
+    n_94dafc0eb9f9["Coupon Code"]
+    n_3ac1a9ec4fa7["Currency"]
+    n_bf3763383aaf["Customer"]
+    n_897ce156070e["Customer Group"]
+    n_766608a70c8b["Incoterm"]
+    n_c159e5e46155["Lead Source"]
+    n_52d256257b69["Letter Head"]
+    n_414740c8cad7["Packed Item"]
+    n_3f2014a24ac0["Payment Schedule"]
+    n_9c0d3dc0f400["Payment Terms Template"]
+    n_0f8962d8d646["Price List"]
+    n_9330c65b903c["Pricing Rule Detail"]
+    n_04578d820108["Print Heading"]
+    n_985959785319["Project"]
+    n_fde8baa4a8e2["Purchase Order"]
+    n_948c57ee3902["Sales Order"]
+    n_b66c19ed1ae9["Sales Order Item"]
+    n_bebb4911c0b2["Sales Partner"]
+    n_0939e765516f["Sales Taxes and Charges"]
+    n_1513fb58a16e["Sales Taxes and Charges Template"]
+    n_00f9fd0841d3["Sales Team"]
+    n_14184d0e6ec0["Shipping Rule"]
+    n_ec7153421a06["Tax Category"]
+    n_34e6faf15abd["Terms and Conditions"]
+    n_d788d3cfc1c9["Territory"]
+    n_2a625c251683["Warehouse"]
+    n_948c57ee3902 -->|"amended_from · LINK"| n_948c57ee3902
+    n_948c57ee3902 -->|"auto_repeat · LINK"| n_0a5865059249
+    n_948c57ee3902 -->|"campaign · LINK"| n_268286d2ef75
+    n_948c57ee3902 -->|"company · LINK"| n_de4743c87973
+    n_948c57ee3902 -->|"company_address · LINK"| n_56ef8f20955f
+    n_948c57ee3902 -->|"company_contact_person · LINK"| n_2b5c3d26721a
+    n_948c57ee3902 -->|"contact_person · LINK"| n_2b5c3d26721a
+    n_948c57ee3902 -->|"cost_center · LINK"| n_e905a99d65ba
+    n_948c57ee3902 -->|"coupon_code · LINK"| n_94dafc0eb9f9
+    n_948c57ee3902 -->|"currency · LINK"| n_3ac1a9ec4fa7
+    n_948c57ee3902 -->|"customer · LINK"| n_bf3763383aaf
+    n_948c57ee3902 -->|"customer_address · LINK"| n_56ef8f20955f
+    n_948c57ee3902 -->|"customer_group · LINK"| n_897ce156070e
+    n_948c57ee3902 -->|"dispatch_address_name · LINK"| n_56ef8f20955f
+    n_948c57ee3902 -->|"incoterm · LINK"| n_766608a70c8b
+    n_948c57ee3902 -->|"inter_company_order_reference · LINK"| n_fde8baa4a8e2
+    n_948c57ee3902 -->|"items · CHILD_TABLE"| n_b66c19ed1ae9
+    n_948c57ee3902 -->|"letter_head · LINK"| n_52d256257b69
+    n_948c57ee3902 -->|"packed_items · CHILD_TABLE"| n_414740c8cad7
+    n_948c57ee3902 -->|"party_account_currency · LINK"| n_3ac1a9ec4fa7
+    n_948c57ee3902 -->|"payment_schedule · CHILD_TABLE"| n_3f2014a24ac0
+    n_948c57ee3902 -->|"payment_terms_template · LINK"| n_9c0d3dc0f400
+    n_948c57ee3902 -->|"price_list_currency · LINK"| n_3ac1a9ec4fa7
+    n_948c57ee3902 -->|"pricing_rules · CHILD_TABLE"| n_9330c65b903c
+    n_948c57ee3902 -->|"project · LINK"| n_985959785319
+    n_948c57ee3902 -->|"represents_company · LINK"| n_de4743c87973
+    n_948c57ee3902 -->|"sales_partner · LINK"| n_bebb4911c0b2
+    n_948c57ee3902 -->|"sales_team · CHILD_TABLE"| n_00f9fd0841d3
+    n_948c57ee3902 -->|"select_print_heading · LINK"| n_04578d820108
+    n_948c57ee3902 -->|"selling_price_list · LINK"| n_0f8962d8d646
+    n_948c57ee3902 -->|"set_warehouse · LINK"| n_2a625c251683
+    n_948c57ee3902 -->|"shipping_address_name · LINK"| n_56ef8f20955f
+    n_948c57ee3902 -->|"shipping_rule · LINK"| n_14184d0e6ec0
+    n_948c57ee3902 -->|"source · LINK"| n_c159e5e46155
+    n_948c57ee3902 -->|"tax_category · LINK"| n_ec7153421a06
+    n_948c57ee3902 -->|"taxes · CHILD_TABLE"| n_0939e765516f
+    n_948c57ee3902 -->|"taxes_and_charges · LINK"| n_1513fb58a16e
+    n_948c57ee3902 -->|"tc_name · LINK"| n_34e6faf15abd
+    n_948c57ee3902 -->|"territory · LINK"| n_d788d3cfc1c9

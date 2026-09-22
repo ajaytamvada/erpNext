@@ -1,0 +1,30 @@
+{
+  "added_doctypes": [],
+  "after_metadata_hash": "393f59a5351e677884e2a1cd9db84ced32214f96961bb4f3d384fe5425cc1da5",
+  "after_snapshot_id": "85de01b9-7c33-40c1-839f-4a7cfd67804f",
+  "before_metadata_hash": "c45c02a0ba57d8f3d640fe38a364d050af3920a3c982757001cab76e2aceed2b",
+  "before_snapshot_id": "86f86c8e-e8ca-4e5d-af96-91316a6dfa0e",
+  "changed_doctypes": [],
+  "equivalent": false,
+  "field_order_changed": [
+    "Customer"
+  ],
+  "fields": {
+    "Customer": {
+      "added": [
+        "custom_pridict_schema_tier"
+      ],
+      "changed": [
+        "customer_name"
+      ],
+      "removed": []
+    }
+  },
+  "permissions": {},
+  "relationships": {
+    "added": [],
+    "changed": [],
+    "removed": []
+  },
+  "removed_doctypes": []
+}

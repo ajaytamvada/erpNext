@@ -1596,6 +1596,716 @@ html.pridict-ui .web-footer {
 	}
 }
 
+html.pridict-ui .pridict-schema-page .page-body,
+html.pridict-ui .pridict-schema-page .layout-main-section-wrapper,
+html.pridict-ui .pridict-schema-page .layout-main-section {
+	max-width: none;
+	margin: 0;
+	padding: 0;
+}
+
+html.pridict-ui .pridict-schema-page .pridict-schema-page-head {
+	border-bottom-color: var(--pridict-border);
+	background: var(--pridict-surface);
+}
+
+html.pridict-ui .pridict-schema-intelligence {
+	min-height: calc(100vh - var(--navbar-height));
+	padding: 24px;
+	color: var(--pridict-text);
+	background:
+		radial-gradient(circle at 90% 0%, rgb(47 99 199 / 9%), transparent 30%),
+		var(--pridict-executive-bg);
+}
+
+html.pridict-ui .pridict-schema-shell {
+	display: grid;
+	gap: 18px;
+	max-width: 1680px;
+	margin: 0 auto;
+}
+
+html.pridict-ui .pridict-schema-hero {
+	display: flex;
+	align-items: end;
+	justify-content: space-between;
+	gap: 24px;
+	padding: 26px 28px;
+	color: #fff;
+	background: linear-gradient(125deg, var(--pridict-navy-900), #27598d);
+	border-radius: 14px;
+	box-shadow: 0 14px 36px rgb(15 35 62 / 16%);
+}
+
+html.pridict-ui .pridict-schema-hero h1 {
+	max-width: 720px;
+	margin: 6px 0 8px;
+	color: #fff;
+	font-size: clamp(24px, 3vw, 38px);
+	font-weight: 650;
+	letter-spacing: -0.035em;
+}
+
+html.pridict-ui .pridict-schema-hero p {
+	max-width: 720px;
+	margin: 0;
+	color: rgb(255 255 255 / 72%);
+	font-size: 14px;
+}
+
+html.pridict-ui .pridict-schema-eyebrow {
+	display: block;
+	color: var(--pridict-blue-600);
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.11em;
+	text-transform: uppercase;
+}
+
+html.pridict-ui .pridict-schema-hero .pridict-schema-eyebrow {
+	color: #9fc5f4;
+}
+
+html.pridict-ui .pridict-schema-snapshot-picker {
+	display: grid;
+	flex: 0 1 390px;
+	gap: 7px;
+}
+
+html.pridict-ui .pridict-schema-snapshot-picker label {
+	margin: 0;
+	color: rgb(255 255 255 / 72%);
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+html.pridict-ui .pridict-schema-snapshot-picker .form-control {
+	color: #fff;
+	background: rgb(255 255 255 / 10%);
+	border-color: rgb(255 255 255 / 22%);
+}
+
+html.pridict-ui .pridict-schema-snapshot-picker option {
+	color: #1f2937;
+}
+
+html.pridict-ui .pridict-schema-summary {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(120px, 1fr)) minmax(240px, 1.5fr);
+	gap: 12px;
+}
+
+html.pridict-ui .pridict-schema-stat {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 2px 12px;
+	align-items: center;
+	min-height: 96px;
+	padding: 18px;
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 12px;
+	box-shadow: var(--pridict-shadow);
+}
+
+html.pridict-ui .pridict-schema-stat > span:first-child {
+	display: grid;
+	grid-row: 1 / span 2;
+	place-items: center;
+	width: 38px;
+	height: 38px;
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+	border-radius: 10px;
+}
+
+html.pridict-ui .pridict-schema-stat strong {
+	font-size: 24px;
+	line-height: 1;
+}
+
+html.pridict-ui .pridict-schema-stat small {
+	color: var(--pridict-text-muted);
+}
+
+html.pridict-ui .pridict-schema-stat-wide {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: center;
+	gap: 7px;
+}
+
+html.pridict-ui .pridict-schema-stat-wide code {
+	color: var(--pridict-text);
+	font-size: 13px;
+}
+
+html.pridict-ui .pridict-schema-status-line {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	color: var(--pridict-text-muted);
+	font-size: 12px;
+}
+
+html.pridict-ui .pridict-schema-diagnostics {
+	background: var(--pridict-warning-bg);
+	border: 1px solid color-mix(in srgb, var(--pridict-warning-text) 22%, transparent);
+	border-radius: 10px;
+}
+
+html.pridict-ui .pridict-schema-diagnostics summary {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 16px;
+	color: var(--pridict-warning-text);
+	font-weight: 600;
+	cursor: pointer;
+}
+
+html.pridict-ui .pridict-schema-diagnostics summary span:last-child {
+	margin-left: auto;
+}
+
+html.pridict-ui .pridict-schema-diagnostics > div {
+	display: grid;
+	gap: 8px;
+	padding: 0 16px 16px;
+}
+
+html.pridict-ui .pridict-schema-diagnostic {
+	display: grid;
+	grid-template-columns: minmax(180px, auto) 1fr auto;
+	gap: 12px;
+	padding-top: 8px;
+	border-top: 1px solid rgb(148 96 30 / 18%);
+}
+
+html.pridict-ui .pridict-schema-diagnostic span,
+html.pridict-ui .pridict-schema-diagnostic small {
+	color: var(--pridict-text-muted);
+}
+
+html.pridict-ui .pridict-schema-browser {
+	display: grid;
+	grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+	min-height: 680px;
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 14px;
+	box-shadow: var(--pridict-shadow);
+	overflow: hidden;
+}
+
+html.pridict-ui .pridict-schema-index {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	background: var(--pridict-surface-muted);
+	border-right: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui .pridict-schema-index-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 20px;
+}
+
+html.pridict-ui .pridict-schema-index h2,
+html.pridict-ui .pridict-schema-detail h2 {
+	margin: 3px 0 0;
+	font-size: 20px;
+}
+
+html.pridict-ui .pridict-schema-count {
+	min-width: 36px;
+	padding: 5px 9px;
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 700;
+	text-align: center;
+}
+
+html.pridict-ui .pridict-schema-filters {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 128px;
+	gap: 8px;
+	padding: 0 16px 14px;
+}
+
+html.pridict-ui .pridict-schema-doctype-list {
+	max-height: 780px;
+	overflow-y: auto;
+}
+
+html.pridict-ui .pridict-schema-doctype {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 13px 16px;
+	color: var(--pridict-text);
+	text-align: left;
+	background: transparent;
+	border: 0;
+	border-top: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui .pridict-schema-doctype:hover,
+html.pridict-ui .pridict-schema-doctype:focus-visible,
+html.pridict-ui .pridict-schema-doctype.is-active {
+	background: var(--pridict-blue-100);
+	outline: none;
+}
+
+html.pridict-ui .pridict-schema-doctype.is-active {
+	box-shadow: inset 3px 0 var(--pridict-blue-600);
+}
+
+html.pridict-ui .pridict-schema-doctype-main {
+	display: grid;
+	min-width: 0;
+}
+
+html.pridict-ui .pridict-schema-doctype-main strong,
+html.pridict-ui .pridict-schema-doctype-main small {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+html.pridict-ui .pridict-schema-doctype-main small,
+html.pridict-ui .pridict-schema-doctype-meta {
+	color: var(--pridict-text-muted);
+	font-size: 11px;
+}
+
+html.pridict-ui .pridict-schema-doctype-meta {
+	display: flex;
+	flex: 0 0 auto;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 4px 8px;
+}
+
+html.pridict-ui .pridict-schema-doctype-meta em {
+	color: var(--pridict-blue-600);
+	font-style: normal;
+}
+
+html.pridict-ui .pridict-schema-detail {
+	min-width: 0;
+	padding: 24px;
+}
+
+html.pridict-ui .pridict-schema-detail-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 18px;
+}
+
+html.pridict-ui .pridict-schema-tags,
+html.pridict-ui .pridict-schema-permissions article p {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+html.pridict-ui .pridict-schema-tag,
+html.pridict-ui .pridict-schema-type {
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 7px;
+	color: var(--pridict-blue-700);
+	background: var(--pridict-blue-100);
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+}
+
+html.pridict-ui .pridict-schema-tabs {
+	display: flex;
+	gap: 4px;
+	margin-bottom: 18px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid var(--pridict-border);
+	overflow-x: auto;
+}
+
+html.pridict-ui .pridict-schema-tabs button {
+	padding: 7px 10px;
+	color: var(--pridict-text-muted);
+	white-space: nowrap;
+	background: transparent;
+	border: 0;
+	border-radius: 7px;
+}
+
+html.pridict-ui .pridict-schema-tabs button.is-active {
+	color: var(--pridict-blue-700);
+	background: var(--pridict-blue-100);
+}
+
+html.pridict-ui .pridict-schema-tabs button span {
+	margin-left: 4px;
+	opacity: 0.7;
+}
+
+html.pridict-ui .pridict-schema-tab-panel {
+	display: none;
+}
+
+html.pridict-ui .pridict-schema-tab-panel.is-active {
+	display: block;
+}
+
+html.pridict-ui .pridict-schema-table-wrap,
+html.pridict-ui .pridict-schema-graph {
+	overflow: auto;
+	border: 1px solid var(--pridict-border);
+	border-radius: 10px;
+}
+
+html.pridict-ui .pridict-schema-table {
+	width: 100%;
+	min-width: 760px;
+	border-collapse: collapse;
+}
+
+html.pridict-ui .pridict-schema-table th,
+html.pridict-ui .pridict-schema-table td {
+	padding: 11px 12px;
+	vertical-align: top;
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui .pridict-schema-table th {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	color: var(--pridict-text-muted);
+	font-size: 11px;
+	font-weight: 700;
+	text-align: left;
+	text-transform: uppercase;
+	background: var(--pridict-surface-muted);
+}
+
+html.pridict-ui .pridict-schema-table td:first-child {
+	display: grid;
+	gap: 3px;
+}
+
+html.pridict-ui .pridict-schema-table code,
+html.pridict-ui .pridict-schema-relationship-list code {
+	color: var(--pridict-text-muted);
+	font-size: 11px;
+}
+
+html.pridict-ui .pridict-schema-graph {
+	padding: 12px;
+	background: var(--pridict-surface-muted);
+}
+
+html.pridict-ui .pridict-schema-graph svg {
+	display: block;
+	min-width: 760px;
+	width: 100%;
+}
+
+html.pridict-ui .pridict-schema-graph rect {
+	fill: var(--pridict-surface);
+	stroke: var(--pridict-border-strong);
+}
+
+html.pridict-ui .pridict-schema-graph-root rect {
+	fill: var(--pridict-blue-600);
+	stroke: var(--pridict-blue-600);
+}
+
+html.pridict-ui .pridict-schema-graph-root text {
+	fill: #fff;
+}
+
+html.pridict-ui .pridict-schema-graph-edge path {
+	fill: none;
+	stroke: var(--pridict-border-strong);
+	stroke-width: 1.5;
+}
+
+html.pridict-ui .pridict-schema-graph text {
+	fill: var(--pridict-text);
+	font-size: 11px;
+}
+
+html.pridict-ui .pridict-schema-graph > small {
+	display: block;
+	padding: 8px 4px 0;
+	color: var(--pridict-text-muted);
+}
+
+html.pridict-ui .pridict-schema-relationship-list,
+html.pridict-ui .pridict-schema-permissions {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 10px;
+	margin-top: 14px;
+}
+
+html.pridict-ui .pridict-schema-relationship-list > div,
+html.pridict-ui .pridict-schema-permissions article,
+html.pridict-ui .pridict-schema-metadata-grid article {
+	padding: 14px;
+	background: var(--pridict-surface-muted);
+	border: 1px solid var(--pridict-border);
+	border-radius: 9px;
+}
+
+html.pridict-ui .pridict-schema-relationship-list > div {
+	display: grid;
+	grid-template-columns: auto minmax(100px, 1fr) auto minmax(100px, 1fr);
+	gap: 8px;
+	align-items: center;
+}
+
+html.pridict-ui .pridict-schema-permissions article > div {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+html.pridict-ui .pridict-schema-permissions article > div span,
+html.pridict-ui .pridict-schema-permissions article small {
+	color: var(--pridict-text-muted);
+}
+
+html.pridict-ui .pridict-schema-permissions article p {
+	margin: 10px 0 0;
+}
+
+html.pridict-ui .pridict-schema-metadata-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 10px;
+}
+
+html.pridict-ui .pridict-schema-metadata-grid article {
+	display: grid;
+	gap: 5px;
+}
+
+html.pridict-ui .pridict-schema-metadata-grid span {
+	color: var(--pridict-text-muted);
+	font-size: 12px;
+}
+
+html.pridict-ui .pridict-schema-properties {
+	margin-top: 14px;
+	border: 1px solid var(--pridict-border);
+	border-radius: 9px;
+}
+
+html.pridict-ui .pridict-schema-properties summary {
+	padding: 12px 14px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+html.pridict-ui .pridict-schema-properties pre {
+	max-height: 480px;
+	margin: 0;
+	padding: 14px;
+	color: var(--pridict-text);
+	background: var(--pridict-surface-muted);
+	border-top: 1px solid var(--pridict-border);
+	white-space: pre-wrap;
+}
+
+html.pridict-ui .pridict-schema-state,
+html.pridict-ui .pridict-schema-empty,
+html.pridict-ui .pridict-schema-detail-loading,
+html.pridict-ui .pridict-schema-detail-error,
+html.pridict-ui .pridict-schema-no-results {
+	display: grid;
+	place-items: center;
+	gap: 10px;
+	min-height: 240px;
+	padding: 30px;
+	color: var(--pridict-text-muted);
+	text-align: center;
+}
+
+html.pridict-ui .pridict-schema-empty {
+	min-height: calc(100vh - 170px);
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 14px;
+}
+
+html.pridict-ui .pridict-schema-empty h2 {
+	margin: 0;
+	color: var(--pridict-text);
+}
+
+html.pridict-ui .pridict-schema-empty p {
+	max-width: 540px;
+}
+
+html.pridict-ui .pridict-schema-empty-icon {
+	display: grid;
+	place-items: center;
+	width: 64px;
+	height: 64px;
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+	border-radius: 18px;
+}
+
+html.pridict-ui .pridict-schema-state-error,
+html.pridict-ui .pridict-schema-detail-error {
+	color: var(--pridict-danger-text);
+}
+
+.pridict-schema-comparison {
+	display: grid;
+	gap: 16px;
+	padding: 4px;
+}
+
+.pridict-schema-comparison-status {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 14px;
+	border-radius: 9px;
+}
+
+.pridict-schema-comparison-status.is-equivalent {
+	color: var(--pridict-success-text);
+	background: var(--pridict-success-bg);
+}
+
+.pridict-schema-comparison-status.is-changed {
+	color: var(--pridict-warning-text);
+	background: var(--pridict-warning-bg);
+}
+
+.pridict-schema-comparison-grid {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(110px, 1fr));
+	gap: 8px;
+}
+
+.pridict-schema-comparison-grid article {
+	display: grid;
+	gap: 4px;
+	padding: 12px;
+	background: var(--pridict-surface-muted);
+	border: 1px solid var(--pridict-border);
+	border-radius: 8px;
+}
+
+.pridict-schema-comparison-grid strong {
+	font-size: 22px;
+}
+
+.pridict-schema-comparison-grid span {
+	color: var(--pridict-text-muted);
+	font-size: 11px;
+}
+
+.pridict-schema-comparison-section {
+	display: grid;
+	gap: 6px;
+}
+
+.pridict-schema-comparison-section h4 {
+	margin: 0 0 4px;
+}
+
+.pridict-schema-comparison-section code {
+	display: block;
+	padding: 7px 9px;
+	color: var(--pridict-text);
+	background: var(--pridict-surface-muted);
+	border-radius: 6px;
+}
+
+@media (max-width: 1100px) {
+	html.pridict-ui .pridict-schema-summary {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	html.pridict-ui .pridict-schema-stat-wide {
+		grid-column: span 2;
+	}
+
+	html.pridict-ui .pridict-schema-browser {
+		grid-template-columns: 300px minmax(0, 1fr);
+	}
+}
+
+@media (max-width: 767px) {
+	html.pridict-ui .pridict-schema-intelligence {
+		padding: 12px;
+	}
+
+	html.pridict-ui .pridict-schema-hero,
+	html.pridict-ui .pridict-schema-detail-head,
+	.pridict-schema-comparison-status {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	html.pridict-ui .pridict-schema-snapshot-picker {
+		flex: 0 0 auto;
+		width: 100%;
+	}
+
+	html.pridict-ui .pridict-schema-summary,
+	html.pridict-ui .pridict-schema-browser,
+	html.pridict-ui .pridict-schema-relationship-list,
+	html.pridict-ui .pridict-schema-permissions,
+	html.pridict-ui .pridict-schema-metadata-grid,
+	.pridict-schema-comparison-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	html.pridict-ui .pridict-schema-stat-wide {
+		grid-column: auto;
+	}
+
+	html.pridict-ui .pridict-schema-index {
+		border-right: 0;
+		border-bottom: 1px solid var(--pridict-border);
+	}
+
+	html.pridict-ui .pridict-schema-doctype-list {
+		max-height: 360px;
+	}
+
+	html.pridict-ui .pridict-schema-detail {
+		padding: 16px;
+	}
+
+	html.pridict-ui .pridict-schema-diagnostic {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 4px;
+	}
+}
+
 html.pridict-ui body[data-route^="List/Sales Invoice"] .layout-main-section.frappe-card,
 html.pridict-ui .page-container[data-page-route^="List/Sales Invoice"] .layout-main-section.frappe-card {
 	overflow: hidden;

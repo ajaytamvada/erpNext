@@ -37,6 +37,54 @@ A visible navbar toggle switches between light and dark themes and persists the 
 
 The install and migration hooks set the supported Website Settings, System Settings, and Navbar Settings branding fields to Pridict. This removes default Frappe login branding without modifying Frappe templates.
 
+## Schema Intelligence
+
+Milestone 1 provides a read-only backend extractor for effective Frappe metadata. It discovers all
+DocTypes installed on the selected site, preserves source metadata, resolves relationships, produces a
+stable semantic hash, and can persist snapshots to the site's private files directory.
+
+Capture without persistence:
+
+```bash
+bench --site development.localhost execute pridict.schema_intelligence.api.capture_summary
+```
+
+Capture and persist a complete snapshot:
+
+```bash
+bench --site development.localhost execute pridict.schema_intelligence.api.capture_and_persist
+```
+
+The returned `snapshot_id` can be used with the following calls:
+
+```bash
+bench --site development.localhost execute pridict.schema_intelligence.api.get_snapshot \
+  --kwargs "{'snapshot_id': '<snapshot-id>'}"
+
+bench --site development.localhost execute pridict.schema_intelligence.api.compare_snapshots \
+  --kwargs "{'before_snapshot_id': '<before-id>', 'after_snapshot_id': '<after-id>'}"
+
+bench --site development.localhost execute pridict.schema_intelligence.operator.export_doctype \
+  --kwargs "{'snapshot_id': '<snapshot-id>', 'doctype': 'Sales Order'}"
+```
+
+HTTP calls use the same whitelisted API functions and require an authenticated user with the
+`System Manager` role. Guest access is not enabled. Snapshot files are written beneath
+`sites/<site>/private/files/pridict-schema-intelligence`; extraction and persistence remain separate
+service operations.
+
+See `documentation/PRIDICT-SCHEMA-INTELLIGENCE-M1.md` for the architecture, verified Frappe behavior,
+hashing contract, limitations, and safety model.
+
+Milestone 2 adds a protected Desk page at `/app/schema-intelligence`. It is available only to users
+with the `System Manager` role and provides snapshot capture, snapshot selection, diagnostics,
+DocType search and filtering, field inspection, relationship visualization, permission metadata,
+provenance, and deterministic snapshot comparison. The browser uses compact summary and per-DocType
+API responses rather than downloading preserved raw metadata.
+
+See `documentation/PRIDICT-SCHEMA-INTELLIGENCE-M2.md` for the frontend architecture, API contract,
+verification evidence, limitations, and operator workflow.
+
 ## License
 
 This app is licensed under the GNU General Public License v3.0 and is distributed with the repository-level `license.txt`. Existing ERPNext and Frappe copyright, attribution, and trademark notices must remain intact.
