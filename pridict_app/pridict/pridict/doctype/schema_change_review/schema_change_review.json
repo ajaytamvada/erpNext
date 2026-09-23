@@ -1,0 +1,52 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-09-23 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "comparison_section", "baseline_snapshot", "candidate_snapshot", "comparison_hash", "status", "priority_override",
+  "summary_section", "critical_count", "warning_count", "information_count", "unresolved_count", "findings_truncated", "comparison_repository_identifier",
+  "review_section", "reviewer", "acknowledged_at", "decided_at", "baseline_promoted", "notification_state",
+  "findings_section", "findings", "comments_section", "comments"
+ ],
+ "fields": [
+  {"fieldname":"comparison_section","fieldtype":"Section Break","label":"Comparison"},
+  {"fieldname":"baseline_snapshot","fieldtype":"Link","label":"Baseline Snapshot","options":"Schema Snapshot Record","read_only":1,"reqd":1},
+  {"fieldname":"candidate_snapshot","fieldtype":"Link","label":"Candidate Snapshot","options":"Schema Snapshot Record","read_only":1,"reqd":1},
+  {"fieldname":"comparison_hash","fieldtype":"Data","label":"Comparison Hash","read_only":1,"reqd":1,"unique":1},
+  {"default":"Open","fieldname":"status","fieldtype":"Select","in_list_view":1,"label":"Status","options":"Open\nAcknowledged\nApproved\nRejected","reqd":1},
+  {"fieldname":"priority_override","fieldtype":"Select","label":"Priority Override","options":"\nCritical\nWarning\nInformation"},
+  {"fieldname":"summary_section","fieldtype":"Section Break","label":"Findings"},
+  {"fieldname":"critical_count","fieldtype":"Int","in_list_view":1,"label":"Critical","read_only":1},
+  {"fieldname":"warning_count","fieldtype":"Int","in_list_view":1,"label":"Warnings","read_only":1},
+  {"fieldname":"information_count","fieldtype":"Int","label":"Information","read_only":1},
+  {"fieldname":"unresolved_count","fieldtype":"Int","label":"Unresolved","read_only":1},
+  {"default":"0","fieldname":"findings_truncated","fieldtype":"Check","label":"Findings Truncated","read_only":1},
+  {"fieldname":"comparison_repository_identifier","fieldtype":"Data","hidden":1,"label":"Comparison Repository Identifier","read_only":1},
+  {"fieldname":"review_section","fieldtype":"Section Break","label":"Review"},
+  {"fieldname":"reviewer","fieldtype":"Link","label":"Reviewer","options":"User","read_only":1},
+  {"fieldname":"acknowledged_at","fieldtype":"Datetime","label":"Acknowledged At","read_only":1},
+  {"fieldname":"decided_at","fieldtype":"Datetime","label":"Decided At","read_only":1},
+  {"default":"0","fieldname":"baseline_promoted","fieldtype":"Check","label":"Baseline Promoted","read_only":1},
+  {"default":"Not Sent","fieldname":"notification_state","fieldtype":"Select","label":"Notification State","options":"Not Sent\nSent\nFailed","read_only":1},
+  {"fieldname":"findings_section","fieldtype":"Section Break","label":"Indexed Findings"},
+  {"fieldname":"findings","fieldtype":"Table","label":"Findings","options":"Schema Change Finding","read_only":1},
+  {"fieldname":"comments_section","fieldtype":"Section Break","label":"Audit History"},
+  {"fieldname":"comments","fieldtype":"Table","label":"Comments","options":"Schema Review Comment","read_only":1}
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-09-23 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pridict",
+ "name": "Schema Change Review",
+ "owner": "Administrator",
+ "permissions": [
+  {"create":1,"delete":1,"email":1,"export":1,"print":1,"read":1,"role":"System Manager","share":1,"write":1},
+  {"create":1,"read":1,"role":"Schema Reviewer","write":1}
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

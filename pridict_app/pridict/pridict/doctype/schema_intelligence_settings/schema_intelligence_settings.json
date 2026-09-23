@@ -1,0 +1,51 @@
+{
+ "actions": [],
+ "creation": "2026-09-23 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "schedule_section", "scheduler_enabled", "capture_cadence", "capture_time", "comparison_target",
+  "retention_section", "retention_enabled", "retention_max_count", "retention_max_age_days",
+  "notification_section", "notification_enabled", "notification_minimum_severity", "notification_users", "notification_roles",
+  "limits_section", "graph_node_limit", "graph_edge_limit", "max_findings_per_review",
+  "status_section", "last_capture_status", "last_capture_at", "last_capture_message", "last_snapshot"
+ ],
+ "fields": [
+  {"fieldname":"schedule_section","fieldtype":"Section Break","label":"Scheduled Capture"},
+  {"default":"0","fieldname":"scheduler_enabled","fieldtype":"Check","label":"Enable Scheduled Capture"},
+  {"default":"Weekly","depends_on":"scheduler_enabled","fieldname":"capture_cadence","fieldtype":"Select","label":"Cadence","options":"Daily\nWeekly"},
+  {"default":"02:00:00","depends_on":"scheduler_enabled","fieldname":"capture_time","fieldtype":"Time","label":"Site-local Capture Time"},
+  {"default":"Pinned Baseline","depends_on":"scheduler_enabled","fieldname":"comparison_target","fieldtype":"Select","label":"Comparison Target","options":"Pinned Baseline\nLatest Complete"},
+  {"fieldname":"retention_section","fieldtype":"Section Break","label":"Retention"},
+  {"default":"0","fieldname":"retention_enabled","fieldtype":"Check","label":"Enable Retention"},
+  {"default":"30","depends_on":"retention_enabled","fieldname":"retention_max_count","fieldtype":"Int","label":"Maximum Snapshots"},
+  {"default":"90","depends_on":"retention_enabled","fieldname":"retention_max_age_days","fieldtype":"Int","label":"Maximum Age (Days)"},
+  {"fieldname":"notification_section","fieldtype":"Section Break","label":"Notifications"},
+  {"default":"0","fieldname":"notification_enabled","fieldtype":"Check","label":"Enable System Notifications"},
+  {"default":"Warning","depends_on":"notification_enabled","fieldname":"notification_minimum_severity","fieldtype":"Select","label":"Minimum Severity","options":"Critical\nWarning\nInformation"},
+  {"depends_on":"notification_enabled","description":"One enabled user email per line.","fieldname":"notification_users","fieldtype":"Small Text","label":"Notification Users"},
+  {"depends_on":"notification_enabled","description":"One role per line.","fieldname":"notification_roles","fieldtype":"Small Text","label":"Notification Roles"},
+  {"fieldname":"limits_section","fieldtype":"Section Break","label":"Safety Limits"},
+  {"default":"100","fieldname":"graph_node_limit","fieldtype":"Int","label":"Graph Node Limit"},
+  {"default":"250","fieldname":"graph_edge_limit","fieldtype":"Int","label":"Graph Edge Limit"},
+  {"default":"5000","fieldname":"max_findings_per_review","fieldtype":"Int","label":"Maximum Findings per Review"},
+  {"fieldname":"status_section","fieldtype":"Section Break","label":"Last Scheduled Run"},
+  {"fieldname":"last_capture_status","fieldtype":"Data","label":"Status","read_only":1},
+  {"fieldname":"last_capture_at","fieldtype":"Datetime","label":"Completed At","read_only":1},
+  {"fieldname":"last_capture_message","fieldtype":"Small Text","label":"Message","read_only":1},
+  {"fieldname":"last_snapshot","fieldtype":"Link","label":"Snapshot","options":"Schema Snapshot Record","read_only":1}
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-09-23 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pridict",
+ "name": "Schema Intelligence Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {"create":1,"delete":1,"email":1,"print":1,"read":1,"role":"System Manager","share":1,"write":1}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

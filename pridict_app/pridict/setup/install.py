@@ -73,6 +73,13 @@ def apply_branding():
 	frappe.clear_cache()
 
 
+def apply_pridict_setup():
+	apply_branding()
+	from pridict.setup.schema_intelligence import ensure_governance_setup
+
+	ensure_governance_setup()
+
+
 def _apply_website_footer():
 	footer = frappe.db.get_single_value("Website Settings", "footer_powered")
 	if (

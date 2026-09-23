@@ -1,0 +1,30 @@
+{
+ "actions": [],
+ "creation": "2026-09-23 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": ["finding_id","rule_id","severity","category","affected_path","affected_doctype","affected_field","explanation","before_value","after_value","provenance","acknowledged"],
+ "fields": [
+  {"fieldname":"finding_id","fieldtype":"Data","in_list_view":1,"label":"Finding ID","read_only":1,"reqd":1},
+  {"fieldname":"rule_id","fieldtype":"Data","label":"Rule","read_only":1,"reqd":1},
+  {"fieldname":"severity","fieldtype":"Select","in_list_view":1,"label":"Severity","options":"critical\nwarning\ninformation","read_only":1,"reqd":1},
+  {"fieldname":"category","fieldtype":"Data","label":"Category","read_only":1},
+  {"fieldname":"affected_path","fieldtype":"Data","in_list_view":1,"label":"Affected Path","read_only":1,"reqd":1},
+  {"fieldname":"affected_doctype","fieldtype":"Data","label":"Affected DocType","read_only":1},
+  {"fieldname":"affected_field","fieldtype":"Data","label":"Affected Field","read_only":1},
+  {"fieldname":"explanation","fieldtype":"Small Text","label":"Explanation","read_only":1},
+  {"fieldname":"before_value","fieldtype":"Code","label":"Before","options":"JSON","read_only":1},
+  {"fieldname":"after_value","fieldtype":"Code","label":"After","options":"JSON","read_only":1},
+  {"fieldname":"provenance","fieldtype":"Code","label":"Provenance","options":"JSON","read_only":1},
+  {"default":"0","fieldname":"acknowledged","fieldtype":"Check","label":"Acknowledged"}
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-09-23 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pridict",
+ "name": "Schema Change Finding",
+ "owner": "Administrator",
+ "permissions": []
+}

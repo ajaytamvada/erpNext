@@ -118,7 +118,7 @@ class PridictExecutiveHome {
 			...this.data.business_areas.map((area) => [area.route, area.label, area.icon]),
 			["query-report/Profit and Loss Statement", __("Reports"), "chart"],
 			["workflow-action", __("Approvals"), "check-circle"],
-			...(frappe.user_roles.includes("System Manager")
+			...(frappe.user_roles.some((role) => ["System Manager", "Schema Reviewer"].includes(role))
 				? [["schema-intelligence", __("Schema Intelligence"), "branch"]]
 				: []),
 		];

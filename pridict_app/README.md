@@ -85,6 +85,17 @@ API responses rather than downloading preserved raw metadata.
 See `documentation/PRIDICT-SCHEMA-INTELLIGENCE-M2.md` for the frontend architecture, API contract,
 verification evidence, limitations, and operator workflow.
 
+Milestone 3 adds schema-change governance around the immutable private snapshots: lifecycle records,
+explicit baselines, deterministic severity findings, audited reviews, opt-in scheduled capture and
+retention, System Notifications, bounded relationship exploration, and JSON/CSV/Mermaid exports.
+System Managers control configuration and lifecycle actions; the dedicated `Schema Reviewer` role can
+inspect snapshots and complete reviews. Scheduling and retention remain disabled until explicitly
+enabled.
+
+See `documentation/PRIDICT-SCHEMA-INTELLIGENCE-M3-SPEC.md` and
+`documentation/PRIDICT-SCHEMA-INTELLIGENCE-M3-HANDOFF.md` for the governance contract and current
+verification status.
+
 ## License
 
 This app is licensed under the GNU General Public License v3.0 and is distributed with the repository-level `license.txt`. Existing ERPNext and Frappe copyright, attribution, and trademark notices must remain intact.

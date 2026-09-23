@@ -21,6 +21,7 @@ class PridictSchemaIntelligence {
 		this.selectedDoctype = null;
 		this.searchTerm = "";
 		this.typeFilter = "all";
+		this.isManager = frappe.user.has_role("System Manager");
 		this.build();
 	}
 
@@ -30,7 +31,13 @@ class PridictSchemaIntelligence {
 		this.$root = $('<div class="pridict-schema-intelligence" aria-live="polite"></div>').appendTo(
 			this.page.main.empty()
 		);
-		this.page.set_primary_action(__("Capture Snapshot"), () => this.captureSnapshot(), "camera");
+		if (this.isManager) {
+			this.page.set_primary_action(__("Capture Snapshot"), () => this.captureSnapshot(), "camera");
+			this.page.add_inner_button(__("Settings"), () => frappe.set_route("Form", "Schema Intelligence Settings"));
+			this.page.add_inner_button(__("Manage Snapshot"), () => this.openSelectedSnapshot());
+		}
+		this.page.add_inner_button(__("Reviews"), () => frappe.set_route("List", "Schema Change Review"));
+		this.page.add_inner_button(__("Create Review"), () => this.openCreateReview());
 		this.page.add_inner_button(__("Compare Snapshots"), () => this.openComparison());
 		this.renderLoading(__("Loading schema snapshots"));
 	}
@@ -156,6 +163,7 @@ class PridictSchemaIntelligence {
 					</div>
 				</section>
 				${this.renderSummary(summary)}
+				${this.renderGovernance()}
 				${this.renderDiagnostics()}
 				<section class="pridict-schema-browser">
 					<aside class="pridict-schema-index">
@@ -187,6 +195,67 @@ class PridictSchemaIntelligence {
 		`);
 		this.bindControls();
 		this.renderDoctypeList();
+	}
+
+	renderGovernance() {
+		const snapshot = this.currentSnapshot();
+		if (!snapshot) return "";
+		return `
+			<section class="pridict-schema-diagnostics">
+				<div class="pridict-schema-diagnostics-head">
+					<div>
+						<span class="pridict-schema-eyebrow">${__("Governance")}</span>
+						<h2>${this.escape(snapshot.label || __("Unlabelled snapshot"))}</h2>
+					</div>
+					<div class="pridict-schema-status-line">
+						${snapshot.is_baseline ? `<span class="indicator-pill green">${__("Baseline")}</span>` : ""}
+						<span class="indicator-pill gray">${this.escape(snapshot.lifecycle_state || __("Retained"))}</span>
+						<span class="indicator-pill blue">${this.escape(snapshot.review_status || __("Unreviewed"))}</span>
+					</div>
+				</div>
+			</section>
+		`;
+	}
+
+	currentSnapshot() {
+		return this.snapshots.find((item) => item.snapshot_id === this.selectedSnapshotId);
+	}
+
+	openSelectedSnapshot() {
+		if (!this.selectedSnapshotId) return;
+		frappe.set_route("Form", "Schema Snapshot Record", this.selectedSnapshotId);
+	}
+
+	async openCreateReview() {
+		if (this.snapshots.length < 2) {
+			frappe.msgprint(__("Capture at least two snapshots before creating a review."));
+			return;
+		}
+		const options = this.snapshots.map((item) => item.snapshot_id).join("\n");
+		const baseline = this.snapshots.find((item) => item.is_baseline)?.snapshot_id || this.snapshots[1].snapshot_id;
+		const dialog = new frappe.ui.Dialog({
+			title: __("Create schema change review"),
+			fields: [
+				{ fieldname: "baseline", fieldtype: "Select", label: __("Baseline snapshot"), options, default: baseline, reqd: 1 },
+				{ fieldname: "candidate", fieldtype: "Select", label: __("Candidate snapshot"), options, default: this.snapshots[0].snapshot_id, reqd: 1 },
+			],
+			primary_action_label: __("Create Review"),
+			primary_action: async (values) => {
+				dialog.disable_primary_action();
+				try {
+					const review = await frappe.xcall("pridict.schema_intelligence.api.create_review", {
+						baseline_snapshot_id: values.baseline,
+						candidate_snapshot_id: values.candidate,
+					});
+					dialog.hide();
+					frappe.set_route("Form", "Schema Change Review", review.name);
+				} catch (error) {
+					frappe.msgprint({ title: __("Review could not be created"), message: this.errorMessage(error), indicator: "red" });
+					dialog.enable_primary_action();
+				}
+			},
+		});
+		dialog.show();
 	}
 
 	renderSummary(summary) {
@@ -335,6 +404,7 @@ class PridictSchemaIntelligence {
 				${this.renderFields(doctype.fields)}
 			</div>
 			<div class="pridict-schema-tab-panel" data-detail-panel="relationships">
+				<button class="btn btn-default btn-sm" data-action="explore-relationships">${__("Explore two-hop graph")}</button>
 				${this.renderRelationshipGraph(doctype.name, relationships)}
 				${this.renderRelationships(relationships)}
 			</div>
@@ -510,6 +580,42 @@ class PridictSchemaIntelligence {
 			$(event.currentTarget).addClass("is-active");
 			this.$root.find(`[data-detail-panel="${tab}"]`).addClass("is-active");
 		});
+		this.$root.find('[data-action="explore-relationships"]').on("click", () => this.openRelationshipExplorer());
+	}
+
+	async openRelationshipExplorer() {
+		const graph = await frappe.xcall("pridict.schema_intelligence.api.get_relationship_subgraph", {
+			snapshot_id: this.selectedSnapshotId,
+			root_doctype: this.selectedDoctype,
+			hops: 2,
+			direction: "both",
+		});
+		const dialog = new frappe.ui.Dialog({
+			title: __("Relationship neighborhood"),
+			size: "extra-large",
+			fields: [{ fieldname: "content", fieldtype: "HTML" }],
+			primary_action_label: __("Export JSON"),
+			primary_action: async () => {
+				const result = await frappe.xcall("pridict.schema_intelligence.api.export_subgraph", {
+					snapshot_id: this.selectedSnapshotId,
+					root_doctype: this.selectedDoctype,
+					hops: 2,
+					direction: "both",
+					format: "json",
+				});
+				this.download(result);
+			},
+		});
+		dialog.fields_dict.content.$wrapper.html(`
+			<div class="pridict-schema-comparison">
+				<div class="pridict-schema-comparison-status ${graph.truncated ? "is-changed" : "is-equivalent"}">
+					<strong>${graph.nodes.length} ${__("nodes")} · ${graph.edges.length} ${__("edges")}</strong>
+					<span>${graph.truncated ? __("Results reached the configured safety limit.") : __("Complete within configured limits.")}</span>
+				</div>
+				${this.renderRelationships(graph.edges)}
+			</div>
+		`);
+		dialog.show();
 	}
 
 	async openComparison() {
@@ -647,7 +753,8 @@ class PridictSchemaIntelligence {
 
 	snapshotOption(snapshot) {
 		const selected = snapshot.snapshot_id === this.selectedSnapshotId ? "selected" : "";
-		const label = `${this.formatDate(snapshot.captured_at)} · ${snapshot.metadata_hash.slice(0, 10)}`;
+		const governance = [snapshot.is_baseline ? __("Baseline") : null, snapshot.label].filter(Boolean).join(" · ");
+		const label = `${governance ? `${governance} · ` : ""}${this.formatDate(snapshot.captured_at)} · ${snapshot.metadata_hash.slice(0, 10)}`;
 		return `<option value="${this.escape(snapshot.snapshot_id)}" ${selected}>${this.escape(label)}</option>`;
 	}
 
@@ -665,6 +772,15 @@ class PridictSchemaIntelligence {
 
 	errorMessage(error) {
 		return this.escape(error?.message || error?._server_messages || __("An unexpected error occurred."));
+	}
+
+	download(result) {
+		const blob = new Blob([result.content], { type: result.content_type });
+		const link = document.createElement("a");
+		link.href = URL.createObjectURL(blob);
+		link.download = result.filename;
+		link.click();
+		URL.revokeObjectURL(link.href);
 	}
 
 	escape(value) {

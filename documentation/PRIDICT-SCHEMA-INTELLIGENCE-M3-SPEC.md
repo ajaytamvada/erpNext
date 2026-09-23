@@ -2,8 +2,11 @@
 
 ## Status
 
-Proposed on 22 September 2026. This document defines the next milestone only. No Milestone 3 code,
-database schema, scheduler, notification, or deployment change is included in this specification.
+Implementation started locally on 23 September 2026 using the approved governance defaults. The
+backend, governance DocTypes, scheduler hook, protected APIs, Desk entry points, exports, and focused
+unit coverage are present in the working tree. Frappe migration, full integration tests, and browser
+verification remain pending because the local Docker/Frappe runtime was unavailable in the current
+session. No Azure or UAT system was accessed or changed.
 
 ## Milestone objective
 
@@ -341,13 +344,14 @@ Milestone 3 is complete only when:
 9. Run disposable-site, browser, and full regression verification.
 10. Save implementation documentation and handoff before deployment planning.
 
-## Decisions required before implementation
+## Approved implementation decisions
 
-The following product decisions should be confirmed before Milestone 3 coding begins:
+The following product decisions were approved on 23 September 2026:
 
-- whether only System Managers can review changes or a dedicated Schema Reviewer role is desired;
-- default retention limits when retention is enabled;
-- whether approval requires one reviewer or multiple reviewers;
-- whether email notifications are required in addition to System Notifications;
-- maximum supported graph nodes, graph edges, and persisted findings per review;
-- whether snapshot labels and review comments require edit history after creation.
+- use a dedicated `Schema Reviewer` role while retaining System Manager configuration authority;
+- default retention to 90 days and 30 snapshots, deleting only when both limits are exceeded;
+- require one reviewer, with final approval or rejection performed by someone other than the review creator;
+- use System Notifications only for the initial release;
+- cap relationship views at 100 nodes and 250 edges and indexed findings at 5,000 per review;
+- audit snapshot label changes and keep review comments append-only;
+- leave scheduled capture and retention disabled by default, with weekly capture as the recommended cadence.

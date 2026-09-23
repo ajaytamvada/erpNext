@@ -32,6 +32,9 @@ class SnapshotRepository(ABC):
 	@abstractmethod
 	def list_ids(self) -> list[str]: ...
 
+	@abstractmethod
+	def delete(self, snapshot_id: str) -> None: ...
+
 
 def validate_snapshot_integrity(snapshot: SchemaSnapshot) -> None:
 	expected = compute_metadata_hash(snapshot.doctypes, snapshot.relationships)
@@ -57,6 +60,11 @@ class InMemorySnapshotRepository(SnapshotRepository):
 
 	def list_ids(self) -> list[str]:
 		return sorted(self._snapshots)
+
+	def delete(self, snapshot_id: str) -> None:
+		if snapshot_id not in self._snapshots:
+			raise SnapshotNotFoundError(snapshot_id)
+		del self._snapshots[snapshot_id]
 
 
 class FilesystemSnapshotRepository(SnapshotRepository):
@@ -95,6 +103,15 @@ class FilesystemSnapshotRepository(SnapshotRepository):
 		if not self.root.is_dir():
 			return []
 		return sorted(path.stem for path in self.root.glob("*.json") if path.is_file())
+
+	def delete(self, snapshot_id: str) -> None:
+		path = self._path(snapshot_id)
+		if not path.is_file():
+			raise SnapshotNotFoundError(snapshot_id)
+		path.unlink()
+
+	def identifier(self, snapshot_id: str) -> str:
+		return self._path(snapshot_id).name
 
 	def _path(self, snapshot_id: str) -> Path:
 		if not snapshot_id or any(character not in "0123456789abcdef-" for character in snapshot_id.lower()):

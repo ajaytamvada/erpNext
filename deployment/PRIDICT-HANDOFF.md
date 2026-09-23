@@ -5,6 +5,23 @@ Rebrand ERPNext as Pridict with the approved Enterprise visual design in light a
 
 The design preview is https://pridict-enterprise-preview.ajay-tamvada.chatgpt.site (owner-private). It is a mockup, not the running ERP system.
 
+## Schema Intelligence Milestone 3 implementation — 23 September 2026
+
+Milestone 3 governance functionality is implemented and locally validated but is not yet deployed.
+It adds governance DocTypes, a dedicated Schema Reviewer role, snapshot lifecycle and baseline
+controls, deterministic severity findings, audited reviews, opt-in scheduled capture and retention,
+in-app-only notifications, bounded relationship exploration, and deterministic exports. The approved
+defaults and implementation details are recorded in
+`documentation/PRIDICT-SCHEMA-INTELLIGENCE-M3-HANDOFF.md`.
+
+Local Docker/Frappe migration completed successfully on 23 September 2026. The full Pridict suite
+passes with 35 tests successful and four environment-profile tests skipped, the production asset build
+passes, and the local HTTP endpoint returns 200. A real `Capture First Snapshot` request exposed a
+timezone-aware datetime incompatibility at the MariaDB boundary; the timestamp is now converted to a
+site-local naive Frappe Datetime value, regression coverage passes, and the end-to-end capture succeeds
+with zero capture errors. Three snapshot files left by failed requests were recovered into the
+governance index. UAT deployment was separately authorized by the user on 23 September 2026.
+
 ## Local redesign completion — 21 September 2026
 
 The agreed customer-facing rebrand and product-wide visual redesign are complete locally. The shared Pridict visual system covers the Desk shell, all enabled module workspaces, lists, forms, child tables, reports, dashboards, dialogs, trees, calendars, Kanban, login, portal and print-preview surfaces in light and dark themes with responsive behavior.

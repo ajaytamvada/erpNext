@@ -5,8 +5,10 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from pridict.schema_intelligence.comparison import compare_snapshots
+from pridict.schema_intelligence.classification import classify_changes
 from pridict.schema_intelligence.artifacts import relationship_graph
 from pridict.schema_intelligence.extraction import extract_schema
+from pridict.schema_intelligence.graph import relationship_subgraph
 from pridict.schema_intelligence.normalization import canonical_json, normalize_value
 from pridict.schema_intelligence.persistence import (
 	FilesystemSnapshotRepository,
@@ -261,6 +263,40 @@ class TestSchemaExtraction(TestCase):
 		diff = compare_snapshots(before, after)
 		self.assertEqual(diff["relationships"]["changed"], ["Sales Order.customer:LINK"])
 
+	def test_deterministic_classification_assigns_expected_severity(self):
+		before_metadata = _base_metadata()
+		after_metadata = _base_metadata()
+		after_metadata["Customer"]["fields"][0]["fieldtype"] = "Link"
+		after_metadata["Customer"]["fields"][0]["options"] = "Item"
+		after_metadata["Sales Order"]["fields"].append(
+			{"fieldname": "required_reference", "fieldtype": "Data", "idx": 6, "reqd": 1}
+		)
+		before = extract_schema(FakeMetadataSource(before_metadata))
+		after = extract_schema(FakeMetadataSource(after_metadata))
+
+		first = classify_changes(before, after)
+		second = classify_changes(before, after)
+		self.assertEqual(first["comparison_hash"], second["comparison_hash"])
+		self.assertIn("field.type_changed", {item["rule_id"] for item in first["findings"]})
+		self.assertIn("field.required_added", {item["rule_id"] for item in first["findings"]})
+		self.assertGreaterEqual(first["severity_totals"]["critical"], 1)
+		self.assertGreaterEqual(first["severity_totals"]["warning"], 1)
+
+	def test_relationship_subgraph_is_bounded_and_filterable(self):
+		snapshot = extract_schema(FakeMetadataSource(_base_metadata()))
+		graph = relationship_subgraph(
+			snapshot,
+			"Sales Order",
+			hops=2,
+			direction="outgoing",
+			relationship_types={"LINK", "CHILD_TABLE"},
+			node_limit=3,
+			edge_limit=2,
+		)
+		self.assertLessEqual(len(graph["nodes"]), 3)
+		self.assertLessEqual(len(graph["edges"]), 2)
+		self.assertTrue(all(item["relationship_type"] in {"LINK", "CHILD_TABLE"} for item in graph["edges"]))
+
 	def test_malformed_dynamic_link_is_reported(self):
 		metadata = _base_metadata()
 		metadata["Sales Order"]["fields"][2]["fieldtype"] = "Data"
@@ -293,6 +329,11 @@ class TestSnapshotPersistence(TestCase):
 			loaded = repository.load(snapshot.snapshot_id)
 			self.assertEqual(loaded.to_dict(), snapshot.to_dict())
 			self.assertEqual(repository.list_ids(), [snapshot.snapshot_id])
+			repository.delete(snapshot.snapshot_id)
+			self.assertEqual(repository.list_ids(), [])
+
+		memory.delete(snapshot.snapshot_id)
+		self.assertEqual(memory.list_ids(), [])
 
 	def test_incomplete_snapshot_cannot_be_saved_as_baseline(self):
 		snapshot = extract_schema(FakeMetadataSource(_base_metadata(), failures={"Customer"}))

@@ -20,5 +20,11 @@ web_include_js = "pridict.bundle.js"
 
 welcome_email = "pridict.email.get_welcome_email_subject"
 
-after_install = "pridict.setup.install.apply_branding"
-after_migrate = "pridict.setup.install.apply_branding"
+after_install = "pridict.setup.install.apply_pridict_setup"
+after_migrate = "pridict.setup.install.apply_pridict_setup"
+
+scheduler_events = {
+	"hourly": ["pridict.schema_intelligence.scheduler.hourly"],
+}
+
+notification_skip_email_types = ["Schema Intelligence"]
