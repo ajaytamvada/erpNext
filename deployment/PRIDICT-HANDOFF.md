@@ -5,6 +5,32 @@ Rebrand ERPNext as Pridict with the approved Enterprise visual design in light a
 
 The design preview is https://pridict-enterprise-preview.ajay-tamvada.chatgpt.site (owner-private). It is a mockup, not the running ERP system.
 
+## Schema Intelligence Milestone 3 UAT release — 23 September 2026
+
+The authorized UAT cutover completed successfully from commit
+`7e66dfa3bf6f6b0f57fded2b2dcd2136985bacaf`. The running image is
+`pridict-erpnext:0.1.0-20260923-m3-rc1`, image ID
+`sha256:24bd3ec96d41be0c51753669dcdcadf82bb3cb0ffc3d75a0ca4d794512f575f2`.
+Release state is `/opt/erpnext/release-state/20260923T163459Z.env`.
+
+The fresh verified rollback backup is
+`predeploy/2026/09/23/pridict-precutover-20260923-m3-rc1.tar.gz` in the private
+`erpnext-backups` container, SHA-256
+`9adb51c34f9fd2cefc9448a54c810288a0ca9a04f3673d132b90080f2834c0f0`.
+The matching encrypted OS-disk snapshot is
+`erpnext-demo-vm-osdisk-pridict-predeploy-20260923-m3-rc1` and completed with
+`Succeeded`. The exact source archive is
+`release-candidates/2026/09/23/pridict-20260923-m3-rc1-source.tar.gz`, SHA-256
+`4545d1b266d94f0203aacc7aedf0469ef6cfb5669ed37a8b109ee466f18e925c`.
+
+Post-release verification confirmed all nine services running, HTTPS login,
+Administrator authentication, authenticated session lookup, CSS/JavaScript assets,
+Frappe 15.120.1, ERPNext 15.121.2, Pridict 0.1.0, an enabled scheduler and one online
+worker. A live UAT Schema Intelligence capture completed successfully as snapshot
+`2cf2f081-2172-429d-b9a6-5b116a77b46a`, with 781 DocTypes, 12,767 fields, 2,803
+relationships, three warnings and zero errors. The `Schema Reviewer` role and its
+Schema Intelligence page assignment are present. Public HTTPS returned 200.
+
 ## Schema Intelligence Milestone 3 implementation — 23 September 2026
 
 Milestone 3 governance functionality is implemented and locally validated but is not yet deployed.

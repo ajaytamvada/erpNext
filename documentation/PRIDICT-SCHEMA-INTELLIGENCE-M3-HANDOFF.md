@@ -2,9 +2,10 @@
 
 ## Status
 
-Milestone 3 was implemented and locally validated on 23 September 2026. No Azure resource or UAT site
-has yet been changed for this milestone. Local verification passed and the user separately authorized
-the UAT deployment on 23 September 2026.
+Milestone 3 was implemented, locally validated and deployed to the existing Azure UAT site on
+23 September 2026 after separate user authorization. The immutable release image is
+`pridict-erpnext:0.1.0-20260923-m3-rc1`, built from commit
+`7e66dfa3bf6f6b0f57fded2b2dcd2136985bacaf`.
 
 ## Delivered
 
@@ -55,8 +56,9 @@ the UAT deployment on 23 September 2026.
   Frappe Datetime columns. End-to-end capture now succeeds with zero errors.
 - Three immutable snapshot files left by failed capture requests were indexed successfully.
 
-UAT remains the next validation environment for full operational review workflows, scheduled capture,
-notification delivery and responsive light/dark browser acceptance.
+UAT deployment verification passed for migration, service health, HTTPS/login/assets, role creation,
+page access and a complete live snapshot capture. UAT remains the environment for user acceptance of
+full review workflows, scheduled capture, notification delivery and responsive light/dark behavior.
 
 ## Approved defaults
 
@@ -71,5 +73,5 @@ notification delivery and responsive light/dark browser acceptance.
 
 ## Next step
 
-Build an immutable image from the validated commit, create fresh verified rollback artifacts, deploy it
-to the existing Azure UAT VM with the guarded release script, and complete post-release verification.
+Complete UAT user acceptance for review transitions, independent approval, baseline promotion,
+retention, notifications and responsive light/dark behavior before considering production promotion.
