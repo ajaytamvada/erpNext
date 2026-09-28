@@ -1,0 +1,1 @@
+frappe.ui.form.on("Asset Category",{refresh:refreshPridictAssetCategory,onload_post_render:refreshPridictAssetCategory,asset_category_name:refreshPridictAssetCategory,enable_cwip_accounting:refreshPridictAssetCategory,non_depreciable_category:refreshPridictAssetCategory});function refreshPridictAssetCategory(frm){window.pridict?.assets?.refreshForm(frm);}

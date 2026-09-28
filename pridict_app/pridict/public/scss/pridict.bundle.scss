@@ -3616,3 +3616,20 @@ html.pridict-ui * {
 		padding: 0;
 	}
 }
+
+@import "pridict/shell";
+@import "pridict/page-header";
+@import "pridict/document-components";
+@import "pridict/purchasing";
+@import "pridict/procurement";
+@import "pridict/finance";
+@import "pridict/sales";
+@import "pridict/inventory";
+@import "pridict/assets";
+@import "pridict/manufacturing";
+@import "pridict/projects";
+@import "pridict/quality-support";
+@import "pridict/customer-facing";
+@import "pridict/administration";
+@import "pridict/cross-product";
+@import "pridict/generic-module";

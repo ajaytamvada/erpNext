@@ -10,7 +10,11 @@ APP_LOGO = "/assets/pridict/images/pridict-wordmark.svg"
 APP_ICON = "/assets/pridict/images/pridict-icon.svg"
 SUPPORT_LABEL = "Contact Pridict Support"
 SUPPORT_ROUTE = "mailto:pavan@riditstack.com"
-FOOTER_POWERED = f'Pridict <span aria-hidden="true">&middot;</span> <a href="{SUPPORT_ROUTE}">Contact support</a>'
+LEGACY_FOOTER_POWERED = f'Pridict <span aria-hidden="true">&middot;</span> <a href="{SUPPORT_ROUTE}">Contact support</a>'
+FOOTER_POWERED = LEGACY_FOOTER_POWERED + (
+	' <span aria-hidden="true">&middot;</span> <a href="/pridict-notices">Notices</a>'
+	' <span aria-hidden="true">&middot;</span> <a href="/pridict-release-notes">Release notes</a>'
+)
 
 UPSTREAM_LEARNING_URLS = {
 	"https://school.frappe.io/lms/courses/erpnext-accounting?utm_source=in_app",
@@ -87,6 +91,7 @@ def _apply_website_footer():
 		or "frappe.io/erpnext" in footer.lower()
 		or footer.strip().lower() == "erpnext"
 		or footer.strip() == APP_NAME
+		or footer.strip() == LEGACY_FOOTER_POWERED
 	):
 		frappe.db.set_single_value("Website Settings", "footer_powered", FOOTER_POWERED)
 

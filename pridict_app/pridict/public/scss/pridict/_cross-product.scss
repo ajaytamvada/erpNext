@@ -1,0 +1,162 @@
+html.pridict-ui .pridict-dialog .modal-content {
+	overflow: hidden;
+	border: 1px solid var(--pridict-border-strong);
+	box-shadow: 0 24px 70px rgba(15, 23, 42, 0.2);
+}
+
+html.pridict-ui .pridict-dialog-eyebrow {
+	display: block;
+	margin-bottom: 2px;
+	color: var(--pridict-executive-accent);
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+html.pridict-ui .pridict-dialog[data-pridict-dialog="assign"] .modal-content,
+html.pridict-ui .pridict-dialog[data-pridict-dialog="share"] .modal-content,
+html.pridict-ui .pridict-dialog[data-pridict-dialog="workflow"] .modal-content {
+	border-top: 3px solid var(--pridict-blue-600);
+}
+
+html.pridict-ui .pridict-dialog[data-pridict-dialog="confirm"] .modal-content {
+	border-top: 3px solid var(--pridict-warning-text);
+}
+
+html.pridict-ui .pridict-dialog[data-pridict-dialog="email"] .modal-dialog,
+html.pridict-ui .pridict-dialog[data-pridict-dialog="print"] .modal-dialog,
+html.pridict-ui .pridict-dialog[data-pridict-dialog="import"] .modal-dialog,
+html.pridict-ui .pridict-dialog[data-pridict-dialog="export"] .modal-dialog {
+	max-width: min(920px, calc(100vw - 32px));
+}
+
+html.pridict-ui .pridict-dialog :is(.form-section, .form-column, .control-input-wrapper) {
+	min-width: 0;
+}
+
+html.pridict-ui .pridict-dialog :is(.form-control, .input-with-feedback, .ql-editor) {
+	background: var(--pridict-surface);
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui .pridict-dialog :is(.form-control, .input-with-feedback):focus {
+	border-color: var(--pridict-blue-600);
+	box-shadow: 0 0 0 2px color-mix(in srgb, var(--pridict-blue-600) 18%, transparent);
+}
+
+html.pridict-ui .pridict-dialog[data-pridict-dialog="email"] :is(.ql-toolbar, .ql-container, .email-editor) {
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui .pridict-dialog[data-pridict-dialog="share"] :is(.share-doc, .shared-with, .share-list),
+html.pridict-ui .pridict-dialog[data-pridict-dialog="assign"] :is(.assign-to-me, .assignment-list) {
+	padding: 10px;
+	background: var(--pridict-surface-muted);
+	border: 1px solid var(--pridict-border);
+	border-radius: 7px;
+}
+
+html.pridict-ui .pridict-notification-surface {
+	width: min(420px, calc(100vw - 24px));
+	max-height: min(620px, calc(100vh - 90px));
+	overflow-y: auto;
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 8px;
+	box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
+}
+
+html.pridict-ui .pridict-notification-surface :is(.notification-item, .activity-item) {
+	padding: 11px 12px;
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui .pridict-notification-surface :is(.notification-item, .activity-item):hover {
+	background: var(--pridict-surface-muted);
+}
+
+html.pridict-ui .pridict-search-surface,
+html.pridict-ui .awesomplete > ul {
+	border: 1px solid var(--pridict-border-strong);
+	box-shadow: 0 18px 48px rgba(15, 23, 42, 0.16);
+}
+
+html.pridict-ui .pridict-search-surface :is(.search-result, .search-item),
+html.pridict-ui .awesomplete > ul > li {
+	padding-block: 9px;
+}
+
+html.pridict-ui .pridict-search-surface :is(.search-result, .search-item):hover {
+	background: var(--pridict-surface-muted);
+}
+
+html.pridict-ui .pridict-upload-surface {
+	padding: 18px;
+	background: var(--pridict-surface-muted);
+	border: 1px dashed var(--pridict-border-strong);
+	border-radius: 8px;
+}
+
+html.pridict-ui .pridict-upload-surface.drag-over {
+	background: var(--pridict-blue-100);
+	border-color: var(--pridict-blue-600);
+}
+
+html.pridict-ui .pridict-message-surface {
+	border-color: var(--pridict-border-strong);
+	box-shadow: 0 12px 34px rgba(15, 23, 42, 0.12);
+}
+
+html.pridict-ui .pridict-empty-surface {
+	padding: 28px 18px;
+	color: var(--pridict-text-muted);
+	text-align: center;
+	background: var(--pridict-surface-muted);
+	border: 1px dashed var(--pridict-border);
+	border-radius: 8px;
+}
+
+html.pridict-ui .pridict-loading-surface {
+	color: var(--pridict-text-muted);
+	font-weight: 600;
+	letter-spacing: 0.01em;
+}
+
+html.pridict-ui .pridict-output-surface {
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui :is(button, a, input, select, textarea, [tabindex]):focus-visible {
+	outline: 2px solid var(--pridict-blue-600);
+	outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+	html.pridict-ui .pridict-dialog .modal-dialog {
+		width: calc(100vw - 16px);
+		max-width: none;
+		margin: 8px;
+	}
+
+	html.pridict-ui .pridict-dialog .modal-header,
+	html.pridict-ui .pridict-dialog .modal-body,
+	html.pridict-ui .pridict-dialog .modal-footer {
+		padding-inline: 12px;
+	}
+
+	html.pridict-ui .pridict-dialog .modal-footer {
+		flex-wrap: wrap;
+	}
+
+	html.pridict-ui .pridict-dialog .modal-footer .btn {
+		min-height: 38px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html.pridict-ui .pridict-dialog,
+	html.pridict-ui .pridict-message-surface {
+		transition: none;
+	}
+}

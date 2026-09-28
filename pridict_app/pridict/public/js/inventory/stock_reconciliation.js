@@ -1,0 +1,2 @@
+frappe.ui.form.on("Stock Reconciliation", { refresh: refreshPridictStockReconciliation, onload_post_render: refreshPridictStockReconciliation, purpose: refreshPridictStockReconciliation, posting_date: refreshPridictStockReconciliation, set_warehouse: refreshPridictStockReconciliation, difference_amount: refreshPridictStockReconciliation });
+function refreshPridictStockReconciliation(frm) { window.pridict?.inventory?.refreshForm(frm); }

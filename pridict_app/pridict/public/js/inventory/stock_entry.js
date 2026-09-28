@@ -1,0 +1,2 @@
+frappe.ui.form.on("Stock Entry", { refresh: refreshPridictStockEntry, onload_post_render: refreshPridictStockEntry, stock_entry_type: refreshPridictStockEntry, purpose: refreshPridictStockEntry, posting_date: refreshPridictStockEntry, from_warehouse: refreshPridictStockEntry, to_warehouse: refreshPridictStockEntry, total_amount: refreshPridictStockEntry });
+function refreshPridictStockEntry(frm) { window.pridict?.inventory?.refreshForm(frm); }

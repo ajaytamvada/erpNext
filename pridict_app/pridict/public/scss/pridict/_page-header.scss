@@ -1,0 +1,78 @@
+html.pridict-ui .pridict-page-head {
+	background: var(--pridict-surface);
+	border-bottom: 1px solid var(--pridict-border);
+	box-shadow: 0 1px 0 rgb(20 31 48 / 2%);
+}
+
+html.pridict-ui .pridict-page-head .pridict-has-breadcrumbs > .pridict-page-context {
+	display: none;
+}
+
+html.pridict-ui .pridict-page-breadcrumbs {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
+	margin-bottom: 3px;
+	color: var(--pridict-text-muted);
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+html.pridict-ui .pridict-page-breadcrumbs button {
+	padding: 0;
+	color: var(--pridict-blue-600);
+	font: inherit;
+	background: transparent;
+	border: 0;
+	cursor: pointer;
+}
+
+html.pridict-ui .pridict-page-breadcrumbs button:hover {
+	color: var(--pridict-blue-700);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+html.pridict-ui .pridict-page-breadcrumbs button:focus-visible {
+	border-radius: 3px;
+	outline: 2px solid var(--pridict-blue-600);
+	outline-offset: 2px;
+}
+
+html.pridict-ui .pridict-page-breadcrumbs span[aria-current="page"] {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+html.pridict-ui .pridict-page-actions {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+html.pridict-ui .pridict-page-actions .pridict-page-action {
+	min-height: 32px;
+	border-radius: 6px;
+}
+
+html.pridict-ui .pridict-page-actions .pridict-page-action.is-primary {
+	box-shadow: 0 1px 2px rgb(20 31 48 / 12%);
+}
+
+html.pridict-ui .pridict-page-actions .pridict-page-action.is-danger:not(.btn-primary) {
+	color: var(--pridict-danger-text);
+}
+
+@media (max-width: 767px) {
+	html.pridict-ui .pridict-page-breadcrumbs {
+		max-width: min(62vw, 360px);
+	}
+
+	html.pridict-ui .pridict-page-actions {
+		gap: 4px;
+	}
+}

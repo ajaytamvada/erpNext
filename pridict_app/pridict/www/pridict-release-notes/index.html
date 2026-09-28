@@ -1,0 +1,33 @@
+{% extends "templates/web.html" %}
+
+{% block title %}{{ _("Pridict release notices") }}{% endblock %}
+
+{% block page_content %}
+<main class="pridict-information-page">
+	<header>
+		<span class="pridict-information-eyebrow">{{ _("Installed application information") }}</span>
+		<h1>{{ _("Pridict release notices") }}</h1>
+		<p>{{ _("A concise reference for the installed Pridict application version and release-verification boundaries.") }}</p>
+	</header>
+
+	<section class="pridict-information-section">
+		<h2>{{ _("Installed version") }}</h2>
+		<p>{{ _("Pridict application version {0}").format(pridict_version) }}</p>
+	</section>
+
+	<section class="pridict-information-section">
+		<h2>{{ _("Release evidence") }}</h2>
+		<ul>
+			<li>{{ _("A source implementation is not considered deployed until the target environment records a successful build, migration where required, and deployment.") }}</li>
+			<li>{{ _("A route load or screenshot is not proof that a workflow, permission boundary, calculation, or document action is functionally verified.") }}</li>
+			<li>{{ _("Blocked, skipped, and untested checks remain explicitly incomplete.") }}</li>
+		</ul>
+	</section>
+
+	<section class="pridict-information-section">
+		<h2>{{ _("Support") }}</h2>
+		<p>{{ _("Contact support for the release record, known limitations, and environment-specific verification evidence.") }}</p>
+		<p><a href="mailto:{{ support_email | e }}">{{ _("Contact Pridict Support") }}</a></p>
+	</section>
+</main>
+{% endblock %}

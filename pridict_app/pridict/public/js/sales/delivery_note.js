@@ -1,0 +1,2 @@
+frappe.ui.form.on("Delivery Note", { refresh: refreshPridictDeliveryNote, onload_post_render: refreshPridictDeliveryNote, customer_name: refreshPridictDeliveryNote, posting_date: refreshPridictDeliveryNote, transporter_name: refreshPridictDeliveryNote, grand_total: refreshPridictDeliveryNote, per_billed: refreshPridictDeliveryNote, status: refreshPridictDeliveryNote });
+function refreshPridictDeliveryNote(frm) { window.pridict?.sales?.refreshForm(frm); }

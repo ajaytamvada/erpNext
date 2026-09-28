@@ -1,0 +1,477 @@
+.pridict-sales-page .layout-main-section-wrapper,
+.pridict-sales-page .layout-main-section {
+	max-width: none;
+	padding: 0;
+}
+
+.pridict-sales {
+	display: grid;
+	gap: 16px;
+	min-height: calc(100vh - var(--navbar-height));
+	padding: 22px;
+	background: var(--pridict-executive-bg);
+}
+
+.pridict-sales-hero {
+	display: flex;
+	align-items: end;
+	justify-content: space-between;
+	gap: 20px;
+}
+
+.pridict-sales-hero > div > span,
+.pridict-sales-panel header span {
+	color: var(--pridict-executive-accent);
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+.pridict-sales-hero h1 {
+	margin: 3px 0 5px;
+	font-size: 28px;
+	letter-spacing: -0.04em;
+}
+
+.pridict-sales-hero p,
+.pridict-sales-state p {
+	margin: 0;
+	color: var(--pridict-text-muted);
+}
+
+.pridict-sales-hero label {
+	display: grid;
+	gap: 5px;
+	color: var(--pridict-text-muted);
+	font-size: 10px;
+	font-weight: 650;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.pridict-sales-hero select {
+	min-width: 220px;
+	height: 36px;
+	padding: 0 9px;
+	color: var(--pridict-text);
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border-strong);
+	border-radius: 6px;
+}
+
+.pridict-sales-metrics {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.pridict-sales-metrics button,
+.pridict-sales-panel {
+	color: var(--pridict-text);
+	background: var(--pridict-executive-panel);
+	border: 1px solid var(--pridict-border);
+	border-radius: 8px;
+	box-shadow: var(--pridict-shadow);
+}
+
+.pridict-sales-metrics button {
+	display: grid;
+	gap: 5px;
+	padding: 15px;
+	text-align: left;
+}
+
+.pridict-sales-metrics button:hover,
+.pridict-sales-metrics button:focus-visible {
+	border-color: var(--pridict-blue-600);
+}
+
+.pridict-sales-metrics span,
+.pridict-sales-metrics small {
+	color: var(--pridict-text-muted);
+}
+
+.pridict-sales-metrics strong {
+	font-size: 24px;
+	font-variant-numeric: tabular-nums;
+}
+
+.pridict-sales-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1.5fr) minmax(310px, 0.8fr);
+	gap: 16px;
+}
+
+.pridict-sales-stack {
+	display: grid;
+	gap: 16px;
+}
+
+.pridict-sales-panel {
+	overflow: hidden;
+}
+
+.pridict-sales-panel > header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 14px 16px;
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+.pridict-sales-panel h2 {
+	margin: 3px 0 0;
+	font-size: 15px;
+}
+
+.pridict-sales-row,
+.pridict-sales-pipeline button,
+.pridict-sales-activity button {
+	display: grid;
+	align-items: center;
+	width: 100%;
+	padding: 12px 14px;
+	color: var(--pridict-text);
+	text-align: left;
+	background: transparent;
+	border: 0;
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+.pridict-sales-row {
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 12px;
+}
+
+.pridict-sales-row small,
+.pridict-sales-activity small {
+	display: block;
+	margin-top: 3px;
+	color: var(--pridict-text-muted);
+}
+
+.pridict-sales-pipeline button {
+	grid-template-columns: 25px minmax(0, 1fr) auto;
+	gap: 9px;
+}
+
+.pridict-sales-pipeline button > span {
+	display: grid;
+	place-items: center;
+	width: 24px;
+	height: 24px;
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+	border-radius: 50%;
+}
+
+.pridict-sales-actions {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+	padding: 12px;
+}
+
+.pridict-sales-actions .btn {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 7px;
+}
+
+.pridict-sales-activity button {
+	grid-template-columns: minmax(0, 1fr) auto auto;
+	gap: 12px;
+}
+
+.pridict-sales-activity time {
+	color: var(--pridict-text-muted);
+	font-size: 11px;
+}
+
+.pridict-sales-empty,
+.pridict-sales-state {
+	padding: 24px;
+	color: var(--pridict-text-muted);
+	text-align: center;
+}
+
+.pridict-sales-state {
+	display: grid;
+	place-items: center;
+	gap: 8px;
+	min-height: 320px;
+}
+
+.pridict-sales-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	color: var(--pridict-text-muted);
+	font-size: 11px;
+}
+
+.pridict-sales-footer > div {
+	display: flex;
+	gap: 8px;
+}
+
+.pridict-sales-journey {
+	display: flex;
+	gap: 5px;
+	overflow-x: auto;
+	padding: 8px 18px;
+	background: var(--pridict-surface);
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+.pridict-sales-journey button {
+	flex: 0 0 auto;
+	padding: 6px 9px;
+	color: var(--pridict-text-muted);
+	font-size: 12px;
+	font-weight: 550;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 5px;
+}
+
+.pridict-sales-journey button:hover,
+.pridict-sales-journey button:focus-visible,
+.pridict-sales-journey button.is-active {
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+	border-color: color-mix(in srgb, var(--pridict-blue-600) 20%, transparent);
+}
+
+.pridict-sales-list-intro,
+.pridict-sales-document-summary {
+	padding: 16px;
+	margin: 16px 0;
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 8px;
+	box-shadow: var(--pridict-shadow);
+}
+
+.pridict-sales-list-intro {
+	display: flex;
+	align-items: end;
+	justify-content: space-between;
+	gap: 18px;
+}
+
+.pridict-sales-list-intro span,
+.pridict-sales-document-summary span {
+	display: block;
+	color: var(--pridict-text-muted);
+	font-size: 10px;
+	font-weight: 650;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.pridict-sales-list-intro strong {
+	display: block;
+	margin-top: 3px;
+	font-size: 20px;
+}
+
+.pridict-sales-list-intro p {
+	max-width: 720px;
+	margin: 5px 0 0;
+	color: var(--pridict-text-muted);
+}
+
+.pridict-sales-list-presets {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 6px;
+}
+
+.pridict-sales-list-progress {
+	display: flex;
+	gap: 8px;
+	min-width: 120px;
+	margin-inline-start: 10px;
+}
+
+.pridict-sales-list-progress > span {
+	display: grid;
+	gap: 3px;
+	min-width: 86px;
+}
+
+.pridict-sales-list-progress i {
+	display: block;
+	height: 4px;
+	overflow: hidden;
+	background: var(--pridict-surface-muted);
+	border-radius: 999px;
+}
+
+.pridict-sales-list-progress i b {
+	display: block;
+	height: 100%;
+	background: var(--pridict-blue-600);
+}
+
+.pridict-sales-list-progress em {
+	color: var(--pridict-text-muted);
+	font-size: 10px;
+	font-style: normal;
+}
+
+.pridict-sales-document-summary > header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding-bottom: 12px;
+	margin-bottom: 12px;
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+.pridict-sales-document-summary > header strong {
+	display: block;
+	margin-top: 3px;
+	font-size: 16px;
+}
+
+.pridict-sales-document-summary > header b {
+	padding: 5px 9px;
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+	border-radius: 999px;
+}
+
+.pridict-sales-document-summary > div {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 10px;
+}
+
+.pridict-sales-document-summary article {
+	min-width: 0;
+	padding: 10px 12px;
+	background: var(--pridict-surface-muted);
+	border-radius: 6px;
+}
+
+.pridict-sales-document-summary article strong {
+	display: block;
+	margin-top: 4px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.pridict-sales-guidance,
+.pridict-sales-grid-note {
+	margin: 12px 0 0;
+	padding: 9px 11px;
+	color: var(--pridict-text-muted);
+	background: var(--pridict-surface-muted);
+	border-left: 3px solid var(--pridict-border-strong);
+	border-radius: 5px;
+}
+
+.pridict-sales-guidance[data-tone="attention"] {
+	color: var(--orange-700, #9a3412);
+	border-left-color: var(--orange-500, #f97316);
+}
+
+.pridict-sales-guidance[data-tone="complete"] {
+	color: var(--green-700, #15803d);
+	border-left-color: var(--green-500, #22c55e);
+}
+
+.pridict-sales-route :is(.pridict-sales-section-details, .pridict-sales-section-items, .pridict-sales-section-totals) {
+	margin-bottom: 14px;
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 8px;
+}
+
+.pridict-sales-route .pridict-sales-section-items {
+	overflow: hidden;
+}
+
+.pridict-sales-route .pridict-sales-section-totals {
+	background: var(--pridict-surface-muted);
+}
+
+.pridict-sales-route .pridict-sales-grid-native {
+	border-color: var(--pridict-border);
+	border-radius: 7px;
+}
+
+.pridict-sales-route .pridict-sales-timeline .timeline-content {
+	background: var(--pridict-surface-muted);
+	border: 1px solid var(--pridict-border);
+	border-radius: 7px;
+}
+
+@media (max-width: 1100px) {
+	.pridict-sales-hero {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.pridict-sales-metrics,
+	.pridict-sales-document-summary > div {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.pridict-sales-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 600px) {
+	.pridict-sales {
+		padding: 14px 12px;
+	}
+
+	.pridict-sales-hero select {
+		min-width: 0;
+		width: 100%;
+	}
+
+	.pridict-sales-metrics,
+	.pridict-sales-actions,
+	.pridict-sales-document-summary > div {
+		grid-template-columns: 1fr;
+	}
+
+	.pridict-sales-activity button {
+		grid-template-columns: 1fr;
+	}
+
+	.pridict-sales-footer,
+	.pridict-sales-list-intro {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.pridict-sales-list-presets {
+		justify-content: flex-start;
+	}
+
+	.pridict-sales-journey {
+		padding-inline: 12px;
+	}
+
+	.pridict-sales-route .pridict-sales-grid-native {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.pridict-sales-route .pridict-sales-grid-native :is(.grid-heading-row, .grid-row) {
+		min-width: 820px;
+	}
+}

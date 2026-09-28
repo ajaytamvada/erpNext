@@ -1,0 +1,1 @@
+frappe.ui.form.on("Production Plan",{refresh:refreshPridictProductionPlan,onload_post_render:refreshPridictProductionPlan});function refreshPridictProductionPlan(){window.pridict?.manufacturing?.refreshForm();}

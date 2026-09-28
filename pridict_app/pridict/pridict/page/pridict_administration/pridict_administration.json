@@ -1,0 +1,15 @@
+{
+ "doctype": "Page",
+ "name": "pridict-administration",
+ "page_name": "pridict-administration",
+ "title": "Administration",
+ "module": "Pridict",
+ "standard": "Yes",
+ "system_page": 0,
+ "icon": "setting-gear",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ]
+}

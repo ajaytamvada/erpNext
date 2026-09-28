@@ -1,0 +1,2 @@
+frappe.ui.form.on("Opportunity", { refresh: refreshPridictOpportunity, onload_post_render: refreshPridictOpportunity, party_name: refreshPridictOpportunity, sales_stage: refreshPridictOpportunity, probability: refreshPridictOpportunity, expected_closing: refreshPridictOpportunity, opportunity_amount: refreshPridictOpportunity, status: refreshPridictOpportunity });
+function refreshPridictOpportunity(frm) { window.pridict?.sales?.refreshForm(frm); }

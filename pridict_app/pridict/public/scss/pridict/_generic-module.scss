@@ -1,0 +1,90 @@
+.pridict-generic-journey {
+	display: flex;
+	gap: 5px;
+	overflow-x: auto;
+	padding: 8px 18px;
+	background: var(--pridict-surface);
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+.pridict-generic-journey button {
+	flex: 0 0 auto;
+	padding: 6px 9px;
+	color: var(--pridict-text-muted);
+	background: transparent;
+	border: 0;
+	border-radius: 5px;
+}
+
+.pridict-generic-journey button.is-active {
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+}
+
+.pridict-generic-intro,
+.pridict-generic-summary {
+	padding: 16px;
+	margin: 16px 0;
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 8px;
+}
+
+.pridict-generic-intro span,
+.pridict-generic-summary .pridict-document-card-header span {
+	color: var(--pridict-executive-accent);
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.pridict-generic-intro strong {
+	display: block;
+	font-size: 20px;
+}
+
+.pridict-generic-intro p,
+.pridict-generic-summary p {
+	margin: 5px 0 0;
+	color: var(--pridict-text-muted);
+}
+
+.pridict-generic-summary header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 4px;
+}
+
+.pridict-generic-summary header strong {
+	min-width: 0;
+	overflow: hidden;
+	font-size: 18px;
+	text-overflow: ellipsis;
+}
+
+.pridict-generic-summary header b {
+	flex: 0 0 auto;
+	padding: 5px 9px;
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+	border-radius: 999px;
+}
+
+.pridict-generic-grid {
+	border-color: var(--pridict-border);
+}
+
+.pridict-generic-timeline .timeline-content,
+.pridict-generic-linked-documents {
+	border-color: var(--pridict-border);
+}
+
+@media (max-width: 600px) {
+	.pridict-generic-summary header {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+}

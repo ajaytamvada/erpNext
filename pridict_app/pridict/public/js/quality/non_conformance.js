@@ -1,0 +1,1 @@
+frappe.ui.form.on("Non Conformance",{refresh:refreshPridictNonConformance,onload_post_render:refreshPridictNonConformance});function refreshPridictNonConformance(){window.pridict?.qualitySupport?.refreshForm();}

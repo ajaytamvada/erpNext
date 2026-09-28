@@ -1,0 +1,2 @@
+frappe.ui.form.on("Sales Invoice", { refresh: refreshPridictSalesInvoice, onload_post_render: refreshPridictSalesInvoice, customer_name: refreshPridictSalesInvoice, posting_date: refreshPridictSalesInvoice, due_date: refreshPridictSalesInvoice, grand_total: refreshPridictSalesInvoice, outstanding_amount: refreshPridictSalesInvoice, status: refreshPridictSalesInvoice });
+function refreshPridictSalesInvoice(frm) { window.pridict?.sales?.refreshForm(frm); }

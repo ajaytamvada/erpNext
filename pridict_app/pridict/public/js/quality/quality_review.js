@@ -1,0 +1,1 @@
+frappe.ui.form.on("Quality Review",{refresh:refreshPridictQualityReview,onload_post_render:refreshPridictQualityReview});function refreshPridictQualityReview(){window.pridict?.qualitySupport?.refreshForm();}

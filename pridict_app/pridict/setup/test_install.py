@@ -6,6 +6,7 @@ from unittest.mock import patch
 from pridict.email import get_welcome_email_subject
 from pridict.setup.install import (
 	FOOTER_POWERED,
+	LEGACY_FOOTER_POWERED,
 	SUPPORT_LABEL,
 	SUPPORT_ROUTE,
 	UPSTREAM_HELP_ROUTES,
@@ -103,6 +104,13 @@ class TestBrandingInstall(FrappeTestCase):
 		footer = frappe.get_template("templates/includes/footer/footer_powered.html").render()
 		self.assertIn("Pridict", footer)
 		self.assertIn(SUPPORT_ROUTE, footer)
+		self.assertIn('/pridict-notices', footer)
+		self.assertIn('/pridict-release-notes', footer)
+
+	def test_legacy_pridict_footer_is_upgraded(self):
+		frappe.db.set_single_value("Website Settings", "footer_powered", LEGACY_FOOTER_POWERED)
+		apply_branding()
+		self.assertEqual(frappe.db.get_single_value("Website Settings", "footer_powered"), FOOTER_POWERED)
 
 	def test_welcome_email_uses_tenant_or_pridict_name(self):
 		with patch("frappe.defaults.get_global_default", return_value=None):

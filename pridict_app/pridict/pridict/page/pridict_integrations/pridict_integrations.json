@@ -1,0 +1,15 @@
+{
+ "doctype": "Page",
+ "name": "pridict-integrations",
+ "page_name": "pridict-integrations",
+ "title": "Integrations",
+ "module": "Pridict",
+ "standard": "Yes",
+ "system_page": 0,
+ "icon": "integration",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ]
+}

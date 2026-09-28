@@ -1,0 +1,1 @@
+frappe.ui.form.on("Quality Action",{refresh:refreshPridictQualityAction,onload_post_render:refreshPridictQualityAction});function refreshPridictQualityAction(){window.pridict?.qualitySupport?.refreshForm();}

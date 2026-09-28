@@ -1,0 +1,37 @@
+{% extends "templates/web.html" %}
+
+{% block title %}{{ _("Pridict notices") }}{% endblock %}
+
+{% block page_content %}
+<main class="pridict-information-page">
+	<header>
+		<span class="pridict-information-eyebrow">{{ _("Product and open-source information") }}</span>
+		<h1>{{ _("Pridict notices") }}</h1>
+		<p>{{ _("Information about product identity, underlying software, customer content, and support.") }}</p>
+	</header>
+
+	<section class="pridict-information-section">
+		<h2>{{ _("Product identity") }}</h2>
+		<p>{{ _("Pridict is the customer-facing enterprise application experience. Technical identifiers remain visible where they are required for operation, administration, integration, or support.") }}</p>
+	</section>
+
+	<section class="pridict-information-section">
+		<h2>{{ _("Open-source software") }}</h2>
+		<p>{{ _("Pridict uses Frappe Framework and ERPNext. Their names, package identifiers, licences, copyright notices, and provider identities are preserved where legally or technically required.") }}</p>
+		{% if repository_notices %}
+		<p>{{ _("The installed source distribution includes its licence and attribution records for administrator review.") }}</p>
+		{% endif %}
+	</section>
+
+	<section class="pridict-information-section">
+		<h2>{{ _("Customer content") }}</h2>
+		<p>{{ _("Company names, legal identities, tax information, letterheads, print formats, attachments, and user-authored records belong to the configured tenant and are not relabelled as Pridict content.") }}</p>
+	</section>
+
+	<section class="pridict-information-section">
+		<h2>{{ _("Installed version and support") }}</h2>
+		<p>{{ _("Installed Pridict application version: {0}").format(pridict_version) }}</p>
+		<p><a href="mailto:{{ support_email | e }}">{{ _("Contact Pridict Support") }}</a></p>
+	</section>
+</main>
+{% endblock %}

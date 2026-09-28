@@ -1,0 +1,112 @@
+html.pridict-ui .pridict-document-card {
+	margin: 16px 0;
+	padding: 16px;
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 8px;
+	box-shadow: var(--pridict-shadow);
+}
+
+html.pridict-ui .pridict-document-card-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	padding-bottom: 12px;
+	margin-bottom: 12px;
+	border-bottom: 1px solid var(--pridict-border);
+}
+
+html.pridict-ui .pridict-document-card-header > div {
+	min-width: 0;
+}
+
+html.pridict-ui .pridict-document-card-header strong {
+	display: block;
+	overflow-wrap: anywhere;
+}
+
+html.pridict-ui .pridict-document-status {
+	flex: 0 0 auto;
+	padding: 5px 9px;
+	color: var(--pridict-blue-600);
+	font-size: 11px;
+	background: var(--pridict-blue-100);
+	border-radius: 999px;
+}
+
+html.pridict-ui .pridict-document-fields {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 10px;
+}
+
+html.pridict-ui .pridict-document-field {
+	min-width: 0;
+	padding: 10px;
+	background: var(--pridict-surface-muted);
+	border-radius: 6px;
+}
+
+html.pridict-ui .pridict-document-field strong {
+	display: block;
+	overflow-wrap: anywhere;
+}
+
+html.pridict-ui .pridict-document-guidance {
+	margin: 12px 0 0;
+	padding: 9px 11px;
+	color: var(--pridict-text-muted);
+	background: var(--pridict-surface-muted);
+	border-left: 3px solid var(--pridict-border-strong);
+	border-radius: 5px;
+}
+
+html.pridict-ui .pridict-document-guidance[data-tone="attention"] {
+	color: var(--pridict-warning-text);
+	background: var(--pridict-warning-bg);
+	border-left-color: var(--pridict-warning-text);
+}
+
+html.pridict-ui .pridict-document-guidance[data-tone="complete"] {
+	color: var(--pridict-success-text);
+	background: var(--pridict-success-bg);
+	border-left-color: var(--pridict-success-text);
+}
+
+html.pridict-ui .pridict-native-totals {
+	border-color: var(--pridict-border-strong);
+}
+
+html.pridict-ui .pridict-native-totals :is(.control-value, .like-disabled-input, input) {
+	font-variant-numeric: tabular-nums;
+}
+
+html.pridict-ui .pridict-native-grid {
+	border-color: var(--pridict-border);
+	border-radius: 7px;
+}
+
+html.pridict-ui .pridict-native-timeline :is(.timeline-content, .timeline-item) {
+	border-color: var(--pridict-border);
+}
+
+html.pridict-ui .pridict-native-linked-documents {
+	border-color: var(--pridict-border);
+}
+
+@media (max-width: 700px) {
+	html.pridict-ui .pridict-document-card-header {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	html.pridict-ui .pridict-document-fields {
+		grid-template-columns: 1fr;
+	}
+
+	html.pridict-ui .pridict-native-grid {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+}

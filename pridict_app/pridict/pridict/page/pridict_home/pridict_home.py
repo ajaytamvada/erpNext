@@ -211,10 +211,10 @@ def _get_tasks(company, to_date):
 
 def _get_business_areas():
 	areas = (
-		("Procurement", "Buying", "Purchase Order", "shopping-cart"),
-		("Sales", "Selling", "Sales Order", "trend-up"),
-		("Finance", "Accounting", "GL Entry", "accounting"),
-		("Inventory", "Stock", "Stock Entry", "stock"),
+		("Procurement", "pridict-procurement", "Purchase Order", "shopping-cart"),
+		("Sales", "pridict-sales", "Sales Order", "trend-up"),
+		("Finance", "pridict-finance", "GL Entry", "accounting"),
+		("Inventory", "pridict-inventory", "Stock Entry", "stock"),
 	)
 	return [
 		{"label": _(label), "route": route.lower(), "icon": icon}
