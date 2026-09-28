@@ -4,6 +4,15 @@ Date: September 28, 2026
 
 This is the required user-led verification matrix. Source implementation is not visual review, functional verification, deployment, or acceptance.
 
+UAT baseline:
+
+- URL: `https://pridict-demo.centralindia.cloudapp.azure.com`
+- Source commit: `dcae44511595609a563eb7c757a0cecd59c49f67`
+- Image: `pridict-erpnext:0.1.0-20260928-redesign-uat1`
+- Release state: `/opt/erpnext/release-state/20260928T204935Z.env`
+
+The image is deployed globally, but each row's `Deployed` result remains pending until the team opens that exact route and confirms it is served from this baseline.
+
 ## Evidence required for every row
 
 - Exact route and document name where applicable.

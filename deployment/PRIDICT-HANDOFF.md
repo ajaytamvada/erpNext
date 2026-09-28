@@ -5,6 +5,34 @@ Rebrand ERPNext as Pridict with the approved Enterprise visual design in light a
 
 The design preview is https://pridict-enterprise-preview.ajay-tamvada.chatgpt.site (owner-private). It is a mockup, not the running ERP system.
 
+## Product-wide redesign UAT release - 28 September 2026
+
+The authorized UAT cutover completed successfully from commit
+`dcae44511595609a563eb7c757a0cecd59c49f67`, pushed to `origin/version-15`.
+The running image is `pridict-erpnext:0.1.0-20260928-redesign-uat1`, image ID
+`sha256:6404c29396c351573f23f4a96f5bcf569efc3d39a12ee7f81508661c729d12a0`.
+Release state is `/opt/erpnext/release-state/20260928T204935Z.env`.
+
+The fresh verified rollback backup is
+`predeploy/2026/09/28/pridict-precutover-20260928-redesign-uat1.tar.gz` in the
+private `erpnext-backups` container, SHA-256
+`9331a78c0b4fe25c0aee62eea9b3ca1648dccd26b828b83e44a08478497cf6e1`.
+The matching encrypted OS-disk snapshot is
+`erpnext-demo-vm-osdisk-pridict-predeploy-20260928-redesign-uat1` and completed
+with `Succeeded`. The exact source archive is
+`release-candidates/2026/09/28/pridict-20260928-redesign-uat1-source.tar.gz`,
+SHA-256 `d5fab9cf1d336530a09a6d3ef535b648fc7359b45788880b4d1dc07ffa18a6b1`.
+
+Post-release verification confirmed all nine services running, HTTPS login,
+Administrator authentication, authenticated session lookup, CSS/JavaScript assets,
+Frappe 15.120.1, ERPNext 15.121.2, Pridict 0.1.0, maintenance mode off, scheduler
+enabled, and one online worker. Public HTTPS at
+https://pridict-demo.centralindia.cloudapp.azure.com/login returned 200.
+
+This deployment establishes the UAT test baseline. Route-by-route visual review,
+ordinary-role workflow verification, responsive review, and final acceptance remain
+pending in `deployment/PRIDICT-REDESIGN-RUNTIME-VERIFICATION-MATRIX.md`.
+
 ## Schema Intelligence Milestone 3 UAT release — 23 September 2026
 
 The authorized UAT cutover completed successfully from commit

@@ -2,7 +2,7 @@
 
 Date: September 28, 2026
 
-Status: Broad source implementation complete for the currently available ERPNext and Pridict source scope. Runtime review, functional verification, build, migration, deployment, and acceptance remain pending.
+Status: Broad source implementation is deployed to Azure UAT as image `pridict-erpnext:0.1.0-20260928-redesign-uat1`. Route-level visual review, functional verification, and final acceptance remain pending.
 
 ## Completed source milestones
 
@@ -98,26 +98,33 @@ These counts establish route ownership and source coverage only. They do not est
 ## Validation not performed
 
 - No complete Frappe test runtime was available locally.
-- No asset build or production bundle compilation was run.
-- No migration was run.
 - No authenticated browser review or screenshot capture was performed for the new implementation.
 - No ordinary-role workflow, transaction, portal, email, provider, upload, print, or PDF test was performed.
-- No release image was built.
-- No UAT or production deployment was performed.
+
+## UAT deployment evidence
+
+- Source commit: `dcae44511595609a563eb7c757a0cecd59c49f67`, pushed to `origin/version-15`.
+- Image: `pridict-erpnext:0.1.0-20260928-redesign-uat1`.
+- Image ID: `sha256:6404c29396c351573f23f4a96f5bcf569efc3d39a12ee7f81508661c729d12a0`.
+- Release state: `/opt/erpnext/release-state/20260928T204935Z.env`.
+- Verified backup blob: `predeploy/2026/09/28/pridict-precutover-20260928-redesign-uat1.tar.gz`.
+- Backup SHA-256: `9331a78c0b4fe25c0aee62eea9b3ca1648dccd26b828b83e44a08478497cf6e1`.
+- OS-disk snapshot: `erpnext-demo-vm-osdisk-pridict-predeploy-20260928-redesign-uat1`, provisioning state `Succeeded`.
+- Source archive: `release-candidates/2026/09/28/pridict-20260928-redesign-uat1-source.tar.gz`.
+- Source SHA-256: `d5fab9cf1d336530a09a6d3ef535b648fc7359b45788880b4d1dc07ffa18a6b1`.
+- Asset build, migration, cache clearing, service recreation, Administrator authentication, authenticated-session lookup, asset requests, scheduler state, worker state, and public HTTPS checks passed.
 
 ## Required next action
 
-Use `deployment/PRIDICT-REDESIGN-RUNTIME-VERIFICATION-MATRIX.md` for the user-led runtime review. Record failures by exact route, role, state, theme, viewport, and action. Return those findings for targeted corrections before any release build.
+Use `deployment/PRIDICT-REDESIGN-RUNTIME-VERIFICATION-MATRIX.md` for the user-led runtime review against the deployed UAT image. Record failures by exact route, role, state, theme, viewport, and action. Return those findings for targeted corrections.
 
 After the matrix reaches an accepted state:
 
-1. Run the focused automated tests in a real Frappe bench.
-2. Build assets once from the accepted source.
-3. Run required migration and installation reconciliation in a controlled candidate environment.
-4. Verify the exact candidate revision using the completed matrix.
-5. Prepare an immutable release image and deployment record.
-6. Deploy only after separate authorization.
+1. Run any additional focused automated tests required by reported defects.
+2. Apply and deploy only targeted corrections.
+3. Reverify the exact corrected candidate using the completed matrix.
+4. Record final acceptance and prepare the production release separately.
 
 ## Current completion statement
 
-The Pridict redesign has broad source coverage across the locally available product. It is not yet a completed release because visual review, functional verification, build, migration, and deployment are still pending.
+The Pridict redesign has broad source coverage and is deployed to UAT. It is not yet accepted for production because route-level visual review and functional verification remain pending.

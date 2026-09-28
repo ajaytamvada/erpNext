@@ -2,7 +2,7 @@
 
 Date: September 28, 2026
 
-Status: Source audit complete. Runtime visual review, functional verification, build, migration, deployment, and acceptance remain pending.
+Status: Source audit complete and the audited source is deployed to Azure UAT. Runtime visual review, functional verification, and acceptance remain pending.
 
 ## Audit basis
 
@@ -259,12 +259,12 @@ Targeted validation reported 77 JavaScript files passing `node --check`, complet
 
 | Area | Implemented | Visually reviewed | Functionally verified | Deployed |
 |---|---|---|---|---|
-| Shared shell and module routing | Yes, source | No | No | No |
-| Module operating Pages | Yes, source | No | No | No |
-| Primary lists/forms/reports | Yes, source | No | No | No |
-| Secondary workspace-linked routes | Yes, generic source coverage | No | No | No |
-| Customer-facing surfaces | Yes, source | No | No | No |
-| Cross-product dialogs and states | Yes, source | No | No | No |
-| Named exceptions | Partial or shared framing only | No | No | No |
+| Shared shell and module routing | Yes, source | No | No | Yes, UAT image |
+| Module operating Pages | Yes, source | No | No | Yes, UAT image |
+| Primary lists/forms/reports | Yes, source | No | No | Yes, UAT image |
+| Secondary workspace-linked routes | Yes, generic source coverage | No | No | Yes, UAT image |
+| Customer-facing surfaces | Yes, source | No | No | Yes, UAT image |
+| Cross-product dialogs and states | Yes, source | No | No | Yes, UAT image |
+| Named exceptions | Partial or shared framing only | No | No | Shared framing deployed |
 
 No completion percentage is stated because runtime evidence has not been collected for the enumerated routes and states.
