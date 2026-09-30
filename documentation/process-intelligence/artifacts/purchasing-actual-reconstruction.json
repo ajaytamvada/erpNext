@@ -1,0 +1,288 @@
+{
+  "collected_at": "2026-09-29T16:56:27.097462Z",
+  "company_id": "company-3c8067087710da96a97e63ed",
+  "edges": [],
+  "end_date": "2026-09-29",
+  "events": [
+    {
+      "actor_id": null,
+      "confidence": "HIGH",
+      "details": {
+        "docstatus": 1,
+        "status": "Pending",
+        "workflow_state": null
+      },
+      "document_id": "doc-e5c0fd4343b6f24fdff43f45",
+      "document_type": "Material Request",
+      "event_id": "event-563d696f407039ee1e922c64",
+      "event_type": "CURRENT_DOCUMENT_STATE_OBSERVED",
+      "evidence_ids": [
+        "evidence-e5c0fd4343b6f24fdff43f45"
+      ],
+      "observed_at": "2026-09-29T16:56:27.097462Z",
+      "occurred_at": null,
+      "timestamp_semantics": "observation time; not a state-change timestamp"
+    },
+    {
+      "actor_id": "actor-4a7f77317fffcefe79211522",
+      "confidence": "HIGH",
+      "details": {
+        "field": "status",
+        "new": "To Receive and Bill",
+        "old": "Draft"
+      },
+      "document_id": "doc-eac84063adf582536228e83d",
+      "document_type": "Purchase Order",
+      "event_id": "event-8af0253a9104efaa78320586",
+      "event_type": "DOCUMENT_STATE_CHANGED",
+      "evidence_ids": [
+        "evidence-8af0253a9104efaa78320586"
+      ],
+      "observed_at": "2026-09-29T16:56:27.097462Z",
+      "occurred_at": "2026-09-17T22:55:19.881409",
+      "timestamp_semantics": "Version creation timestamp"
+    },
+    {
+      "actor_id": "actor-4a7f77317fffcefe79211522",
+      "confidence": "HIGH",
+      "details": {
+        "field": "docstatus",
+        "new": 1,
+        "old": 0
+      },
+      "document_id": "doc-eac84063adf582536228e83d",
+      "document_type": "Purchase Order",
+      "event_id": "event-977e55f854616aa2a8cf6543",
+      "event_type": "DOCUMENT_STATE_CHANGED",
+      "evidence_ids": [
+        "evidence-977e55f854616aa2a8cf6543"
+      ],
+      "observed_at": "2026-09-29T16:56:27.097462Z",
+      "occurred_at": "2026-09-17T22:55:19.881409",
+      "timestamp_semantics": "Version creation timestamp"
+    },
+    {
+      "actor_id": "actor-4a7f77317fffcefe79211522",
+      "confidence": "HIGH",
+      "details": {},
+      "document_id": "doc-433a2b110f2f3200a12fc00a",
+      "document_type": "Material Request",
+      "event_id": "event-9cc58eb96663187cba124028",
+      "event_type": "DOCUMENT_CREATED",
+      "evidence_ids": [
+        "evidence-433a2b110f2f3200a12fc00a"
+      ],
+      "observed_at": "2026-09-29T16:56:27.097462Z",
+      "occurred_at": "2026-09-18T00:00:19.521050",
+      "timestamp_semantics": "creation timestamp"
+    },
+    {
+      "actor_id": "actor-4a7f77317fffcefe79211522",
+      "confidence": "HIGH",
+      "details": {},
+      "document_id": "doc-eac84063adf582536228e83d",
+      "document_type": "Purchase Order",
+      "event_id": "event-d4eecf9ca52fb90af78a72ad",
+      "event_type": "DOCUMENT_CREATED",
+      "evidence_ids": [
+        "evidence-eac84063adf582536228e83d"
+      ],
+      "observed_at": "2026-09-29T16:56:27.097462Z",
+      "occurred_at": "2026-09-17T22:34:35.698372",
+      "timestamp_semantics": "creation timestamp"
+    },
+    {
+      "actor_id": null,
+      "confidence": "HIGH",
+      "details": {
+        "docstatus": 1,
+        "status": "Pending",
+        "workflow_state": null
+      },
+      "document_id": "doc-433a2b110f2f3200a12fc00a",
+      "document_type": "Material Request",
+      "event_id": "event-dedab4862ce7df45664c4f29",
+      "event_type": "CURRENT_DOCUMENT_STATE_OBSERVED",
+      "evidence_ids": [
+        "evidence-433a2b110f2f3200a12fc00a"
+      ],
+      "observed_at": "2026-09-29T16:56:27.097462Z",
+      "occurred_at": null,
+      "timestamp_semantics": "observation time; not a state-change timestamp"
+    },
+    {
+      "actor_id": "actor-4a7f77317fffcefe79211522",
+      "confidence": "HIGH",
+      "details": {},
+      "document_id": "doc-e5c0fd4343b6f24fdff43f45",
+      "document_type": "Material Request",
+      "event_id": "event-e9d37ce44478f9085f5f52af",
+      "event_type": "DOCUMENT_CREATED",
+      "evidence_ids": [
+        "evidence-e5c0fd4343b6f24fdff43f45"
+      ],
+      "observed_at": "2026-09-29T16:56:27.097462Z",
+      "occurred_at": "2026-09-17T00:01:07.163226",
+      "timestamp_semantics": "creation timestamp"
+    },
+    {
+      "actor_id": null,
+      "confidence": "HIGH",
+      "details": {
+        "docstatus": 1,
+        "status": "To Receive and Bill",
+        "workflow_state": null
+      },
+      "document_id": "doc-eac84063adf582536228e83d",
+      "document_type": "Purchase Order",
+      "event_id": "event-f69743791b575ac5cbdd13fd",
+      "event_type": "CURRENT_DOCUMENT_STATE_OBSERVED",
+      "evidence_ids": [
+        "evidence-eac84063adf582536228e83d"
+      ],
+      "observed_at": "2026-09-29T16:56:27.097462Z",
+      "occurred_at": null,
+      "timestamp_semantics": "observation time; not a state-change timestamp"
+    }
+  ],
+  "evidence": [
+    {
+      "details": {
+        "docstatus": 1,
+        "document_type": "Material Request",
+        "is_return": false,
+        "status": "Pending",
+        "workflow_state": null
+      },
+      "evidence_id": "evidence-433a2b110f2f3200a12fc00a",
+      "observed_at": "2026-09-29T16:56:27.097462Z",
+      "source_locator": "database:Material Request/doc-433a2b110f2f3200a12fc00a",
+      "source_type": "Document",
+      "summary": "Read Material Request within the authorized scope."
+    },
+    {
+      "details": {
+        "field": "status",
+        "new": "To Receive and Bill",
+        "old": "Draft"
+      },
+      "evidence_id": "evidence-8af0253a9104efaa78320586",
+      "observed_at": "2026-09-29T16:56:27.097462Z",
+      "source_locator": "database:Version/version-4919cfe98bf9ee579599c385",
+      "source_type": "Version",
+      "summary": "Version records a change to status."
+    },
+    {
+      "details": {
+        "field": "docstatus",
+        "new": 1,
+        "old": 0
+      },
+      "evidence_id": "evidence-977e55f854616aa2a8cf6543",
+      "observed_at": "2026-09-29T16:56:27.097462Z",
+      "source_locator": "database:Version/version-4919cfe98bf9ee579599c385",
+      "source_type": "Version",
+      "summary": "Version records a change to docstatus."
+    },
+    {
+      "details": {
+        "docstatus": 1,
+        "document_type": "Material Request",
+        "is_return": false,
+        "status": "Pending",
+        "workflow_state": null
+      },
+      "evidence_id": "evidence-e5c0fd4343b6f24fdff43f45",
+      "observed_at": "2026-09-29T16:56:27.097462Z",
+      "source_locator": "database:Material Request/doc-e5c0fd4343b6f24fdff43f45",
+      "source_type": "Document",
+      "summary": "Read Material Request within the authorized scope."
+    },
+    {
+      "details": {
+        "docstatus": 1,
+        "document_type": "Purchase Order",
+        "is_return": false,
+        "status": "To Receive and Bill",
+        "workflow_state": null
+      },
+      "evidence_id": "evidence-eac84063adf582536228e83d",
+      "observed_at": "2026-09-29T16:56:27.097462Z",
+      "source_locator": "database:Purchase Order/doc-eac84063adf582536228e83d",
+      "source_type": "Document",
+      "summary": "Read Purchase Order within the authorized scope."
+    }
+  ],
+  "gaps": [
+    "APPROVAL_TIMES: DATA_NOT_AVAILABLE",
+    "COMPLETION_TIMES: DATA_NOT_AVAILABLE unless explicit auditable terminal events exist."
+  ],
+  "instances": [
+    {
+      "completion_status": "UNKNOWN",
+      "document_ids": [
+        "doc-eac84063adf582536228e83d"
+      ],
+      "edge_ids": [],
+      "end_at": null,
+      "event_ids": [
+        "event-8af0253a9104efaa78320586",
+        "event-977e55f854616aa2a8cf6543",
+        "event-d4eecf9ca52fb90af78a72ad",
+        "event-f69743791b575ac5cbdd13fd"
+      ],
+      "instance_id": "instance-1a59ba0b955a3b1ab006b8e3",
+      "start_at": "2026-09-17T22:34:35.698372"
+    },
+    {
+      "completion_status": "UNKNOWN",
+      "document_ids": [
+        "doc-e5c0fd4343b6f24fdff43f45"
+      ],
+      "edge_ids": [],
+      "end_at": null,
+      "event_ids": [
+        "event-563d696f407039ee1e922c64",
+        "event-e9d37ce44478f9085f5f52af"
+      ],
+      "instance_id": "instance-489ff2464d4c98641a053829",
+      "start_at": "2026-09-17T00:01:07.163226"
+    },
+    {
+      "completion_status": "UNKNOWN",
+      "document_ids": [
+        "doc-433a2b110f2f3200a12fc00a"
+      ],
+      "edge_ids": [],
+      "end_at": null,
+      "event_ids": [
+        "event-9cc58eb96663187cba124028",
+        "event-dedab4862ce7df45664c4f29"
+      ],
+      "instance_id": "instance-86be67518144f88209f31f73",
+      "start_at": "2026-09-18T00:00:19.521050"
+    }
+  ],
+  "metrics": {
+    "amendment_count": 0,
+    "approval_time": "DATA_NOT_AVAILABLE",
+    "cancellation_count": 0,
+    "correlation_edge_count": 0,
+    "document_volume": {
+      "Material Request": 2,
+      "Purchase Order": 1
+    },
+    "handoff_count": "DATA_NOT_AVAILABLE",
+    "over_allocation_edge_count": 0,
+    "partial_allocation_edge_count": 0,
+    "process_cycle_time": "DATA_NOT_AVAILABLE",
+    "process_instance_count": 3,
+    "return_count": 0,
+    "unlinked_document_count": 3,
+    "waiting_time": "DATA_NOT_AVAILABLE"
+  },
+  "process_model_id": "process-44fbdef313d5c020",
+  "reconstruction_id": "reconstruction-59ab59a2053a2597a9be942d",
+  "start_date": "2026-09-01",
+  "version": "1.0.0"
+}

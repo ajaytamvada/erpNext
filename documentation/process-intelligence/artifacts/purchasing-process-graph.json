@@ -1,0 +1,441 @@
+{
+  "directed": true,
+  "edges": [
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-c2fbdf57ace897d7"
+      ],
+      "from_state": null,
+      "id": "transition-06cfb11807779ed5",
+      "source": "step-c5e7766f36f8c802",
+      "target": "step-c5e7766f36f8c802",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-9499bbc2e1f32429"
+      ],
+      "from_state": null,
+      "id": "transition-098f9c01c11f7e59",
+      "source": "step-704c04b3623b1edd",
+      "target": "step-704c04b3623b1edd",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-f1129539440968a0"
+      ],
+      "from_state": null,
+      "id": "transition-0accdc5ba776db5c",
+      "source": "step-704c04b3623b1edd",
+      "target": "step-704c04b3623b1edd",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-dbc435a1bb8be80a"
+      ],
+      "from_state": null,
+      "id": "transition-0bbf5d3de8ce0264",
+      "source": "step-5addff13a6fc309a",
+      "target": "step-5addff13a6fc309a",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-2b572f8661cd7dfb",
+        "ev-4f3c0e73a5b2602a"
+      ],
+      "from_state": null,
+      "id": "transition-24701de734bb100d",
+      "source": "step-fde8baa4a8e290d7",
+      "target": "step-2aba8dc6138fabb5",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-c2e163e9d2965812"
+      ],
+      "from_state": null,
+      "id": "transition-49f7a5a8838ae510",
+      "source": "step-fde8baa4a8e290d7",
+      "target": "step-fde8baa4a8e290d7",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-55fa3ecae3dac5da",
+        "ev-c9608eab5d281888"
+      ],
+      "from_state": null,
+      "id": "transition-54e95a4013fb4781",
+      "source": "step-2aba8dc6138fabb5",
+      "target": "step-2e75a9f9cc7d56be",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-6e6f3dff0d4d19d5",
+        "ev-9052a72842903f86"
+      ],
+      "from_state": null,
+      "id": "transition-6e35c69212363a18",
+      "source": "step-704c04b3623b1edd",
+      "target": "step-fde8baa4a8e290d7",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-70457e4f1b2939ab"
+      ],
+      "from_state": null,
+      "id": "transition-7816acbe4b9aed56",
+      "source": "step-fde8baa4a8e290d7",
+      "target": "step-2aba8dc6138fabb5",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-35cba5ab7a9b54cd"
+      ],
+      "from_state": null,
+      "id": "transition-81f93619ca68d8bb",
+      "source": "step-5addff13a6fc309a",
+      "target": "step-5addff13a6fc309a",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-2e8bf827efd1c55c",
+        "ev-c0790468dfe1f086"
+      ],
+      "from_state": null,
+      "id": "transition-901ceebfb112fbca",
+      "source": "step-704c04b3623b1edd",
+      "target": "step-fde8baa4a8e290d7",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-b0cfc883aa8a21b9",
+        "ev-f1ba7c4fb4b4c82f"
+      ],
+      "from_state": null,
+      "id": "transition-a43b5ad33251290f",
+      "source": "step-5addff13a6fc309a",
+      "target": "step-fde8baa4a8e290d7",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-6b5e06af66c577ba",
+        "ev-f1ba7c4fb4b4c82f"
+      ],
+      "from_state": null,
+      "id": "transition-aa46a53e25b712bd",
+      "source": "step-5addff13a6fc309a",
+      "target": "step-2e75a9f9cc7d56be",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-ed29049cb6ba88b2",
+        "ev-f1ba7c4fb4b4c82f"
+      ],
+      "from_state": null,
+      "id": "transition-af8973adf5c55109",
+      "source": "step-5addff13a6fc309a",
+      "target": "step-704c04b3623b1edd",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-db1d55ebd3de9822"
+      ],
+      "from_state": null,
+      "id": "transition-c8bc1c767e55496f",
+      "source": "step-2e75a9f9cc7d56be",
+      "target": "step-2e75a9f9cc7d56be",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-7090461aedafd05d"
+      ],
+      "from_state": null,
+      "id": "transition-cee816899c47b1e7",
+      "source": "step-2aba8dc6138fabb5",
+      "target": "step-2aba8dc6138fabb5",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-027100cd7d193e9d",
+        "ev-2e8bf827efd1c55c"
+      ],
+      "from_state": null,
+      "id": "transition-d0c680e93304df4a",
+      "source": "step-704c04b3623b1edd",
+      "target": "step-5addff13a6fc309a",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-3e1549361695303c"
+      ],
+      "from_state": null,
+      "id": "transition-d58be321a5ec3da7",
+      "source": "step-08690a3084baa63b",
+      "target": "step-08690a3084baa63b",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-2e8bf827efd1c55c",
+        "ev-cc8ca7fbdbc56124"
+      ],
+      "from_state": null,
+      "id": "transition-dd4c8da3e1c452e6",
+      "source": "step-704c04b3623b1edd",
+      "target": "step-2e75a9f9cc7d56be",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-03b446339f4f232d",
+        "ev-846f663e30932cd5"
+      ],
+      "from_state": null,
+      "id": "transition-dd58ab7881c85d54",
+      "source": "step-c5e7766f36f8c802",
+      "target": "step-2e75a9f9cc7d56be",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-4f3c0e73a5b2602a",
+        "ev-be418860fc49f18f"
+      ],
+      "from_state": null,
+      "id": "transition-e6981b944b89a89b",
+      "source": "step-fde8baa4a8e290d7",
+      "target": "step-2e75a9f9cc7d56be",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    },
+    {
+      "assertion_kind": "inferred",
+      "condition": null,
+      "condition_support": "NOT_APPLICABLE",
+      "confidence": "LOW",
+      "evidence_ids": [
+        "ev-046e675d81f8738d",
+        "ev-c9608eab5d281888"
+      ],
+      "from_state": null,
+      "id": "transition-f9dabff7a55c0157",
+      "source": "step-2aba8dc6138fabb5",
+      "target": "step-c5e7766f36f8c802",
+      "to_state": null,
+      "type": "SCHEMA_REFERENCE_NOT_PROVEN_SEQUENCE"
+    }
+  ],
+  "nodes": [
+    {
+      "evidence_ids": [
+        "ev-fc7cd3b074c950b7"
+      ],
+      "id": "step-2e75a9f9cc7d56be",
+      "label": "Material Request",
+      "native_states": [
+        "Draft",
+        "Submitted",
+        "Cancelled"
+      ],
+      "type": "document_activity"
+    },
+    {
+      "evidence_ids": [
+        "ev-53e201f00ee769bc"
+      ],
+      "id": "step-08690a3084baa63b",
+      "label": "Payment Entry",
+      "native_states": [
+        "Draft",
+        "Submitted",
+        "Cancelled"
+      ],
+      "type": "document_activity"
+    },
+    {
+      "evidence_ids": [
+        "ev-7f9650784302ea25"
+      ],
+      "id": "step-5addff13a6fc309a",
+      "label": "Purchase Invoice",
+      "native_states": [
+        "Draft",
+        "Submitted",
+        "Cancelled"
+      ],
+      "type": "document_activity"
+    },
+    {
+      "evidence_ids": [
+        "ev-21a2835b350a1d17"
+      ],
+      "id": "step-fde8baa4a8e290d7",
+      "label": "Purchase Order",
+      "native_states": [
+        "Draft",
+        "Submitted",
+        "Cancelled"
+      ],
+      "type": "document_activity"
+    },
+    {
+      "evidence_ids": [
+        "ev-a8e3820b8d3f1465"
+      ],
+      "id": "step-704c04b3623b1edd",
+      "label": "Purchase Receipt",
+      "native_states": [
+        "Draft",
+        "Submitted",
+        "Cancelled"
+      ],
+      "type": "document_activity"
+    },
+    {
+      "evidence_ids": [
+        "ev-816513051c0dcaca"
+      ],
+      "id": "step-c5e7766f36f8c802",
+      "label": "Request for Quotation",
+      "native_states": [
+        "Draft",
+        "Submitted",
+        "Cancelled"
+      ],
+      "type": "document_activity"
+    },
+    {
+      "evidence_ids": [
+        "ev-e4e0a8403d279e25"
+      ],
+      "id": "step-2aba8dc6138fabb5",
+      "label": "Supplier Quotation",
+      "native_states": [
+        "Draft",
+        "Submitted",
+        "Cancelled"
+      ],
+      "type": "document_activity"
+    }
+  ],
+  "process_id": "process-44fbdef313d5c020"
+}

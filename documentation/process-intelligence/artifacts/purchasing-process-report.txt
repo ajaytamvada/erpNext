@@ -1,0 +1,274 @@
+PROCESS
+
+Process ID: process-44fbdef313d5c020
+Process Name: Configured Purchasing Document Network
+Business Domain: Purchasing
+Business Objective: Support installed purchasing document capabilities without asserting an unproven mandatory sequence.
+Process Owner: UNKNOWN
+
+TRIGGER
+
+Trigger: UNKNOWN
+Trigger Source: UNKNOWN
+Start Condition: UNKNOWN
+
+PROCESS FLOW
+
+Numbering below is an activity inventory, not an asserted cross-document sequence.
+
+1. Step: Material Request
+   Type: UNKNOWN
+   Actor: UNKNOWN
+   Input: naming_series, material_request_type, company, transaction_date, items
+   Action: Create or update Material Request using native ERP permissions and validations.
+   Output: Material Request
+   Next Step: Not proven by schema relationships alone
+
+2. Step: Payment Entry
+   Type: UNKNOWN
+   Actor: UNKNOWN
+   Input: naming_series, payment_type, posting_date, company, paid_from, paid_from_account_currency, paid_to, paid_to_account_currency, paid_amount, source_exchange_rate, base_paid_amount, received_amount, target_exchange_rate, base_received_amount
+   Action: Create or update Payment Entry using native ERP permissions and validations.
+   Output: Payment Entry
+   Next Step: Not proven by schema relationships alone
+
+3. Step: Purchase Invoice
+   Type: UNKNOWN
+   Actor: UNKNOWN
+   Input: naming_series, supplier, posting_date, items, credit_to
+   Action: Create or update Purchase Invoice using native ERP permissions and validations.
+   Output: Purchase Invoice
+   Next Step: Not proven by schema relationships alone
+
+4. Step: Purchase Order
+   Type: UNKNOWN
+   Actor: UNKNOWN
+   Input: naming_series, supplier, transaction_date, company, currency, conversion_rate, items, status
+   Action: Create or update Purchase Order using native ERP permissions and validations.
+   Output: Purchase Order
+   Next Step: Not proven by schema relationships alone
+
+5. Step: Purchase Receipt
+   Type: UNKNOWN
+   Actor: UNKNOWN
+   Input: naming_series, supplier, posting_date, posting_time, company, currency, conversion_rate, items, base_net_total, status
+   Action: Create or update Purchase Receipt using native ERP permissions and validations.
+   Output: Purchase Receipt
+   Next Step: Not proven by schema relationships alone
+
+6. Step: Request for Quotation
+   Type: UNKNOWN
+   Actor: UNKNOWN
+   Input: naming_series, company, transaction_date, status, suppliers, items, subject
+   Action: Create or update Request for Quotation using native ERP permissions and validations.
+   Output: Request for Quotation
+   Next Step: Not proven by schema relationships alone
+
+7. Step: Supplier Quotation
+   Type: UNKNOWN
+   Actor: UNKNOWN
+   Input: naming_series, supplier, company, status, transaction_date, currency, conversion_rate, items
+   Action: Create or update Supplier Quotation using native ERP permissions and validations.
+   Output: Supplier Quotation
+   Next Step: Not proven by schema relationships alone
+
+DECISION POINTS
+
+Decision ID: NONE_CONFIGURED
+Decision: No evidence-backed decision point was found.
+
+EXCEPTIONS
+
+Exception: NONE_CONFIGURED
+Resolution: UNDEFINED
+
+HUMAN INVOLVEMENT
+
+Step: Material Request
+Human Role: UNKNOWN
+Reason: Permissions establish capability but not actual participation.
+
+Step: Payment Entry
+Human Role: UNKNOWN
+Reason: Permissions establish capability but not actual participation.
+
+Step: Purchase Invoice
+Human Role: UNKNOWN
+Reason: Permissions establish capability but not actual participation.
+
+Step: Purchase Order
+Human Role: UNKNOWN
+Reason: Permissions establish capability but not actual participation.
+
+Step: Purchase Receipt
+Human Role: UNKNOWN
+Reason: Permissions establish capability but not actual participation.
+
+Step: Request for Quotation
+Human Role: UNKNOWN
+Reason: Permissions establish capability but not actual participation.
+
+Step: Supplier Quotation
+Human Role: UNKNOWN
+Reason: Permissions establish capability but not actual participation.
+
+PROCESS STATES
+
+State: Material Request: Draft, Submitted, Cancelled
+Entry Condition: UNKNOWN
+Exit Condition: UNKNOWN
+Allowed Actions: Native permissions, validations and configured workflow transitions
+Next States: See machine-readable graph
+
+State: Payment Entry: Draft, Submitted, Cancelled
+Entry Condition: UNKNOWN
+Exit Condition: UNKNOWN
+Allowed Actions: Native permissions, validations and configured workflow transitions
+Next States: See machine-readable graph
+
+State: Purchase Invoice: Draft, Submitted, Cancelled
+Entry Condition: UNKNOWN
+Exit Condition: UNKNOWN
+Allowed Actions: Native permissions, validations and configured workflow transitions
+Next States: See machine-readable graph
+
+State: Purchase Order: Draft, Submitted, Cancelled
+Entry Condition: UNKNOWN
+Exit Condition: UNKNOWN
+Allowed Actions: Native permissions, validations and configured workflow transitions
+Next States: See machine-readable graph
+
+State: Purchase Receipt: Draft, Submitted, Cancelled
+Entry Condition: UNKNOWN
+Exit Condition: UNKNOWN
+Allowed Actions: Native permissions, validations and configured workflow transitions
+Next States: See machine-readable graph
+
+State: Request for Quotation: Draft, Submitted, Cancelled
+Entry Condition: UNKNOWN
+Exit Condition: UNKNOWN
+Allowed Actions: Native permissions, validations and configured workflow transitions
+Next States: See machine-readable graph
+
+State: Supplier Quotation: Draft, Submitted, Cancelled
+Entry Condition: UNKNOWN
+Exit Condition: UNKNOWN
+Allowed Actions: Native permissions, validations and configured workflow transitions
+Next States: See machine-readable graph
+
+PROCESS GRAPH
+
+See the JSON graph artifact generated with this report.
+
+AUTOMATION ANALYSIS
+
+Step: Material Request
+Classification: UNKNOWN
+Reason: Classification is limited to installed metadata and configured workflow evidence.
+Automation Opportunity: NOT_ASSESSED
+Risk: UNKNOWN
+Human Control: REQUIRED_UNTIL_ANALYZED
+
+Step: Payment Entry
+Classification: UNKNOWN
+Reason: Classification is limited to installed metadata and configured workflow evidence.
+Automation Opportunity: NOT_ASSESSED
+Risk: UNKNOWN
+Human Control: REQUIRED_UNTIL_ANALYZED
+
+Step: Purchase Invoice
+Classification: UNKNOWN
+Reason: Classification is limited to installed metadata and configured workflow evidence.
+Automation Opportunity: NOT_ASSESSED
+Risk: UNKNOWN
+Human Control: REQUIRED_UNTIL_ANALYZED
+
+Step: Purchase Order
+Classification: UNKNOWN
+Reason: Classification is limited to installed metadata and configured workflow evidence.
+Automation Opportunity: NOT_ASSESSED
+Risk: UNKNOWN
+Human Control: REQUIRED_UNTIL_ANALYZED
+
+Step: Purchase Receipt
+Classification: UNKNOWN
+Reason: Classification is limited to installed metadata and configured workflow evidence.
+Automation Opportunity: NOT_ASSESSED
+Risk: UNKNOWN
+Human Control: REQUIRED_UNTIL_ANALYZED
+
+Step: Request for Quotation
+Classification: UNKNOWN
+Reason: Classification is limited to installed metadata and configured workflow evidence.
+Automation Opportunity: NOT_ASSESSED
+Risk: UNKNOWN
+Human Control: REQUIRED_UNTIL_ANALYZED
+
+Step: Supplier Quotation
+Classification: UNKNOWN
+Reason: Classification is limited to installed metadata and configured workflow evidence.
+Automation Opportunity: NOT_ASSESSED
+Risk: UNKNOWN
+Human Control: REQUIRED_UNTIL_ANALYZED
+
+PROCESS METRICS
+
+Metric: process_cycle_time
+Value: DATA_NOT_AVAILABLE
+Source: Transaction history deferred
+Confidence: LOW
+
+Metric: step_cycle_time
+Value: DATA_NOT_AVAILABLE
+Source: Transaction history deferred
+Confidence: LOW
+
+Metric: waiting_time
+Value: DATA_NOT_AVAILABLE
+Source: Transaction history deferred
+Confidence: LOW
+
+Metric: approval_time
+Value: DATA_NOT_AVAILABLE
+Source: Transaction history deferred
+Confidence: LOW
+
+Metric: handoffs
+Value: DATA_NOT_AVAILABLE
+Source: Transaction history deferred
+Confidence: LOW
+
+Metric: rework_rate
+Value: DATA_NOT_AVAILABLE
+Source: Transaction history deferred
+Confidence: LOW
+
+Metric: exception_rate
+Value: DATA_NOT_AVAILABLE
+Source: Transaction history deferred
+Confidence: LOW
+
+OBSERVED VS INFERRED
+
+Observed: Installed DocTypes, fields, permissions and stored configuration records.
+Inferred: Schema references are structural associations only and do not prove process order.
+Unknown: Trigger, owner, mandatory sequence, completion condition and actual behavior.
+
+PROCESS GAPS
+
+- workflows: No active custom Workflow was found for Purchase Receipt; native status remains separate.
+- workflows: No active custom Workflow was found for Payment Entry; native status remains separate.
+- workflows: No active custom Workflow was found for Supplier Quotation; native status remains separate.
+- workflows: No active custom Workflow was found for Request for Quotation; native status remains separate.
+- workflows: No active custom Workflow was found for Purchase Order; native status remains separate.
+- workflows: No active custom Workflow was found for Purchase Invoice; native status remains separate.
+- workflows: No active custom Workflow was found for Material Request; native status remains separate.
+- business_rules: A cross-document completion condition is not proven.
+- data: Actual execution, timing, handoffs, rework and exceptions are not analyzed in this milestone.
+- ownership: Process owner is not established by schema or permissions.
+- documentation: Schema references do not prove a mandatory purchasing sequence.
+- business_rules: A business trigger and start condition are not proven by configuration evidence.
+
+PROCESS SUMMARY
+
+The installed system exposes a purchasing document network with native document lifecycles and any explicitly configured workflows. Cross-document business sequence, ownership, approvals and actual execution remain unknown unless directly supported by collected evidence.

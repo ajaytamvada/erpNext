@@ -1,0 +1,25 @@
+{
+  "directed": true,
+  "edges": [],
+  "nodes": [
+    {
+      "document_type": "Material Request",
+      "id": "doc-433a2b110f2f3200a12fc00a",
+      "in_scope": true,
+      "type": "document"
+    },
+    {
+      "document_type": "Material Request",
+      "id": "doc-e5c0fd4343b6f24fdff43f45",
+      "in_scope": true,
+      "type": "document"
+    },
+    {
+      "document_type": "Purchase Order",
+      "id": "doc-eac84063adf582536228e83d",
+      "in_scope": true,
+      "type": "document"
+    }
+  ],
+  "reconstruction_id": "reconstruction-59ab59a2053a2597a9be942d"
+}

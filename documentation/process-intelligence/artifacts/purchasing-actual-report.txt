@@ -1,0 +1,105 @@
+PROCESS
+
+Process ID: reconstruction-59ab59a2053a2597a9be942d
+Process Name: Purchasing Transaction Reconstruction
+Business Domain: Purchasing
+Business Objective: Describe explicit transaction activity without inferring an unproven sequence.
+Process Owner: UNKNOWN
+Configured Process Model: process-44fbdef313d5c020
+Pseudonymous Company: company-3c8067087710da96a97e63ed
+Evidence Window: 2026-09-01 through 2026-09-29
+
+TRIGGER
+
+Trigger: UNKNOWN
+Trigger Source: Transaction history establishes document creation, not the initiating business event.
+Start Condition: A document creation timestamp falls within the authorized company and date scope.
+
+PROCESS FLOW
+
+Process Instances: 3
+Events: 8
+Explicit Correlation Edges: 0
+
+No explicit cross-document transaction links were found in scope.
+DECISION POINTS
+
+NOT_ANALYZED: Transaction evidence does not prove decision criteria or decision ownership.
+
+EXCEPTIONS
+
+Cancellation, return and amendment records are reported as observations. Their business meaning, owner and resolution remain UNKNOWN unless separate evidence establishes them.
+
+HUMAN INVOLVEMENT
+
+Pseudonymous actors are retained only where creation, Version or Workflow Action records identify a user. Permissions and record ownership do not prove business responsibility.
+
+PROCESS STATES
+
+Native document states are preserved in evidence and events. No cross-document lifecycle is inferred, and current state observations have no inferred transition timestamp.
+
+PROCESS GRAPH
+
+Directed document nodes: 3
+Evidence-backed edges: 0
+The machine-readable graph is emitted separately from this report.
+
+AUTOMATION ANALYSIS
+
+NOT_ANALYZED: Recommendations and agent candidates are deferred until process evidence is sufficient.
+
+PROCESS METRICS
+
+Metric: document_volume
+Value: {'Material Request': 2, 'Purchase Order': 1}
+
+Metric: process_instance_count
+Value: 3
+
+Metric: correlation_edge_count
+Value: 0
+
+Metric: unlinked_document_count
+Value: 3
+
+Metric: cancellation_count
+Value: 0
+
+Metric: return_count
+Value: 0
+
+Metric: amendment_count
+Value: 0
+
+Metric: partial_allocation_edge_count
+Value: 0
+
+Metric: over_allocation_edge_count
+Value: 0
+
+Metric: process_cycle_time
+Value: DATA_NOT_AVAILABLE
+
+Metric: approval_time
+Value: DATA_NOT_AVAILABLE
+
+Metric: waiting_time
+Value: DATA_NOT_AVAILABLE
+
+Metric: handoff_count
+Value: DATA_NOT_AVAILABLE
+
+OBSERVED VS INFERRED
+
+Observed: Documents, explicit links, Version changes and Workflow Action records returned by the source.
+Inferred: Connected components group explicitly linked documents; no business sequence is inferred.
+Unknown: Trigger, ownership, decision rules, exception resolution and completion semantics.
+
+PROCESS GAPS
+
+- APPROVAL_TIMES: DATA_NOT_AVAILABLE
+- COMPLETION_TIMES: DATA_NOT_AVAILABLE unless explicit auditable terminal events exist.
+
+PROCESS SUMMARY
+
+This report reconstructs only explicit, authorized local transaction evidence. Creation timestamps are creation events, current states are observations, and no modification timestamp is treated as approval or completion time.
