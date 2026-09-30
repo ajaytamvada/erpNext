@@ -1,10 +1,12 @@
 # Process Intelligence Milestone 2 Handoff
 
-Saved on September 29, 2026. Reviewed and hardened on September 30, 2026.
+Saved on September 29, 2026. Reviewed, hardened and released to UAT on September 30, 2026.
 
 ## Status
 
-Milestone 2 is complete and validated locally. It has not been committed, pushed or deployed.
+Milestone 2 is complete, committed, pushed and deployed to Azure UAT from commit
+`e1b937a86be754fd551c2927e756775b89a9ecea`. The immutable UAT image is
+`pridict-erpnext:0.1.0-20260930-process-intelligence-uat1`.
 
 ## Completed
 
@@ -57,11 +59,18 @@ This result reflects the limited local fixture history and must not be generaliz
 - Actual graph: `documentation/process-intelligence/artifacts/purchasing-actual-graph.json`
 - Actual report: `documentation/process-intelligence/artifacts/purchasing-actual-report.txt`
 
+## UAT Release
+
+The authorized UAT cutover completed successfully on September 30, 2026. The release used a fresh verified
+database-and-files backup and an encrypted OS-disk snapshot. Migration, authentication, assets, scheduler state,
+worker state, public HTTPS and deployed Process Intelligence module imports passed. Full evidence is recorded in
+`deployment/PRIDICT-PROCESS-INTELLIGENCE-UAT-RELEASE-20260930.md`.
+
 ## Resume Point
 
-The Milestone 2 implementation is locally complete. Before release, review the isolated Process Intelligence
-change set, commit and push it separately from the unrelated UI work, then rerun the three integration tests in
-the disposable Frappe site. Do not deploy without separate deployment approval.
+Perform functional UAT using representative purchasing histories and verify that reconstruction remains bounded,
+read-only and deterministic. Record any defect with the exact company, date scope, document relationships and
+expected versus actual result before applying targeted corrections.
 
 Milestone 3 remains a separate scope. If approved, begin by creating a controlled disposable-site transaction
 history covering partial fulfillment, multiple source/target documents, returns, cancellations, amendments,

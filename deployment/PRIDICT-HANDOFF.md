@@ -5,6 +5,32 @@ Rebrand ERPNext as Pridict with the approved Enterprise visual design in light a
 
 The design preview is https://pridict-enterprise-preview.ajay-tamvada.chatgpt.site (owner-private). It is a mockup, not the running ERP system.
 
+## Process Intelligence Milestone 2 UAT release - 30 September 2026
+
+The authorized UAT cutover completed successfully from commit
+`e1b937a86be754fd551c2927e756775b89a9ecea`, pushed to `origin/version-15`.
+The running image is `pridict-erpnext:0.1.0-20260930-process-intelligence-uat1`,
+image ID `sha256:3c29766cfea38a5d53c5259161618f97ea1ef681e80c7b906840e4e031615e0a`.
+Release state is `/opt/erpnext/release-state/20260930T170136Z.env`.
+
+The fresh verified rollback backup is
+`predeploy/2026/09/30/pridict-precutover-20260930-process-intelligence-uat1.tar.gz`
+in the private `erpnext-backups` container, SHA-256
+`d3ae778517adb270bdc746032c8cdb9d5b34582c50f880ab68df561ab2b61d19`.
+The matching encrypted OS-disk snapshot is
+`erpnext-demo-vm-osdisk-pridict-predeploy-20260930-process-intelligence-uat1`
+and completed with `Succeeded`. The exact source archive is
+`release-candidates/2026/09/30/pridict-20260930-process-intelligence-uat1-source.tar.gz`,
+SHA-256 `29012f8a670d90154fefeec7d9050e9f82c1acb6d5979fd01209821d0e3aa7cf`.
+
+Post-release verification confirmed all nine services running, HTTPS login,
+Administrator authentication, authenticated session lookup, CSS/JavaScript assets,
+Frappe 15.120.1, ERPNext 15.121.2, Pridict 0.1.0, maintenance mode off, scheduler
+enabled, one online worker, and successful import of the Process Intelligence API
+and service modules. Public HTTPS returned 200.
+
+The release record is `deployment/PRIDICT-PROCESS-INTELLIGENCE-UAT-RELEASE-20260930.md`.
+
 ## Product-wide redesign UAT release - 28 September 2026
 
 The authorized UAT cutover completed successfully from commit
