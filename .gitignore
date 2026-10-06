@@ -19,3 +19,8 @@ node_modules/
 .backportrc.json
 .deployment-private/
 .tmp-pridict-*-profile/
+output/pi-browser-profile/
+
+output/
+tmp*/
+**/tmp*/

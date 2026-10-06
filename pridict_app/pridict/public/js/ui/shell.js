@@ -17,6 +17,7 @@
 		{ key: "website", label: "Website", route: "website", icon: "website", roles: ["Website Manager", "System Manager"] },
 		{ key: "integrations", label: "Integrations", route: "pridict-integrations", icon: "integration", roles: ["System Manager"] },
 		{ key: "governance", label: "Schema Intelligence", route: "schema-intelligence", icon: "branch", roles: ["Schema Reviewer", "System Manager"] },
+		{ key: "process-intelligence", label: "Process Intelligence", route: "process-intelligence", icon: "branch", roles: ["Process Analyst", "System Manager"] },
 		{ key: "administration", label: "Administration", route: "pridict-administration", icon: "setting-gear", roles: ["System Manager"] },
 	];
 
@@ -119,6 +120,15 @@
 		return __(navigation.find((item) => item.key === context.module)?.label || "Overview");
 	}
 
+	function applyLayoutOwnership(page, context) {
+		document.querySelectorAll(".page-container").forEach((container) => {
+			container.classList.remove("pridict-workspace-route", "pridict-contextual-sidebar-route");
+		});
+		const hasNativeSidebar = Boolean(page.querySelector(".layout-side-section"));
+		page.classList.toggle("pridict-workspace-route", context.surface === "workspace" && hasNativeSidebar);
+		page.classList.toggle("pridict-contextual-sidebar-route", context.surface !== "workspace" && hasNativeSidebar);
+	}
+
 	function applyContext(context) {
 		const shell = ensureShell();
 		if (!shell) return;
@@ -134,6 +144,7 @@
 		if (!page) return;
 		page.dataset.pridictModule = context.module;
 		page.dataset.pridictSurface = context.surface;
+		applyLayoutOwnership(page, context);
 		const titleArea = page.querySelector(".page-head .title-area, .page-head .page-title");
 		if (titleArea) {
 			let contextLabel = titleArea.querySelector(".pridict-page-context");

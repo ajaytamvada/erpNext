@@ -133,6 +133,16 @@ html.pridict-ui :is(button, a, input, select, textarea, [tabindex]):focus-visibl
 }
 
 @media (max-width: 600px) {
+	html.pridict-ui .dropdown-notifications > .pridict-notification-surface {
+		position: fixed;
+		top: var(--navbar-height);
+		right: 12px;
+		left: 12px;
+		width: auto;
+		min-width: 0;
+		max-width: none;
+	}
+
 	html.pridict-ui .pridict-dialog .modal-dialog {
 		width: calc(100vw - 16px);
 		max-width: none;

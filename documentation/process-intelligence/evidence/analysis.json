@@ -1,0 +1,1268 @@
+{
+  "reconstruction": {
+    "reconstruction_id": "reconstruction-76938c14489e74a23dd7b876",
+    "version": "1.0.0",
+    "process_model_id": "process-997fff2416c8ee4f",
+    "company_id": "company-8e836110dc228e5024045343",
+    "start_date": "2026-10-02",
+    "end_date": "2026-10-02",
+    "collected_at": "2026-10-02T18:59:06.388010Z",
+    "evidence": [
+      {
+        "evidence_id": "evidence-0090e4bd1631a2a808709feb",
+        "source_type": "Explicit Transaction Link",
+        "source_locator": "database:Purchase Invoice/doc-28dd4ce7eb988687f6555bfe",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Purchase Invoice explicitly references Purchase Order.",
+        "details": {
+          "relation_type": "ITEM_LEVEL_REFERENCE",
+          "target_row_id": "row-f9a040f7bdf10b698efb06a1"
+        }
+      },
+      {
+        "evidence_id": "evidence-0330726896423c7b934a43f6",
+        "source_type": "Explicit Transaction Link",
+        "source_locator": "database:Purchase Order/doc-872b84039a6fe1f2d50b05e1",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Purchase Order explicitly references Material Request.",
+        "details": {
+          "relation_type": "ITEM_LEVEL_REFERENCE",
+          "target_row_id": "row-1b180a142a87875aefb775c6"
+        }
+      },
+      {
+        "evidence_id": "evidence-073740e7a800a0c5dfbcae51",
+        "source_type": "Version",
+        "source_locator": "database:Version/version-095414c04e83a8af82f0eab0",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Version records a change to status.",
+        "details": {
+          "field": "status",
+          "old": "Draft",
+          "new": "Submitted"
+        }
+      },
+      {
+        "evidence_id": "evidence-24651df78399851d7df2a83a",
+        "source_type": "Document",
+        "source_locator": "database:Purchase Receipt/doc-24651df78399851d7df2a83a",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Read Purchase Receipt within the authorized scope.",
+        "details": {
+          "document_type": "Purchase Receipt",
+          "docstatus": 1,
+          "status": "Completed",
+          "workflow_state": null,
+          "is_return": false
+        }
+      },
+      {
+        "evidence_id": "evidence-28dd4ce7eb988687f6555bfe",
+        "source_type": "Document",
+        "source_locator": "database:Purchase Invoice/doc-28dd4ce7eb988687f6555bfe",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Read Purchase Invoice within the authorized scope.",
+        "details": {
+          "document_type": "Purchase Invoice",
+          "docstatus": 1,
+          "status": "Paid",
+          "workflow_state": null,
+          "is_return": false
+        }
+      },
+      {
+        "evidence_id": "evidence-2f0ad492c99e7af3fbfa9870",
+        "source_type": "Explicit Transaction Link",
+        "source_locator": "database:Purchase Receipt/doc-24651df78399851d7df2a83a",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Purchase Receipt explicitly references Material Request.",
+        "details": {
+          "relation_type": "ITEM_LEVEL_REFERENCE",
+          "target_row_id": "row-08ab8b1d65a58974d2f88b03"
+        }
+      },
+      {
+        "evidence_id": "evidence-4d672e4c489ea88f1f0d8d43",
+        "source_type": "Explicit Transaction Link",
+        "source_locator": "database:Supplier Quotation/doc-e7d3aaed8198ba735abaa5b9",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Supplier Quotation explicitly references Material Request.",
+        "details": {
+          "relation_type": "ITEM_LEVEL_REFERENCE",
+          "target_row_id": "row-884662a569a2026d558e6761"
+        }
+      },
+      {
+        "evidence_id": "evidence-53a00f2cb3497e0189c52c8b",
+        "source_type": "Explicit Transaction Link",
+        "source_locator": "database:Purchase Receipt/doc-24651df78399851d7df2a83a",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Purchase Receipt explicitly references Purchase Order.",
+        "details": {
+          "relation_type": "ITEM_LEVEL_REFERENCE",
+          "target_row_id": "row-08ab8b1d65a58974d2f88b03"
+        }
+      },
+      {
+        "evidence_id": "evidence-5e4db21c450087324e031b3c",
+        "source_type": "Document",
+        "source_locator": "database:Request for Quotation/doc-5e4db21c450087324e031b3c",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Read Request for Quotation within the authorized scope.",
+        "details": {
+          "document_type": "Request for Quotation",
+          "docstatus": 1,
+          "status": "Submitted",
+          "workflow_state": null,
+          "is_return": false
+        }
+      },
+      {
+        "evidence_id": "evidence-5fbb8a512d307a9251b00311",
+        "source_type": "Version",
+        "source_locator": "database:Version/version-8245ce969d4dfa268a3270c1",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Version records a change to docstatus.",
+        "details": {
+          "field": "docstatus",
+          "old": 0,
+          "new": 1
+        }
+      },
+      {
+        "evidence_id": "evidence-6c08ae83a83d7b4e726eb8ec",
+        "source_type": "Version",
+        "source_locator": "database:Version/version-8245ce969d4dfa268a3270c1",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Version records a change to status.",
+        "details": {
+          "field": "status",
+          "old": "Draft",
+          "new": "To Receive and Bill"
+        }
+      },
+      {
+        "evidence_id": "evidence-872b84039a6fe1f2d50b05e1",
+        "source_type": "Document",
+        "source_locator": "database:Purchase Order/doc-872b84039a6fe1f2d50b05e1",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Read Purchase Order within the authorized scope.",
+        "details": {
+          "document_type": "Purchase Order",
+          "docstatus": 1,
+          "status": "Completed",
+          "workflow_state": null,
+          "is_return": false
+        }
+      },
+      {
+        "evidence_id": "evidence-8bae3d59a2c7fe66c65b815b",
+        "source_type": "Version",
+        "source_locator": "database:Version/version-1c8fcdfafb4f14168eaca4ca",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Version records a change to docstatus.",
+        "details": {
+          "field": "docstatus",
+          "old": 0,
+          "new": 1
+        }
+      },
+      {
+        "evidence_id": "evidence-8cacf582be621abee14edfa5",
+        "source_type": "Version",
+        "source_locator": "database:Version/version-ebccde19c0b27dfc044fec58",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Version records a change to docstatus.",
+        "details": {
+          "field": "docstatus",
+          "old": 0,
+          "new": 1
+        }
+      },
+      {
+        "evidence_id": "evidence-98f5ea9a435a0310819175f3",
+        "source_type": "Version",
+        "source_locator": "database:Version/version-ebccde19c0b27dfc044fec58",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Version records a change to status.",
+        "details": {
+          "field": "status",
+          "old": "Draft",
+          "new": "To Bill"
+        }
+      },
+      {
+        "evidence_id": "evidence-b7301b6df429fb34babfad01",
+        "source_type": "Document",
+        "source_locator": "database:Material Request/doc-b7301b6df429fb34babfad01",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Read Material Request within the authorized scope.",
+        "details": {
+          "document_type": "Material Request",
+          "docstatus": 1,
+          "status": "Received",
+          "workflow_state": null,
+          "is_return": false
+        }
+      },
+      {
+        "evidence_id": "evidence-b78c1380810db8845c97d082",
+        "source_type": "Document",
+        "source_locator": "database:Payment Entry/doc-b78c1380810db8845c97d082",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Read Payment Entry within the authorized scope.",
+        "details": {
+          "document_type": "Payment Entry",
+          "docstatus": 1,
+          "status": "Submitted",
+          "workflow_state": null,
+          "is_return": false
+        }
+      },
+      {
+        "evidence_id": "evidence-c9af6b7ec1b237966cba930a",
+        "source_type": "Explicit Transaction Link",
+        "source_locator": "database:Purchase Order/doc-872b84039a6fe1f2d50b05e1",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Purchase Order explicitly references Supplier Quotation.",
+        "details": {
+          "relation_type": "ITEM_LEVEL_REFERENCE",
+          "target_row_id": "row-1b180a142a87875aefb775c6"
+        }
+      },
+      {
+        "evidence_id": "evidence-df3fd6382fee41eb5f2d018f",
+        "source_type": "Explicit Transaction Link",
+        "source_locator": "database:Supplier Quotation/doc-e7d3aaed8198ba735abaa5b9",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Supplier Quotation explicitly references Request for Quotation.",
+        "details": {
+          "relation_type": "ITEM_LEVEL_REFERENCE",
+          "target_row_id": "row-884662a569a2026d558e6761"
+        }
+      },
+      {
+        "evidence_id": "evidence-e1122ad86a6aacc47f162c6a",
+        "source_type": "Explicit Transaction Link",
+        "source_locator": "database:Purchase Invoice/doc-28dd4ce7eb988687f6555bfe",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Purchase Invoice explicitly references Purchase Receipt.",
+        "details": {
+          "relation_type": "ITEM_LEVEL_REFERENCE",
+          "target_row_id": "row-f9a040f7bdf10b698efb06a1"
+        }
+      },
+      {
+        "evidence_id": "evidence-e1b0ac12bcaecbc968c5900e",
+        "source_type": "Version",
+        "source_locator": "database:Version/version-095414c04e83a8af82f0eab0",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Version records a change to docstatus.",
+        "details": {
+          "field": "docstatus",
+          "old": 0,
+          "new": 1
+        }
+      },
+      {
+        "evidence_id": "evidence-e7d3aaed8198ba735abaa5b9",
+        "source_type": "Document",
+        "source_locator": "database:Supplier Quotation/doc-e7d3aaed8198ba735abaa5b9",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Read Supplier Quotation within the authorized scope.",
+        "details": {
+          "document_type": "Supplier Quotation",
+          "docstatus": 1,
+          "status": "Submitted",
+          "workflow_state": null,
+          "is_return": false
+        }
+      },
+      {
+        "evidence_id": "evidence-f6780dd761551f476ea2c2a6",
+        "source_type": "Explicit Transaction Link",
+        "source_locator": "database:Payment Entry/doc-b78c1380810db8845c97d082",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Payment Entry explicitly references Purchase Invoice.",
+        "details": {
+          "relation_type": "PAYMENT_ALLOCATION",
+          "target_row_id": "row-5986131fa8d4667efb5c13a8"
+        }
+      },
+      {
+        "evidence_id": "evidence-f9cc7190c33a235d60e0a9db",
+        "source_type": "Version",
+        "source_locator": "database:Version/version-1c8fcdfafb4f14168eaca4ca",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Version records a change to status.",
+        "details": {
+          "field": "status",
+          "old": "Draft",
+          "new": "Unpaid"
+        }
+      },
+      {
+        "evidence_id": "evidence-ffbd20009f71aad343e9753a",
+        "source_type": "Explicit Transaction Link",
+        "source_locator": "database:Request for Quotation/doc-5e4db21c450087324e031b3c",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "summary": "Request for Quotation explicitly references Material Request.",
+        "details": {
+          "relation_type": "ITEM_LEVEL_REFERENCE",
+          "target_row_id": "row-c2f028ddabcdc476fced2bc4"
+        }
+      }
+    ],
+    "events": [
+      {
+        "event_id": "event-073740e7a800a0c5dfbcae51",
+        "event_type": "DOCUMENT_STATE_CHANGED",
+        "document_id": "doc-b78c1380810db8845c97d082",
+        "document_type": "Payment Entry",
+        "occurred_at": "2026-10-02T21:42:53.807613",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "Version creation timestamp",
+        "actor_id": "actor-6a6c2d293d70c75fcbb08ba6",
+        "details": {
+          "field": "status",
+          "old": "Draft",
+          "new": "Submitted"
+        },
+        "evidence_ids": [
+          "evidence-073740e7a800a0c5dfbcae51"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-0bb90e0975a8bcd774e1c001",
+        "event_type": "DOCUMENT_CREATED",
+        "document_id": "doc-28dd4ce7eb988687f6555bfe",
+        "document_type": "Purchase Invoice",
+        "occurred_at": "2026-10-02T21:42:53.095003",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "creation timestamp",
+        "actor_id": "actor-6a6c2d293d70c75fcbb08ba6",
+        "details": {},
+        "evidence_ids": [
+          "evidence-28dd4ce7eb988687f6555bfe"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-1a15e95c904b8012b8e71769",
+        "event_type": "DOCUMENT_CREATED",
+        "document_id": "doc-5e4db21c450087324e031b3c",
+        "document_type": "Request for Quotation",
+        "occurred_at": "2026-10-02T21:42:51.574891",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "creation timestamp",
+        "actor_id": "actor-6a6c2d293d70c75fcbb08ba6",
+        "details": {},
+        "evidence_ids": [
+          "evidence-5e4db21c450087324e031b3c"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-419a58e5d70287c837234221",
+        "event_type": "CURRENT_DOCUMENT_STATE_OBSERVED",
+        "document_id": "doc-28dd4ce7eb988687f6555bfe",
+        "document_type": "Purchase Invoice",
+        "occurred_at": null,
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "observation time; not a state-change timestamp",
+        "actor_id": null,
+        "details": {
+          "docstatus": 1,
+          "status": "Paid",
+          "workflow_state": null
+        },
+        "evidence_ids": [
+          "evidence-28dd4ce7eb988687f6555bfe"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-42730f04a55afbbe2e4d67a1",
+        "event_type": "CURRENT_DOCUMENT_STATE_OBSERVED",
+        "document_id": "doc-5e4db21c450087324e031b3c",
+        "document_type": "Request for Quotation",
+        "occurred_at": null,
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "observation time; not a state-change timestamp",
+        "actor_id": null,
+        "details": {
+          "docstatus": 1,
+          "status": "Submitted",
+          "workflow_state": null
+        },
+        "evidence_ids": [
+          "evidence-5e4db21c450087324e031b3c"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-47ddc02d9732fce0f07c7e91",
+        "event_type": "DOCUMENT_CREATED",
+        "document_id": "doc-b7301b6df429fb34babfad01",
+        "document_type": "Material Request",
+        "occurred_at": "2026-10-02T21:42:51.164069",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "creation timestamp",
+        "actor_id": "actor-6a6c2d293d70c75fcbb08ba6",
+        "details": {},
+        "evidence_ids": [
+          "evidence-b7301b6df429fb34babfad01"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-4bf499d97ea7131376603e43",
+        "event_type": "CURRENT_DOCUMENT_STATE_OBSERVED",
+        "document_id": "doc-872b84039a6fe1f2d50b05e1",
+        "document_type": "Purchase Order",
+        "occurred_at": null,
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "observation time; not a state-change timestamp",
+        "actor_id": null,
+        "details": {
+          "docstatus": 1,
+          "status": "Completed",
+          "workflow_state": null
+        },
+        "evidence_ids": [
+          "evidence-872b84039a6fe1f2d50b05e1"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-50a9de8eaa8039826735384c",
+        "event_type": "DOCUMENT_CREATED",
+        "document_id": "doc-24651df78399851d7df2a83a",
+        "document_type": "Purchase Receipt",
+        "occurred_at": "2026-10-02T21:42:52.494829",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "creation timestamp",
+        "actor_id": "actor-6a6c2d293d70c75fcbb08ba6",
+        "details": {},
+        "evidence_ids": [
+          "evidence-24651df78399851d7df2a83a"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-5f3b2af6daaef53e5330df17",
+        "event_type": "CURRENT_DOCUMENT_STATE_OBSERVED",
+        "document_id": "doc-b78c1380810db8845c97d082",
+        "document_type": "Payment Entry",
+        "occurred_at": null,
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "observation time; not a state-change timestamp",
+        "actor_id": null,
+        "details": {
+          "docstatus": 1,
+          "status": "Submitted",
+          "workflow_state": null
+        },
+        "evidence_ids": [
+          "evidence-b78c1380810db8845c97d082"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-5fbb8a512d307a9251b00311",
+        "event_type": "DOCUMENT_STATE_CHANGED",
+        "document_id": "doc-872b84039a6fe1f2d50b05e1",
+        "document_type": "Purchase Order",
+        "occurred_at": "2026-10-02T21:42:52.360146",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "Version creation timestamp",
+        "actor_id": "actor-6a6c2d293d70c75fcbb08ba6",
+        "details": {
+          "field": "docstatus",
+          "old": 0,
+          "new": 1
+        },
+        "evidence_ids": [
+          "evidence-5fbb8a512d307a9251b00311"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-632ac0cd1949ad04b3770da8",
+        "event_type": "CURRENT_DOCUMENT_STATE_OBSERVED",
+        "document_id": "doc-e7d3aaed8198ba735abaa5b9",
+        "document_type": "Supplier Quotation",
+        "occurred_at": null,
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "observation time; not a state-change timestamp",
+        "actor_id": null,
+        "details": {
+          "docstatus": 1,
+          "status": "Submitted",
+          "workflow_state": null
+        },
+        "evidence_ids": [
+          "evidence-e7d3aaed8198ba735abaa5b9"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-6c08ae83a83d7b4e726eb8ec",
+        "event_type": "DOCUMENT_STATE_CHANGED",
+        "document_id": "doc-872b84039a6fe1f2d50b05e1",
+        "document_type": "Purchase Order",
+        "occurred_at": "2026-10-02T21:42:52.360146",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "Version creation timestamp",
+        "actor_id": "actor-6a6c2d293d70c75fcbb08ba6",
+        "details": {
+          "field": "status",
+          "old": "Draft",
+          "new": "To Receive and Bill"
+        },
+        "evidence_ids": [
+          "evidence-6c08ae83a83d7b4e726eb8ec"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-74b2b868fb5b16654b72be85",
+        "event_type": "CURRENT_DOCUMENT_STATE_OBSERVED",
+        "document_id": "doc-b7301b6df429fb34babfad01",
+        "document_type": "Material Request",
+        "occurred_at": null,
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "observation time; not a state-change timestamp",
+        "actor_id": null,
+        "details": {
+          "docstatus": 1,
+          "status": "Received",
+          "workflow_state": null
+        },
+        "evidence_ids": [
+          "evidence-b7301b6df429fb34babfad01"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-7685d16b7f3a1963ec9b458c",
+        "event_type": "DOCUMENT_CREATED",
+        "document_id": "doc-e7d3aaed8198ba735abaa5b9",
+        "document_type": "Supplier Quotation",
+        "occurred_at": "2026-10-02T21:42:51.823499",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "creation timestamp",
+        "actor_id": "actor-6a6c2d293d70c75fcbb08ba6",
+        "details": {},
+        "evidence_ids": [
+          "evidence-e7d3aaed8198ba735abaa5b9"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-8bae3d59a2c7fe66c65b815b",
+        "event_type": "DOCUMENT_STATE_CHANGED",
+        "document_id": "doc-28dd4ce7eb988687f6555bfe",
+        "document_type": "Purchase Invoice",
+        "occurred_at": "2026-10-02T21:42:53.403786",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "Version creation timestamp",
+        "actor_id": "actor-6a6c2d293d70c75fcbb08ba6",
+        "details": {
+          "field": "docstatus",
+          "old": 0,
+          "new": 1
+        },
+        "evidence_ids": [
+          "evidence-8bae3d59a2c7fe66c65b815b"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-8cacf582be621abee14edfa5",
+        "event_type": "DOCUMENT_STATE_CHANGED",
+        "document_id": "doc-24651df78399851d7df2a83a",
+        "document_type": "Purchase Receipt",
+        "occurred_at": "2026-10-02T21:42:52.981327",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "Version creation timestamp",
+        "actor_id": "actor-6a6c2d293d70c75fcbb08ba6",
+        "details": {
+          "field": "docstatus",
+          "old": 0,
+          "new": 1
+        },
+        "evidence_ids": [
+          "evidence-8cacf582be621abee14edfa5"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-960d04287a0850628918cb64",
+        "event_type": "CURRENT_DOCUMENT_STATE_OBSERVED",
+        "document_id": "doc-24651df78399851d7df2a83a",
+        "document_type": "Purchase Receipt",
+        "occurred_at": null,
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "observation time; not a state-change timestamp",
+        "actor_id": null,
+        "details": {
+          "docstatus": 1,
+          "status": "Completed",
+          "workflow_state": null
+        },
+        "evidence_ids": [
+          "evidence-24651df78399851d7df2a83a"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-98f5ea9a435a0310819175f3",
+        "event_type": "DOCUMENT_STATE_CHANGED",
+        "document_id": "doc-24651df78399851d7df2a83a",
+        "document_type": "Purchase Receipt",
+        "occurred_at": "2026-10-02T21:42:52.981327",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "Version creation timestamp",
+        "actor_id": "actor-6a6c2d293d70c75fcbb08ba6",
+        "details": {
+          "field": "status",
+          "old": "Draft",
+          "new": "To Bill"
+        },
+        "evidence_ids": [
+          "evidence-98f5ea9a435a0310819175f3"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-bb3885cf6d67b4793e34f147",
+        "event_type": "DOCUMENT_CREATED",
+        "document_id": "doc-872b84039a6fe1f2d50b05e1",
+        "document_type": "Purchase Order",
+        "occurred_at": "2026-10-02T21:42:52.155313",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "creation timestamp",
+        "actor_id": "actor-6a6c2d293d70c75fcbb08ba6",
+        "details": {},
+        "evidence_ids": [
+          "evidence-872b84039a6fe1f2d50b05e1"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-e1b0ac12bcaecbc968c5900e",
+        "event_type": "DOCUMENT_STATE_CHANGED",
+        "document_id": "doc-b78c1380810db8845c97d082",
+        "document_type": "Payment Entry",
+        "occurred_at": "2026-10-02T21:42:53.807613",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "Version creation timestamp",
+        "actor_id": "actor-6a6c2d293d70c75fcbb08ba6",
+        "details": {
+          "field": "docstatus",
+          "old": 0,
+          "new": 1
+        },
+        "evidence_ids": [
+          "evidence-e1b0ac12bcaecbc968c5900e"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-f0dd632778d802baab0ee479",
+        "event_type": "DOCUMENT_CREATED",
+        "document_id": "doc-b78c1380810db8845c97d082",
+        "document_type": "Payment Entry",
+        "occurred_at": "2026-10-02T21:42:53.545836",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "creation timestamp",
+        "actor_id": "actor-6a6c2d293d70c75fcbb08ba6",
+        "details": {},
+        "evidence_ids": [
+          "evidence-b78c1380810db8845c97d082"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "event_id": "event-f9cc7190c33a235d60e0a9db",
+        "event_type": "DOCUMENT_STATE_CHANGED",
+        "document_id": "doc-28dd4ce7eb988687f6555bfe",
+        "document_type": "Purchase Invoice",
+        "occurred_at": "2026-10-02T21:42:53.403786",
+        "observed_at": "2026-10-02T18:59:06.388010Z",
+        "timestamp_semantics": "Version creation timestamp",
+        "actor_id": "actor-6a6c2d293d70c75fcbb08ba6",
+        "details": {
+          "field": "status",
+          "old": "Draft",
+          "new": "Unpaid"
+        },
+        "evidence_ids": [
+          "evidence-f9cc7190c33a235d60e0a9db"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "edges": [
+      {
+        "edge_id": "edge-3a145768939e46297770653b",
+        "source_document_id": "doc-872b84039a6fe1f2d50b05e1",
+        "target_document_id": "doc-24651df78399851d7df2a83a",
+        "source_doctype": "Purchase Order",
+        "target_doctype": "Purchase Receipt",
+        "source_row_id": "row-1b180a142a87875aefb775c6",
+        "target_row_id": "row-08ab8b1d65a58974d2f88b03",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-53a00f2cb3497e0189c52c8b"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-3b90c953211d2c534f1e466f",
+        "source_document_id": "doc-b7301b6df429fb34babfad01",
+        "target_document_id": "doc-872b84039a6fe1f2d50b05e1",
+        "source_doctype": "Material Request",
+        "target_doctype": "Purchase Order",
+        "source_row_id": "row-1c51e23a8de7114943b2ed48",
+        "target_row_id": "row-1b180a142a87875aefb775c6",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-0330726896423c7b934a43f6"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-61f17c8cc74d160c24429c80",
+        "source_document_id": "doc-872b84039a6fe1f2d50b05e1",
+        "target_document_id": "doc-28dd4ce7eb988687f6555bfe",
+        "source_doctype": "Purchase Order",
+        "target_doctype": "Purchase Invoice",
+        "source_row_id": "row-1b180a142a87875aefb775c6",
+        "target_row_id": "row-f9a040f7bdf10b698efb06a1",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-0090e4bd1631a2a808709feb"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-6c90e72283e5f1a67f6488cb",
+        "source_document_id": "doc-b7301b6df429fb34babfad01",
+        "target_document_id": "doc-24651df78399851d7df2a83a",
+        "source_doctype": "Material Request",
+        "target_doctype": "Purchase Receipt",
+        "source_row_id": "row-1c51e23a8de7114943b2ed48",
+        "target_row_id": "row-08ab8b1d65a58974d2f88b03",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-2f0ad492c99e7af3fbfa9870"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-6d00a495245c3a475e9a8cac",
+        "source_document_id": "doc-b7301b6df429fb34babfad01",
+        "target_document_id": "doc-e7d3aaed8198ba735abaa5b9",
+        "source_doctype": "Material Request",
+        "target_doctype": "Supplier Quotation",
+        "source_row_id": "row-1c51e23a8de7114943b2ed48",
+        "target_row_id": "row-884662a569a2026d558e6761",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-4d672e4c489ea88f1f0d8d43"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-740579ef39debdd8135d2707",
+        "source_document_id": "doc-24651df78399851d7df2a83a",
+        "target_document_id": "doc-28dd4ce7eb988687f6555bfe",
+        "source_doctype": "Purchase Receipt",
+        "target_doctype": "Purchase Invoice",
+        "source_row_id": "row-08ab8b1d65a58974d2f88b03",
+        "target_row_id": "row-f9a040f7bdf10b698efb06a1",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-e1122ad86a6aacc47f162c6a"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-8284542469a1c961c8325593",
+        "source_document_id": "doc-e7d3aaed8198ba735abaa5b9",
+        "target_document_id": "doc-872b84039a6fe1f2d50b05e1",
+        "source_doctype": "Supplier Quotation",
+        "target_doctype": "Purchase Order",
+        "source_row_id": "row-884662a569a2026d558e6761",
+        "target_row_id": "row-1b180a142a87875aefb775c6",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-c9af6b7ec1b237966cba930a"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-c4358f793e834d072fe798d1",
+        "source_document_id": "doc-5e4db21c450087324e031b3c",
+        "target_document_id": "doc-e7d3aaed8198ba735abaa5b9",
+        "source_doctype": "Request for Quotation",
+        "target_doctype": "Supplier Quotation",
+        "source_row_id": null,
+        "target_row_id": "row-884662a569a2026d558e6761",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "UNKNOWN",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-df3fd6382fee41eb5f2d018f"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-d7bb77055420bc3a3fd4fe21",
+        "source_document_id": "doc-28dd4ce7eb988687f6555bfe",
+        "target_document_id": "doc-b78c1380810db8845c97d082",
+        "source_doctype": "Purchase Invoice",
+        "target_doctype": "Payment Entry",
+        "source_row_id": null,
+        "target_row_id": "row-5986131fa8d4667efb5c13a8",
+        "relation_type": "PAYMENT_ALLOCATION",
+        "quantity": null,
+        "allocated_amount": 1000.0,
+        "allocation_status": "AMOUNT_RECORDED",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-f6780dd761551f476ea2c2a6"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-ff3823ca7203471592562754",
+        "source_document_id": "doc-b7301b6df429fb34babfad01",
+        "target_document_id": "doc-5e4db21c450087324e031b3c",
+        "source_doctype": "Material Request",
+        "target_doctype": "Request for Quotation",
+        "source_row_id": "row-1c51e23a8de7114943b2ed48",
+        "target_row_id": "row-c2f028ddabcdc476fced2bc4",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-ffbd20009f71aad343e9753a"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "instances": [
+      {
+        "instance_id": "instance-58d1a9f013d1d824f90549f4",
+        "document_ids": [
+          "doc-24651df78399851d7df2a83a",
+          "doc-28dd4ce7eb988687f6555bfe",
+          "doc-5e4db21c450087324e031b3c",
+          "doc-872b84039a6fe1f2d50b05e1",
+          "doc-b7301b6df429fb34babfad01",
+          "doc-b78c1380810db8845c97d082",
+          "doc-e7d3aaed8198ba735abaa5b9"
+        ],
+        "event_ids": [
+          "event-073740e7a800a0c5dfbcae51",
+          "event-0bb90e0975a8bcd774e1c001",
+          "event-1a15e95c904b8012b8e71769",
+          "event-419a58e5d70287c837234221",
+          "event-42730f04a55afbbe2e4d67a1",
+          "event-47ddc02d9732fce0f07c7e91",
+          "event-4bf499d97ea7131376603e43",
+          "event-50a9de8eaa8039826735384c",
+          "event-5f3b2af6daaef53e5330df17",
+          "event-5fbb8a512d307a9251b00311",
+          "event-632ac0cd1949ad04b3770da8",
+          "event-6c08ae83a83d7b4e726eb8ec",
+          "event-74b2b868fb5b16654b72be85",
+          "event-7685d16b7f3a1963ec9b458c",
+          "event-8bae3d59a2c7fe66c65b815b",
+          "event-8cacf582be621abee14edfa5",
+          "event-960d04287a0850628918cb64",
+          "event-98f5ea9a435a0310819175f3",
+          "event-bb3885cf6d67b4793e34f147",
+          "event-e1b0ac12bcaecbc968c5900e",
+          "event-f0dd632778d802baab0ee479",
+          "event-f9cc7190c33a235d60e0a9db"
+        ],
+        "edge_ids": [
+          "edge-3a145768939e46297770653b",
+          "edge-3b90c953211d2c534f1e466f",
+          "edge-61f17c8cc74d160c24429c80",
+          "edge-6c90e72283e5f1a67f6488cb",
+          "edge-6d00a495245c3a475e9a8cac",
+          "edge-740579ef39debdd8135d2707",
+          "edge-8284542469a1c961c8325593",
+          "edge-c4358f793e834d072fe798d1",
+          "edge-d7bb77055420bc3a3fd4fe21",
+          "edge-ff3823ca7203471592562754"
+        ],
+        "start_at": "2026-10-02T21:42:51.164069",
+        "end_at": null,
+        "completion_status": "UNKNOWN"
+      }
+    ],
+    "metrics": {
+      "document_volume": {
+        "Material Request": 1,
+        "Payment Entry": 1,
+        "Purchase Invoice": 1,
+        "Purchase Order": 1,
+        "Purchase Receipt": 1,
+        "Request for Quotation": 1,
+        "Supplier Quotation": 1
+      },
+      "process_instance_count": 1,
+      "correlation_edge_count": 10,
+      "unlinked_document_count": 0,
+      "cancellation_count": 0,
+      "return_count": 0,
+      "amendment_count": 0,
+      "partial_allocation_edge_count": 0,
+      "over_allocation_edge_count": 0,
+      "process_cycle_time": "DATA_NOT_AVAILABLE",
+      "approval_time": "DATA_NOT_AVAILABLE",
+      "waiting_time": "DATA_NOT_AVAILABLE",
+      "handoff_count": "DATA_NOT_AVAILABLE"
+    },
+    "gaps": [
+      "APPROVAL_TIMES: DATA_NOT_AVAILABLE",
+      "COMPLETION_TIMES: DATA_NOT_AVAILABLE unless explicit auditable terminal events exist."
+    ]
+  },
+  "graph": {
+    "reconstruction_id": "reconstruction-76938c14489e74a23dd7b876",
+    "directed": true,
+    "nodes": [
+      {
+        "id": "doc-24651df78399851d7df2a83a",
+        "type": "document",
+        "document_type": "Purchase Receipt",
+        "in_scope": true
+      },
+      {
+        "id": "doc-28dd4ce7eb988687f6555bfe",
+        "type": "document",
+        "document_type": "Purchase Invoice",
+        "in_scope": true
+      },
+      {
+        "id": "doc-5e4db21c450087324e031b3c",
+        "type": "document",
+        "document_type": "Request for Quotation",
+        "in_scope": true
+      },
+      {
+        "id": "doc-872b84039a6fe1f2d50b05e1",
+        "type": "document",
+        "document_type": "Purchase Order",
+        "in_scope": true
+      },
+      {
+        "id": "doc-b7301b6df429fb34babfad01",
+        "type": "document",
+        "document_type": "Material Request",
+        "in_scope": true
+      },
+      {
+        "id": "doc-b78c1380810db8845c97d082",
+        "type": "document",
+        "document_type": "Payment Entry",
+        "in_scope": true
+      },
+      {
+        "id": "doc-e7d3aaed8198ba735abaa5b9",
+        "type": "document",
+        "document_type": "Supplier Quotation",
+        "in_scope": true
+      }
+    ],
+    "edges": [
+      {
+        "edge_id": "edge-3a145768939e46297770653b",
+        "source_document_id": "doc-872b84039a6fe1f2d50b05e1",
+        "target_document_id": "doc-24651df78399851d7df2a83a",
+        "source_doctype": "Purchase Order",
+        "target_doctype": "Purchase Receipt",
+        "source_row_id": "row-1b180a142a87875aefb775c6",
+        "target_row_id": "row-08ab8b1d65a58974d2f88b03",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-53a00f2cb3497e0189c52c8b"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-3b90c953211d2c534f1e466f",
+        "source_document_id": "doc-b7301b6df429fb34babfad01",
+        "target_document_id": "doc-872b84039a6fe1f2d50b05e1",
+        "source_doctype": "Material Request",
+        "target_doctype": "Purchase Order",
+        "source_row_id": "row-1c51e23a8de7114943b2ed48",
+        "target_row_id": "row-1b180a142a87875aefb775c6",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-0330726896423c7b934a43f6"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-61f17c8cc74d160c24429c80",
+        "source_document_id": "doc-872b84039a6fe1f2d50b05e1",
+        "target_document_id": "doc-28dd4ce7eb988687f6555bfe",
+        "source_doctype": "Purchase Order",
+        "target_doctype": "Purchase Invoice",
+        "source_row_id": "row-1b180a142a87875aefb775c6",
+        "target_row_id": "row-f9a040f7bdf10b698efb06a1",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-0090e4bd1631a2a808709feb"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-6c90e72283e5f1a67f6488cb",
+        "source_document_id": "doc-b7301b6df429fb34babfad01",
+        "target_document_id": "doc-24651df78399851d7df2a83a",
+        "source_doctype": "Material Request",
+        "target_doctype": "Purchase Receipt",
+        "source_row_id": "row-1c51e23a8de7114943b2ed48",
+        "target_row_id": "row-08ab8b1d65a58974d2f88b03",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-2f0ad492c99e7af3fbfa9870"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-6d00a495245c3a475e9a8cac",
+        "source_document_id": "doc-b7301b6df429fb34babfad01",
+        "target_document_id": "doc-e7d3aaed8198ba735abaa5b9",
+        "source_doctype": "Material Request",
+        "target_doctype": "Supplier Quotation",
+        "source_row_id": "row-1c51e23a8de7114943b2ed48",
+        "target_row_id": "row-884662a569a2026d558e6761",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-4d672e4c489ea88f1f0d8d43"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-740579ef39debdd8135d2707",
+        "source_document_id": "doc-24651df78399851d7df2a83a",
+        "target_document_id": "doc-28dd4ce7eb988687f6555bfe",
+        "source_doctype": "Purchase Receipt",
+        "target_doctype": "Purchase Invoice",
+        "source_row_id": "row-08ab8b1d65a58974d2f88b03",
+        "target_row_id": "row-f9a040f7bdf10b698efb06a1",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-e1122ad86a6aacc47f162c6a"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-8284542469a1c961c8325593",
+        "source_document_id": "doc-e7d3aaed8198ba735abaa5b9",
+        "target_document_id": "doc-872b84039a6fe1f2d50b05e1",
+        "source_doctype": "Supplier Quotation",
+        "target_doctype": "Purchase Order",
+        "source_row_id": "row-884662a569a2026d558e6761",
+        "target_row_id": "row-1b180a142a87875aefb775c6",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-c9af6b7ec1b237966cba930a"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-c4358f793e834d072fe798d1",
+        "source_document_id": "doc-5e4db21c450087324e031b3c",
+        "target_document_id": "doc-e7d3aaed8198ba735abaa5b9",
+        "source_doctype": "Request for Quotation",
+        "target_doctype": "Supplier Quotation",
+        "source_row_id": null,
+        "target_row_id": "row-884662a569a2026d558e6761",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "UNKNOWN",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-df3fd6382fee41eb5f2d018f"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-d7bb77055420bc3a3fd4fe21",
+        "source_document_id": "doc-28dd4ce7eb988687f6555bfe",
+        "target_document_id": "doc-b78c1380810db8845c97d082",
+        "source_doctype": "Purchase Invoice",
+        "target_doctype": "Payment Entry",
+        "source_row_id": null,
+        "target_row_id": "row-5986131fa8d4667efb5c13a8",
+        "relation_type": "PAYMENT_ALLOCATION",
+        "quantity": null,
+        "allocated_amount": 1000.0,
+        "allocation_status": "AMOUNT_RECORDED",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-f6780dd761551f476ea2c2a6"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "edge_id": "edge-ff3823ca7203471592562754",
+        "source_document_id": "doc-b7301b6df429fb34babfad01",
+        "target_document_id": "doc-5e4db21c450087324e031b3c",
+        "source_doctype": "Material Request",
+        "target_doctype": "Request for Quotation",
+        "source_row_id": "row-1c51e23a8de7114943b2ed48",
+        "target_row_id": "row-c2f028ddabcdc476fced2bc4",
+        "relation_type": "ITEM_LEVEL_REFERENCE",
+        "quantity": 10.0,
+        "allocated_amount": null,
+        "allocation_status": "FULL",
+        "source_in_scope": true,
+        "target_in_scope": true,
+        "evidence_ids": [
+          "evidence-ffbd20009f71aad343e9753a"
+        ],
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  "report": "PROCESS\n\nProcess ID: reconstruction-76938c14489e74a23dd7b876\nProcess Name: Purchasing Transaction Reconstruction\nBusiness Domain: Purchasing\nBusiness Objective: Describe explicit transaction activity without inferring an unproven sequence.\nProcess Owner: UNKNOWN\nConfigured Process Model: process-997fff2416c8ee4f\nPseudonymous Company: company-8e836110dc228e5024045343\nEvidence Window: 2026-10-02 through 2026-10-02\n\nTRIGGER\n\nTrigger: UNKNOWN\nTrigger Source: Transaction history establishes document creation, not the initiating business event.\nStart Condition: A document creation timestamp falls within the authorized company and date scope.\n\nPROCESS FLOW\n\nProcess Instances: 1\nEvents: 22\nExplicit Correlation Edges: 10\n\n1. Step: Explicit ITEM_LEVEL_REFERENCE\n   Type: SYSTEM\n   Actor: UNKNOWN\nSource: Purchase Order (doc-872b84039a6fe1f2d50b05e1)\nTarget: Purchase Receipt (doc-24651df78399851d7df2a83a)\n   Output: Correlation edge-3a145768939e46297770653b; allocation FULL\n   Next Step: UNKNOWN\n   Evidence: evidence-53a00f2cb3497e0189c52c8b; confidence HIGH\n\n2. Step: Explicit ITEM_LEVEL_REFERENCE\n   Type: SYSTEM\n   Actor: UNKNOWN\nSource: Material Request (doc-b7301b6df429fb34babfad01)\nTarget: Purchase Order (doc-872b84039a6fe1f2d50b05e1)\n   Output: Correlation edge-3b90c953211d2c534f1e466f; allocation FULL\n   Next Step: UNKNOWN\n   Evidence: evidence-0330726896423c7b934a43f6; confidence HIGH\n\n3. Step: Explicit ITEM_LEVEL_REFERENCE\n   Type: SYSTEM\n   Actor: UNKNOWN\nSource: Purchase Order (doc-872b84039a6fe1f2d50b05e1)\nTarget: Purchase Invoice (doc-28dd4ce7eb988687f6555bfe)\n   Output: Correlation edge-61f17c8cc74d160c24429c80; allocation FULL\n   Next Step: UNKNOWN\n   Evidence: evidence-0090e4bd1631a2a808709feb; confidence HIGH\n\n4. Step: Explicit ITEM_LEVEL_REFERENCE\n   Type: SYSTEM\n   Actor: UNKNOWN\nSource: Material Request (doc-b7301b6df429fb34babfad01)\nTarget: Purchase Receipt (doc-24651df78399851d7df2a83a)\n   Output: Correlation edge-6c90e72283e5f1a67f6488cb; allocation FULL\n   Next Step: UNKNOWN\n   Evidence: evidence-2f0ad492c99e7af3fbfa9870; confidence HIGH\n\n5. Step: Explicit ITEM_LEVEL_REFERENCE\n   Type: SYSTEM\n   Actor: UNKNOWN\nSource: Material Request (doc-b7301b6df429fb34babfad01)\nTarget: Supplier Quotation (doc-e7d3aaed8198ba735abaa5b9)\n   Output: Correlation edge-6d00a495245c3a475e9a8cac; allocation FULL\n   Next Step: UNKNOWN\n   Evidence: evidence-4d672e4c489ea88f1f0d8d43; confidence HIGH\n\n6. Step: Explicit ITEM_LEVEL_REFERENCE\n   Type: SYSTEM\n   Actor: UNKNOWN\nSource: Purchase Receipt (doc-24651df78399851d7df2a83a)\nTarget: Purchase Invoice (doc-28dd4ce7eb988687f6555bfe)\n   Output: Correlation edge-740579ef39debdd8135d2707; allocation FULL\n   Next Step: UNKNOWN\n   Evidence: evidence-e1122ad86a6aacc47f162c6a; confidence HIGH\n\n7. Step: Explicit ITEM_LEVEL_REFERENCE\n   Type: SYSTEM\n   Actor: UNKNOWN\nSource: Supplier Quotation (doc-e7d3aaed8198ba735abaa5b9)\nTarget: Purchase Order (doc-872b84039a6fe1f2d50b05e1)\n   Output: Correlation edge-8284542469a1c961c8325593; allocation FULL\n   Next Step: UNKNOWN\n   Evidence: evidence-c9af6b7ec1b237966cba930a; confidence HIGH\n\n8. Step: Explicit ITEM_LEVEL_REFERENCE\n   Type: SYSTEM\n   Actor: UNKNOWN\nSource: Request for Quotation (doc-5e4db21c450087324e031b3c)\nTarget: Supplier Quotation (doc-e7d3aaed8198ba735abaa5b9)\n   Output: Correlation edge-c4358f793e834d072fe798d1; allocation UNKNOWN\n   Next Step: UNKNOWN\n   Evidence: evidence-df3fd6382fee41eb5f2d018f; confidence HIGH\n\n9. Step: Explicit PAYMENT_ALLOCATION\n   Type: SYSTEM\n   Actor: UNKNOWN\nSource: Purchase Invoice (doc-28dd4ce7eb988687f6555bfe)\nTarget: Payment Entry (doc-b78c1380810db8845c97d082)\n   Output: Correlation edge-d7bb77055420bc3a3fd4fe21; allocation AMOUNT_RECORDED\n   Next Step: UNKNOWN\n   Evidence: evidence-f6780dd761551f476ea2c2a6; confidence HIGH\n\n10. Step: Explicit ITEM_LEVEL_REFERENCE\n   Type: SYSTEM\n   Actor: UNKNOWN\nSource: Material Request (doc-b7301b6df429fb34babfad01)\nTarget: Request for Quotation (doc-5e4db21c450087324e031b3c)\n   Output: Correlation edge-ff3823ca7203471592562754; allocation FULL\n   Next Step: UNKNOWN\n   Evidence: evidence-ffbd20009f71aad343e9753a; confidence HIGH\n\nDECISION POINTS\n\nNOT_ANALYZED: Transaction evidence does not prove decision criteria or decision ownership.\n\nEXCEPTIONS\n\nCancellation, return and amendment records are reported as observations. Their business meaning, owner and resolution remain UNKNOWN unless separate evidence establishes them.\n\nHUMAN INVOLVEMENT\n\nPseudonymous actors are retained only where creation, Version or Workflow Action records identify a user. Permissions and record ownership do not prove business responsibility.\n\nPROCESS STATES\n\nNative document states are preserved in evidence and events. No cross-document lifecycle is inferred, and current state observations have no inferred transition timestamp.\n\nPROCESS GRAPH\n\nDirected document nodes: 7\nEvidence-backed edges: 10\nThe machine-readable graph is emitted separately from this report.\n\nAUTOMATION ANALYSIS\n\nNOT_ANALYZED: Recommendations and agent candidates are deferred until process evidence is sufficient.\n\nPROCESS METRICS\n\nMetric: document_volume\nValue: {'Material Request': 1, 'Payment Entry': 1, 'Purchase Invoice': 1, 'Purchase Order': 1, 'Purchase Receipt': 1, 'Request for Quotation': 1, 'Supplier Quotation': 1}\n\nMetric: process_instance_count\nValue: 1\n\nMetric: correlation_edge_count\nValue: 10\n\nMetric: unlinked_document_count\nValue: 0\n\nMetric: cancellation_count\nValue: 0\n\nMetric: return_count\nValue: 0\n\nMetric: amendment_count\nValue: 0\n\nMetric: partial_allocation_edge_count\nValue: 0\n\nMetric: over_allocation_edge_count\nValue: 0\n\nMetric: process_cycle_time\nValue: DATA_NOT_AVAILABLE\n\nMetric: approval_time\nValue: DATA_NOT_AVAILABLE\n\nMetric: waiting_time\nValue: DATA_NOT_AVAILABLE\n\nMetric: handoff_count\nValue: DATA_NOT_AVAILABLE\n\nOBSERVED VS INFERRED\n\nObserved: Documents, explicit links, Version changes and Workflow Action records returned by the source.\nInferred: Connected components group explicitly linked documents; no business sequence is inferred.\nUnknown: Trigger, ownership, decision rules, exception resolution and completion semantics.\n\nPROCESS GAPS\n\n- APPROVAL_TIMES: DATA_NOT_AVAILABLE\n- COMPLETION_TIMES: DATA_NOT_AVAILABLE unless explicit auditable terminal events exist.\n\nPROCESS SUMMARY\n\nThis report reconstructs only explicit, authorized local transaction evidence. Creation timestamps are creation events, current states are observations, and no modification timestamp is treated as approval or completion time.\n",
+  "documents": {
+    "doc-b7301b6df429fb34babfad01": {
+      "doctype": "Material Request",
+      "name": "MAT-MR-2026-00001",
+      "url": "/app/material-request/MAT-MR-2026-00001"
+    },
+    "doc-5e4db21c450087324e031b3c": {
+      "doctype": "Request for Quotation",
+      "name": "PUR-RFQ-2026-00001",
+      "url": "/app/request-for-quotation/PUR-RFQ-2026-00001"
+    },
+    "doc-e7d3aaed8198ba735abaa5b9": {
+      "doctype": "Supplier Quotation",
+      "name": "PUR-SQTN-2026-00001",
+      "url": "/app/supplier-quotation/PUR-SQTN-2026-00001"
+    },
+    "doc-872b84039a6fe1f2d50b05e1": {
+      "doctype": "Purchase Order",
+      "name": "PUR-ORD-2026-00001",
+      "url": "/app/purchase-order/PUR-ORD-2026-00001"
+    },
+    "doc-24651df78399851d7df2a83a": {
+      "doctype": "Purchase Receipt",
+      "name": "MAT-PRE-2026-00001",
+      "url": "/app/purchase-receipt/MAT-PRE-2026-00001"
+    },
+    "doc-28dd4ce7eb988687f6555bfe": {
+      "doctype": "Purchase Invoice",
+      "name": "ACC-PINV-2026-00001",
+      "url": "/app/purchase-invoice/ACC-PINV-2026-00001"
+    },
+    "doc-b78c1380810db8845c97d082": {
+      "doctype": "Payment Entry",
+      "name": "ACC-PAY-2026-00001",
+      "url": "/app/payment-entry/ACC-PAY-2026-00001"
+    }
+  },
+  "scope": {
+    "company": "PI Demonstration",
+    "start_date": "2026-10-02",
+    "end_date": "2026-10-02",
+    "date_basis": "Document creation date",
+    "timezone": "Asia/Kolkata",
+    "record_limit": 500,
+    "excluded_types": []
+  }
+}

@@ -58,6 +58,7 @@
 		}
 		const page = surface.visiblePage();
 		if (!page) return;
+		surface.remove(".pridict-admin-intro");
 		const journey = journeys[module];
 		const nav = surface.ensureJourney(page, { className: "pridict-admin-journey", label: `${module} navigation`, items: journey });
 		nav.querySelectorAll("button").forEach((button, index) => {
@@ -66,9 +67,6 @@
 		});
 		const config = (module === "administration" ? administration : integrations)[context.doctype];
 		if (!config) return;
-		if (context.surface === "list") {
-			surface.ensureIntro(page, "pridict-admin-intro", module === "administration" ? "System administration" : "Connected services", context.doctype, config[1]);
-		}
 		if (context.surface === "form" && window.cur_frm?.doc?.doctype === context.doctype) {
 			const doc = window.cur_frm.doc;
 			const state = doc.enabled === 0 || doc.disabled === 1 ? __("Disabled") : doc.enabled === 1 ? __("Enabled") : __("Configured");

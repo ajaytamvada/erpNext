@@ -80,8 +80,10 @@ def apply_branding():
 def apply_pridict_setup():
 	apply_branding()
 	from pridict.setup.schema_intelligence import ensure_governance_setup
+	from pridict.setup.process_intelligence import ensure_process_intelligence_setup
 
 	ensure_governance_setup()
+	ensure_process_intelligence_setup()
 
 
 def _apply_website_footer():

@@ -10,6 +10,9 @@ class PridictProcurement {
 	constructor(wrapper) {
 		this.wrapper = wrapper;
 		this.page = frappe.ui.make_app_page({ parent: wrapper, title: __("Procurement"), single_column: true });
+		if (["System Manager", "Process Analyst"].some((role) => frappe.user.has_role(role))) {
+			this.page.add_inner_button(__("Process Intelligence"), () => frappe.set_route("process-intelligence"));
+		}
 		this.company = frappe.defaults.get_user_default("Company");
 		$(wrapper).addClass("pridict-procurement-page");
 		this.$root = $('<div class="pridict-procurement" aria-live="polite"></div>').appendTo(this.page.main.empty());

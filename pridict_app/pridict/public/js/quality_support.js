@@ -54,7 +54,7 @@
 		const config = (module === "quality" ? quality : support)[context.doctype];
 		if (!config) return;
 		if (context.surface === "list") {
-			surface.ensureIntro(page, "pridict-domain-intro", module === "quality" ? "Quality operations" : "Customer service", context.doctype, config[1]);
+			surface.remove(".pridict-domain-intro");
 		}
 		if (context.surface === "form" && window.cur_frm?.doc?.doctype === context.doctype) {
 			const doc = window.cur_frm.doc;

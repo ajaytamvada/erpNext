@@ -4,9 +4,13 @@ Saved on September 29, 2026. Reviewed, hardened and released to UAT on September
 
 ## Status
 
-Milestone 2 is complete, committed, pushed and deployed to Azure UAT from commit
+The Milestone 2 backend was committed, pushed and deployed to Azure UAT from commit
 `e1b937a86be754fd551c2927e756775b89a9ecea`. The immutable UAT image is
 `pridict-erpnext:0.1.0-20260930-process-intelligence-uat1`.
+
+**Acceptance correction, 2 October 2026:** Process Intelligence is not accepted as complete.
+This release lacked a usable product page, and its local fixture evidence did not contain a
+linked purchasing flow. The current page/integration work is recorded in `UI-IMPLEMENTATION.md`.
 
 ## Completed
 

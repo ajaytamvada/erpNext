@@ -721,6 +721,10 @@ html.pridict-ui .layout-main-section-wrapper {
 	padding-inline: 0;
 }
 
+html.pridict-ui .page-body .layout-main.row {
+	margin-inline: 0;
+}
+
 html.pridict-ui .layout-main,
 html.pridict-ui .layout-main-section,
 html.pridict-ui .form-layout,
@@ -817,76 +821,90 @@ html.pridict-ui .navbar .pridict-theme-toggle:focus-visible {
 	box-shadow: 0 0 0 2px rgb(157 183 255 / 28%);
 }
 
-html.pridict-ui .layout-side-section {
-	background: var(--pridict-sidebar);
-	border-right: 1px solid rgb(8 25 46 / 36%);
-	padding: 18px 14px;
+html.pridict-ui .pridict-workspace-route .layout-side-section {
+	display: none;
 }
 
-html.pridict-ui .layout-side-section .sidebar-label {
-	color: #9fb8d5;
+html.pridict-ui .pridict-workspace-route .layout-main-section-wrapper {
+	flex: 1 1 auto;
+	width: 100%;
+	max-width: 100%;
+}
+
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section {
+	flex: 0 0 176px;
+	width: 176px;
+	max-width: 176px;
+	padding: 12px 10px;
+	background: var(--pridict-surface);
+	border-right: 1px solid var(--pridict-border);
+	overflow-x: hidden;
+}
+
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .sidebar-label {
+	color: var(--pridict-text-muted);
 	font-size: 11px;
 	font-weight: 600;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
 }
 
-html.pridict-ui .layout-side-section .standard-sidebar-item,
-html.pridict-ui .layout-side-section .sidebar-item-container {
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .standard-sidebar-item,
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .sidebar-item-container {
 	border-radius: 6px;
 }
 
-html.pridict-ui .layout-side-section .standard-sidebar-item {
-	min-height: 36px;
-	color: #dce9f8;
-	padding: 8px 10px;
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .standard-sidebar-item {
+	min-height: 32px;
+	padding: 6px 8px;
+	color: var(--pridict-text);
 }
 
-html.pridict-ui .layout-side-section .standard-sidebar-item svg,
-html.pridict-ui .layout-side-section .sidebar-item-icon svg {
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .standard-sidebar-item svg,
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .sidebar-item-icon svg {
 	--icon-stroke: currentColor;
 	color: currentColor;
 }
 
-html.pridict-ui .layout-side-section .standard-sidebar-item:hover,
-html.pridict-ui .layout-side-section .standard-sidebar-item.selected,
-html.pridict-ui .layout-side-section .sidebar-item-container.selected > .standard-sidebar-item {
-	color: #ffffff;
-	background: #2d6098;
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .standard-sidebar-item:hover,
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .standard-sidebar-item.selected,
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .sidebar-item-container.selected > .standard-sidebar-item {
+	color: var(--pridict-blue-700);
+	background: var(--pridict-blue-100);
 }
 
-html.pridict-ui .layout-side-section .list-sidebar-button,
-html.pridict-ui .layout-side-section .btn,
-html.pridict-ui .layout-side-section .form-control,
-html.pridict-ui .layout-side-section .input-with-feedback {
-	color: #e8f1fb;
-	background: rgb(255 255 255 / 7%);
-	border-color: rgb(255 255 255 / 15%);
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .list-sidebar-button,
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .btn,
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .form-control,
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .input-with-feedback {
+	color: var(--pridict-text);
+	background: var(--pridict-surface-muted);
+	border-color: var(--pridict-border);
 }
 
-html.pridict-ui .layout-side-section .text-muted,
-html.pridict-ui .layout-side-section .sidebar-menu a,
-html.pridict-ui .layout-side-section .list-link,
-html.pridict-ui .layout-side-section .checkbox label {
-	color: #c4d5e8 !important;
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .text-muted,
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .sidebar-menu a,
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .list-link,
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .checkbox label {
+	color: var(--pridict-text-muted) !important;
 }
 
-html.pridict-ui .layout-side-section .sidebar-section {
-	color: #dce9f8;
-	background: rgb(255 255 255 / 6%);
-	border-color: rgb(255 255 255 / 12%);
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .sidebar-section {
+	color: var(--pridict-text);
+	background: var(--pridict-surface-muted);
+	border-color: var(--pridict-border);
 }
 
-html.pridict-ui .layout-side-section .sidebar-section .list-sidebar-button {
-	color: #dce9f8 !important;
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .sidebar-section .list-sidebar-button {
+	color: var(--pridict-text) !important;
 	background: transparent !important;
 	border-color: transparent !important;
 }
 
-html.pridict-ui .layout-side-section .sidebar-section .list-sidebar-button:hover,
-html.pridict-ui .layout-side-section .sidebar-section .list-sidebar-button:focus-visible {
-	color: #ffffff !important;
-	background: rgb(255 255 255 / 10%) !important;
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .sidebar-section .list-sidebar-button:hover,
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .sidebar-section .list-sidebar-button:focus-visible {
+	color: var(--pridict-blue-700) !important;
+	background: var(--pridict-blue-100) !important;
 }
 
 html.pridict-ui .page-head {
@@ -3364,7 +3382,7 @@ html.pridict-ui * {
 		max-width: 300px;
 	}
 
-	html.pridict-ui .layout-side-section {
+	html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section {
 		flex: 0 0 0;
 		width: 0;
 		max-width: 0;
@@ -3373,10 +3391,10 @@ html.pridict-ui * {
 		background: transparent;
 	}
 
-	html.pridict-ui .layout-side-section > .overlay-sidebar {
+	html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section > .overlay-sidebar {
 		padding: 18px 14px;
-		background: var(--pridict-sidebar);
-		border-right: 1px solid rgb(8 25 46 / 36%);
+		background: var(--pridict-surface);
+		border-right: 1px solid var(--pridict-border);
 	}
 
 	html.pridict-ui .layout-main-section-wrapper {
@@ -3619,6 +3637,7 @@ html.pridict-ui * {
 
 @import "pridict/shell";
 @import "pridict/page-header";
+@import "pridict/list-context";
 @import "pridict/document-components";
 @import "pridict/purchasing";
 @import "pridict/procurement";

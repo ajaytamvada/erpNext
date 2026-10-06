@@ -1,0 +1,227 @@
+{
+  "checked_at": "2026-10-02T18:48:18.977Z",
+  "site": "http://process-intelligence.localhost:8000",
+  "checks": [
+    "Ordinary analyst navigates to permission-controlled page",
+    "Company to creation-date keyboard navigation",
+    "Loading state disables scope controls",
+    "Real linked flow: seven documents, ten links, one journey",
+    "Graph, timeline and unknown metrics remain distinct",
+    "Journey selection",
+    "Journey selection retains keyboard focus",
+    "Journey can be selected with keyboard",
+    "Equivalent graph connection table opens",
+    "Historical evidence disclosure opens",
+    "Journey search empty state",
+    "Journey search matches document number",
+    "light-1440: no page overflow",
+    "light-390: no page overflow",
+    "dark-1440: no page overflow",
+    "dark-390: no page overflow",
+    "Supporting document opens in new tab: MAT-MR-2026-00001",
+    "Supporting document opens in new tab: PUR-RFQ-2026-00001",
+    "Supporting document opens in new tab: PUR-SQTN-2026-00001",
+    "Supporting document opens in new tab: PUR-ORD-2026-00001",
+    "Supporting document opens in new tab: MAT-PRE-2026-00001",
+    "Supporting document opens in new tab: ACC-PINV-2026-00001",
+    "Supporting document opens in new tab: ACC-PAY-2026-00001",
+    "Invalid date range is explained",
+    "Real empty date scope",
+    "Controlled network failure restores retry controls",
+    "Recovery after network failure",
+    "Analysis navigation hidden without role",
+    "Direct page entry denied without role",
+    "Procurement toolbar opens analysis"
+  ],
+  "screenshots": [
+    "initial-desktop.png",
+    "loading-desktop.png",
+    "light-1440-results.png",
+    "light-1440-graph.png",
+    "light-1440-journey.png",
+    "light-1440-limits.png",
+    "light-390-results.png",
+    "light-390-graph.png",
+    "light-390-journey.png",
+    "light-390-limits.png",
+    "dark-1440-results.png",
+    "dark-1440-graph.png",
+    "dark-1440-journey.png",
+    "dark-1440-limits.png",
+    "dark-390-results.png",
+    "dark-390-graph.png",
+    "dark-390-journey.png",
+    "dark-390-limits.png",
+    "invalid-date-range.png",
+    "empty-date-scope.png",
+    "controlled-network-error.png",
+    "role-denied.png"
+  ],
+  "layouts": {
+    "light-1440": {
+      "width": 1440,
+      "scrollWidth": 1425,
+      "theme": "light",
+      "active": [
+        "process-intelligence"
+      ],
+      "context": {
+        "parts": [
+          "process-intelligence"
+        ],
+        "slug": "process-intelligence",
+        "route": "process-intelligence",
+        "doctype": null,
+        "module": "process-intelligence",
+        "surface": "page",
+        "isPurchasing": false,
+        "isSales": false,
+        "isInventory": false,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": false,
+        "isIntegrations": false,
+        "isFinance": false,
+        "view": null
+      },
+      "filters": {
+        "x": 232,
+        "y": -908.8125,
+        "width": 1177,
+        "height": 143.59375,
+        "top": -908.8125,
+        "right": 1409,
+        "bottom": -765.21875,
+        "left": 232
+      },
+      "background": "rgb(255, 255, 255)"
+    },
+    "light-390": {
+      "width": 390,
+      "scrollWidth": 390,
+      "theme": "light",
+      "active": [
+        "process-intelligence"
+      ],
+      "context": {
+        "parts": [
+          "process-intelligence"
+        ],
+        "slug": "process-intelligence",
+        "route": "process-intelligence",
+        "doctype": null,
+        "module": "process-intelligence",
+        "surface": "page",
+        "isPurchasing": false,
+        "isSales": false,
+        "isInventory": false,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": false,
+        "isIntegrations": false,
+        "isFinance": false,
+        "view": null
+      },
+      "filters": {
+        "x": 10,
+        "y": -2557.4375,
+        "width": 370,
+        "height": 399.375,
+        "top": -2557.4375,
+        "right": 380,
+        "bottom": -2158.0625,
+        "left": 10
+      },
+      "background": "rgb(255, 255, 255)"
+    },
+    "dark-1440": {
+      "width": 1440,
+      "scrollWidth": 1425,
+      "theme": "dark",
+      "active": [
+        "process-intelligence"
+      ],
+      "context": {
+        "parts": [
+          "process-intelligence"
+        ],
+        "slug": "process-intelligence",
+        "route": "process-intelligence",
+        "doctype": null,
+        "module": "process-intelligence",
+        "surface": "page",
+        "isPurchasing": false,
+        "isSales": false,
+        "isInventory": false,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": false,
+        "isIntegrations": false,
+        "isFinance": false,
+        "view": null
+      },
+      "filters": {
+        "x": 232,
+        "y": -2642.8125,
+        "width": 1177,
+        "height": 143.59375,
+        "top": -2642.8125,
+        "right": 1409,
+        "bottom": -2499.21875,
+        "left": 232
+      },
+      "background": "rgb(24, 35, 52)"
+    },
+    "dark-390": {
+      "width": 390,
+      "scrollWidth": 390,
+      "theme": "dark",
+      "active": [
+        "process-intelligence"
+      ],
+      "context": {
+        "parts": [
+          "process-intelligence"
+        ],
+        "slug": "process-intelligence",
+        "route": "process-intelligence",
+        "doctype": null,
+        "module": "process-intelligence",
+        "surface": "page",
+        "isPurchasing": false,
+        "isSales": false,
+        "isInventory": false,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": false,
+        "isIntegrations": false,
+        "isFinance": false,
+        "view": null
+      },
+      "filters": {
+        "x": 10,
+        "y": -2557.4375,
+        "width": 370,
+        "height": 399.375,
+        "top": -2557.4375,
+        "right": 380,
+        "bottom": -2158.0625,
+        "left": 10
+      },
+      "background": "rgb(24, 35, 52)"
+    }
+  },
+  "status": "passed"
+}

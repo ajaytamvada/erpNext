@@ -1,0 +1,483 @@
+{
+  "checked_at": "2026-10-02T18:46:18.147Z",
+  "site": "http://process-intelligence.localhost:8000",
+  "checks": [
+    "ui-website-1440-light: correct module navigation",
+    "ui-website-1440-light: no visible route error",
+    "ui-website-1440-light: no duplicated page context",
+    "ui-website-1440-light: no page overflow",
+    "ui-website-1440-light: native workspace sidebar removed",
+    "ui-workflow-state-1440-light: correct module navigation",
+    "ui-workflow-state-1440-light: no visible route error",
+    "ui-workflow-state-1440-light: no duplicated page context",
+    "ui-workflow-state-1440-light: no page overflow",
+    "ui-sales-invoice-1440-light: correct module navigation",
+    "ui-sales-invoice-1440-light: no visible route error",
+    "ui-sales-invoice-1440-light: no duplicated page context",
+    "ui-sales-invoice-1440-light: no page overflow",
+    "ui-sales-invoice-1440-light: one compact quick-filter row",
+    "ui-sales-invoice-1440-light: preset applies without route change",
+    "ui-sales-invoice-1440-light: All clears preset filters",
+    "ui-purchase-order-1440-light: correct module navigation",
+    "ui-purchase-order-1440-light: no visible route error",
+    "ui-purchase-order-1440-light: no duplicated page context",
+    "ui-purchase-order-1440-light: no page overflow",
+    "ui-purchase-order-1440-light: one compact quick-filter row",
+    "ui-purchase-order-1440-light: preset applies without route change",
+    "ui-purchase-order-1440-light: All clears preset filters",
+    "ui-stock-entry-1440-light: correct module navigation",
+    "ui-stock-entry-1440-light: no visible route error",
+    "ui-stock-entry-1440-light: no duplicated page context",
+    "ui-stock-entry-1440-light: no page overflow",
+    "ui-query-report-General-Ledger-1440-light: correct module navigation",
+    "ui-query-report-General-Ledger-1440-light: no visible route error",
+    "ui-query-report-General-Ledger-1440-light: no duplicated page context",
+    "ui-query-report-General-Ledger-1440-light: no page overflow",
+    "ui-1440: notification trigger stays compact",
+    "ui-1440: notification dropdown remains onscreen",
+    "ui-website-390-dark: correct module navigation",
+    "ui-website-390-dark: no visible route error",
+    "ui-website-390-dark: no duplicated page context",
+    "ui-website-390-dark: no page overflow",
+    "ui-website-390-dark: native workspace sidebar removed",
+    "ui-workflow-state-390-dark: correct module navigation",
+    "ui-workflow-state-390-dark: no visible route error",
+    "ui-workflow-state-390-dark: no duplicated page context",
+    "ui-workflow-state-390-dark: no page overflow",
+    "ui-sales-invoice-390-dark: correct module navigation",
+    "ui-sales-invoice-390-dark: no visible route error",
+    "ui-sales-invoice-390-dark: no duplicated page context",
+    "ui-sales-invoice-390-dark: no page overflow",
+    "ui-sales-invoice-390-dark: one compact quick-filter row",
+    "ui-sales-invoice-390-dark: preset applies without route change",
+    "ui-sales-invoice-390-dark: All clears preset filters",
+    "ui-purchase-order-390-dark: correct module navigation",
+    "ui-purchase-order-390-dark: no visible route error",
+    "ui-purchase-order-390-dark: no duplicated page context",
+    "ui-purchase-order-390-dark: no page overflow",
+    "ui-purchase-order-390-dark: one compact quick-filter row",
+    "ui-purchase-order-390-dark: preset applies without route change",
+    "ui-purchase-order-390-dark: All clears preset filters",
+    "ui-stock-entry-390-dark: correct module navigation",
+    "ui-stock-entry-390-dark: no visible route error",
+    "ui-stock-entry-390-dark: no duplicated page context",
+    "ui-stock-entry-390-dark: no page overflow",
+    "ui-query-report-General-Ledger-390-dark: correct module navigation",
+    "ui-query-report-General-Ledger-390-dark: no visible route error",
+    "ui-query-report-General-Ledger-390-dark: no duplicated page context",
+    "ui-query-report-General-Ledger-390-dark: no page overflow",
+    "ui-390: notification trigger stays compact",
+    "ui-390: notification dropdown remains onscreen"
+  ],
+  "screenshots": [
+    "ui-website-1440-light.png",
+    "ui-workflow-state-1440-light.png",
+    "ui-sales-invoice-1440-light.png",
+    "ui-purchase-order-1440-light.png",
+    "ui-stock-entry-1440-light.png",
+    "ui-query-report-General-Ledger-1440-light.png",
+    "ui-notifications-1440-light.png",
+    "ui-website-390-dark.png",
+    "ui-workflow-state-390-dark.png",
+    "ui-sales-invoice-390-dark.png",
+    "ui-purchase-order-390-dark.png",
+    "ui-stock-entry-390-dark.png",
+    "ui-query-report-General-Ledger-390-dark.png",
+    "ui-notifications-390-dark.png"
+  ],
+  "layouts": {
+    "ui-website-1440-light": {
+      "width": 1440,
+      "scrollWidth": 1425,
+      "theme": "light",
+      "active": [
+        "website"
+      ],
+      "context": {
+        "parts": [
+          "Workspaces",
+          "Website"
+        ],
+        "slug": "website",
+        "route": "website",
+        "doctype": null,
+        "module": "website",
+        "surface": "workspace",
+        "isPurchasing": false,
+        "isSales": false,
+        "isInventory": false,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": false,
+        "isIntegrations": false,
+        "isFinance": false,
+        "view": null
+      },
+      "background": null
+    },
+    "ui-workflow-state-1440-light": {
+      "width": 1440,
+      "scrollWidth": 1425,
+      "theme": "light",
+      "active": [
+        "administration"
+      ],
+      "context": {
+        "parts": [
+          "List",
+          "Workflow State",
+          "List"
+        ],
+        "slug": "workflow-state",
+        "route": "List/Workflow State/List",
+        "doctype": "Workflow State",
+        "module": "administration",
+        "surface": "list",
+        "isPurchasing": false,
+        "isSales": false,
+        "isInventory": false,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": true,
+        "isIntegrations": false,
+        "isFinance": false,
+        "view": "List"
+      },
+      "background": null
+    },
+    "ui-sales-invoice-1440-light": {
+      "width": 1440,
+      "scrollWidth": 1425,
+      "theme": "light",
+      "active": [
+        "sales"
+      ],
+      "context": {
+        "parts": [
+          "List",
+          "Sales Invoice",
+          "List"
+        ],
+        "slug": "sales-invoice",
+        "route": "List/Sales Invoice/List",
+        "doctype": "Sales Invoice",
+        "module": "sales",
+        "surface": "list",
+        "isPurchasing": false,
+        "isSales": true,
+        "isInventory": false,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": false,
+        "isIntegrations": false,
+        "isFinance": false,
+        "view": "List"
+      },
+      "background": null
+    },
+    "ui-purchase-order-1440-light": {
+      "width": 1440,
+      "scrollWidth": 1425,
+      "theme": "light",
+      "active": [
+        "procurement"
+      ],
+      "context": {
+        "parts": [
+          "List",
+          "Purchase Order",
+          "List"
+        ],
+        "slug": "purchase-order",
+        "route": "List/Purchase Order/List",
+        "doctype": "Purchase Order",
+        "module": "procurement",
+        "surface": "list",
+        "isPurchasing": true,
+        "isSales": false,
+        "isInventory": false,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": false,
+        "isIntegrations": false,
+        "isFinance": false,
+        "view": "List"
+      },
+      "background": null
+    },
+    "ui-stock-entry-1440-light": {
+      "width": 1440,
+      "scrollWidth": 1425,
+      "theme": "light",
+      "active": [
+        "inventory"
+      ],
+      "context": {
+        "parts": [
+          "List",
+          "Stock Entry",
+          "List"
+        ],
+        "slug": "stock-entry",
+        "route": "List/Stock Entry/List",
+        "doctype": "Stock Entry",
+        "module": "inventory",
+        "surface": "list",
+        "isPurchasing": false,
+        "isSales": false,
+        "isInventory": true,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": false,
+        "isIntegrations": false,
+        "isFinance": false,
+        "view": "List"
+      },
+      "background": null
+    },
+    "ui-query-report-General-Ledger-1440-light": {
+      "width": 1440,
+      "scrollWidth": 1425,
+      "theme": "light",
+      "active": [
+        "finance"
+      ],
+      "context": {
+        "parts": [
+          "query-report",
+          "General Ledger"
+        ],
+        "slug": "general-ledger",
+        "route": "query-report/General Ledger",
+        "doctype": null,
+        "module": "finance",
+        "surface": "report",
+        "isPurchasing": false,
+        "isSales": false,
+        "isInventory": false,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": false,
+        "isIntegrations": false,
+        "isFinance": true,
+        "view": null
+      },
+      "background": null
+    },
+    "ui-website-390-dark": {
+      "width": 390,
+      "scrollWidth": 390,
+      "theme": "dark",
+      "active": [
+        "website"
+      ],
+      "context": {
+        "parts": [
+          "Workspaces",
+          "Website"
+        ],
+        "slug": "website",
+        "route": "website",
+        "doctype": null,
+        "module": "website",
+        "surface": "workspace",
+        "isPurchasing": false,
+        "isSales": false,
+        "isInventory": false,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": false,
+        "isIntegrations": false,
+        "isFinance": false,
+        "view": null
+      },
+      "background": null
+    },
+    "ui-workflow-state-390-dark": {
+      "width": 390,
+      "scrollWidth": 390,
+      "theme": "dark",
+      "active": [
+        "administration"
+      ],
+      "context": {
+        "parts": [
+          "List",
+          "Workflow State",
+          "List"
+        ],
+        "slug": "workflow-state",
+        "route": "List/Workflow State/List",
+        "doctype": "Workflow State",
+        "module": "administration",
+        "surface": "list",
+        "isPurchasing": false,
+        "isSales": false,
+        "isInventory": false,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": true,
+        "isIntegrations": false,
+        "isFinance": false,
+        "view": "List"
+      },
+      "background": null
+    },
+    "ui-sales-invoice-390-dark": {
+      "width": 390,
+      "scrollWidth": 390,
+      "theme": "dark",
+      "active": [
+        "sales"
+      ],
+      "context": {
+        "parts": [
+          "List",
+          "Sales Invoice",
+          "List"
+        ],
+        "slug": "sales-invoice",
+        "route": "List/Sales Invoice/List",
+        "doctype": "Sales Invoice",
+        "module": "sales",
+        "surface": "list",
+        "isPurchasing": false,
+        "isSales": true,
+        "isInventory": false,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": false,
+        "isIntegrations": false,
+        "isFinance": false,
+        "view": "List"
+      },
+      "background": null
+    },
+    "ui-purchase-order-390-dark": {
+      "width": 390,
+      "scrollWidth": 390,
+      "theme": "dark",
+      "active": [
+        "procurement"
+      ],
+      "context": {
+        "parts": [
+          "List",
+          "Purchase Order",
+          "List"
+        ],
+        "slug": "purchase-order",
+        "route": "List/Purchase Order/List",
+        "doctype": "Purchase Order",
+        "module": "procurement",
+        "surface": "list",
+        "isPurchasing": true,
+        "isSales": false,
+        "isInventory": false,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": false,
+        "isIntegrations": false,
+        "isFinance": false,
+        "view": "List"
+      },
+      "background": null
+    },
+    "ui-stock-entry-390-dark": {
+      "width": 390,
+      "scrollWidth": 390,
+      "theme": "dark",
+      "active": [
+        "inventory"
+      ],
+      "context": {
+        "parts": [
+          "List",
+          "Stock Entry",
+          "List"
+        ],
+        "slug": "stock-entry",
+        "route": "List/Stock Entry/List",
+        "doctype": "Stock Entry",
+        "module": "inventory",
+        "surface": "list",
+        "isPurchasing": false,
+        "isSales": false,
+        "isInventory": true,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": false,
+        "isIntegrations": false,
+        "isFinance": false,
+        "view": "List"
+      },
+      "background": null
+    },
+    "ui-query-report-General-Ledger-390-dark": {
+      "width": 390,
+      "scrollWidth": 390,
+      "theme": "dark",
+      "active": [
+        "finance"
+      ],
+      "context": {
+        "parts": [
+          "query-report",
+          "General Ledger"
+        ],
+        "slug": "general-ledger",
+        "route": "query-report/General Ledger",
+        "doctype": null,
+        "module": "finance",
+        "surface": "report",
+        "isPurchasing": false,
+        "isSales": false,
+        "isInventory": false,
+        "isAssets": false,
+        "isManufacturing": false,
+        "isProjects": false,
+        "isQuality": false,
+        "isSupport": false,
+        "isAdministration": false,
+        "isIntegrations": false,
+        "isFinance": true,
+        "view": null
+      },
+      "background": null
+    }
+  },
+  "status": "passed"
+}

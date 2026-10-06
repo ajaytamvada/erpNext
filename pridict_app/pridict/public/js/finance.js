@@ -123,8 +123,7 @@
 			const allButton = event.target.closest("[data-pridict-finance-list-all]");
 			const filterButton = event.target.closest("[data-pridict-finance-list-filter]");
 			if (!allButton && !filterButton) return;
-			frappe.route_options = filterButton ? JSON.parse(filterButton.dataset.pridictFinanceListFilter) : {};
-			frappe.set_route("List", context.doctype, "List");
+			surface.applyListFilters(context.doctype, filterButton ? JSON.parse(filterButton.dataset.pridictFinanceListFilter) : {});
 		};
 	}
 

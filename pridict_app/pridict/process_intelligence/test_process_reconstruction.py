@@ -287,6 +287,27 @@ class TestProcessReconstruction(unittest.TestCase):
 		self.assertEqual(result.metrics["unlinked_document_count"], 1)
 		self.assertFalse(any("UNLINKED" in edge.relation_type for edge in result.edges))
 
+	def test_references_at_different_stages_do_not_double_count_allocation(self):
+		dataset = reconstruction_dataset()
+		dataset["documents"]["Purchase Receipt"] = [{"name": "PR-RAW-1", "docstatus": 1}]
+		dataset["children"]["Purchase Receipt Item"] = [{
+			"name": "PRI-RAW-1", "parent": "PR-RAW-1", "parenttype": "Purchase Receipt",
+			"material_request": "MAT-RAW-0001", "material_request_item": "MRI-RAW-0001", "stock_qty": 10,
+		}]
+		result = self.reconstruct(dataset)
+		edges = [edge for edge in result.edges if edge.source_doctype == "Material Request"]
+		self.assertEqual({edge.allocation_status for edge in edges}, {"FULL"})
+
+	def test_payment_reference_survives_when_no_invoice_is_in_scope(self):
+		dataset = reconstruction_dataset()
+		dataset["documents"]["Purchase Invoice"] = []
+		dataset["children"]["Purchase Invoice Item"] = []
+		result = self.reconstruct(dataset)
+		payment = next(edge for edge in result.edges if edge.relation_type == "PAYMENT_ALLOCATION")
+		self.assertFalse(payment.source_in_scope)
+		self.assertTrue(payment.target_in_scope)
+		self.assertTrue(any("OUT_OF_SCOPE_SOURCE: Purchase Invoice" in gap for gap in result.gaps))
+
 	def test_state_events_preserve_timestamp_semantics(self):
 		result = self.reconstruct()
 		current_state = next(

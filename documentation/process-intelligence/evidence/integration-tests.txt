@@ -1,0 +1,14 @@
+test_browser_setup_is_complete (__main__.PurchasingScreenVerification.test_browser_setup_is_complete) ... ok
+test_complete_linked_flow_and_read_only_deterministic_reconstruction (__main__.PurchasingScreenVerification.test_complete_linked_flow_and_read_only_deterministic_reconstruction) ... ok
+test_empty_scope_and_invalid_dates (__main__.PurchasingScreenVerification.test_empty_scope_and_invalid_dates) ... ok
+test_guest_and_user_without_analysis_role_are_denied (__main__.PurchasingScreenVerification.test_guest_and_user_without_analysis_role_are_denied) ... ok
+test_missing_document_permission_does_not_expose_payment (__main__.PurchasingScreenVerification.test_missing_document_permission_does_not_expose_payment) ... ok
+test_ordinary_analyst_and_document_links (__main__.PurchasingScreenVerification.test_ordinary_analyst_and_document_links) ... ok
+test_page_role_registration (__main__.PurchasingScreenVerification.test_page_role_registration) ... ok
+test_record_level_permission_hides_a_second_order (__main__.PurchasingScreenVerification.test_record_level_permission_hides_a_second_order) ... ok
+test_record_limit_is_reported_and_child_reads_cannot_escape_scope (__main__.PurchasingScreenVerification.test_record_limit_is_reported_and_child_reads_cannot_escape_scope) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 296.480s
+
+OK

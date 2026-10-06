@@ -37,7 +37,7 @@
 	}
 
 	function ensureJourney(page, context, config) {
-		const currentRoute = context.parts.join("/") || context.slug;
+		const currentRoute = context.route || context.parts.join("/") || context.slug;
 		const nav = surface.ensureJourney(page, {
 			className: "pridict-generic-journey",
 			label: `${config[0]} navigation`,
@@ -61,7 +61,9 @@
 		ensureJourney(page, context, config);
 
 		const title = displayTitle(context);
-		if (["list", "report", "workspace", "page", "tree"].includes(context.surface)) {
+		if (context.surface === "list") {
+			surface.remove(".pridict-generic-intro");
+		} else if (["report", "workspace", "page", "tree"].includes(context.surface)) {
 			const description = context.surface === "report"
 				? "Use native filters, calculations, exports, and drill-down links within the Pridict frame."
 				: "Use the complete native records, controls, permissions, and actions within the shared Pridict layout.";

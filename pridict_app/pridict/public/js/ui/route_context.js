@@ -18,12 +18,19 @@
 		["receivables", "finance"],
 		["selling", "sales"],
 		["crm", "sales"],
+		["pridict-sales", "sales"],
 		["stock", "inventory"],
+		["pridict-inventory", "inventory"],
 		["assets", "assets"],
+		["pridict-assets", "assets"],
 		["manufacturing", "manufacturing"],
+		["pridict-manufacturing", "manufacturing"],
 		["projects", "projects"],
+		["pridict-projects", "projects"],
 		["quality", "quality"],
+		["pridict-quality", "quality"],
 		["support", "support"],
+		["pridict-support", "support"],
 		["website", "website"],
 		["erpnext-settings", "administration"],
 		["pridict-administration", "administration"],
@@ -129,7 +136,7 @@
 	};
 	const secondaryDoctypes = new Map(Object.entries(secondaryDoctypeGroups).flatMap(([module, names]) => names.map((name) => [normalize(name), { name, module }])));
 	const secondaryReports = new Map(Object.entries(secondaryReportGroups).flatMap(([module, names]) => names.map((name) => [normalize(name), module])));
-	const specialPages = new Map([["sales-funnel", "sales"], ["bom-comparison-tool", "manufacturing"], ["backups", "administration"], ["print-format-builder", "administration"]]);
+	const specialPages = new Map([["sales-funnel", "sales"], ["bom-comparison-tool", "manufacturing"], ["backups", "administration"], ["print-format-builder", "administration"], ["process-intelligence", "process-intelligence"]]);
 
 	function getRouteParts() {
 		const route = window.frappe?.get_route?.();
@@ -147,10 +154,11 @@
 		if (!parts.length) {
 			return "";
 		}
-		if (["List", "Form", "Tree"].includes(parts[0]) && parts[1]) {
+		const routeType = normalize(parts[0]);
+		if (["list", "form", "tree", "workspaces"].includes(routeType) && parts[1]) {
 			return normalize(parts[1]);
 		}
-		if (parts[0] === "query-report" && parts[1]) {
+		if (routeType === "query-report" && parts[1]) {
 			return normalize(parts[1]);
 		}
 		return normalize(parts[0]);
@@ -159,14 +167,15 @@
 	function classify() {
 		const parts = getRouteParts();
 		const first = parts[0] || "";
+		const routeType = normalize(first);
 		const slug = getRouteSlug(parts);
-		const doctype = purchasingDoctypes.get(slug) || salesDoctypes.get(slug) || inventoryDoctypes.get(slug) || assetDoctypes.get(slug) || manufacturingDoctypes.get(slug) || projectDoctypes.get(slug) || qualityDoctypes.get(slug) || supportDoctypes.get(slug) || administrationDoctypes.get(slug) || integrationDoctypes.get(slug) || financeDoctypes.get(slug) || secondaryDoctypes.get(slug)?.name || (["List", "Form", "Tree"].includes(first) ? parts[1] : null);
+		const doctype = purchasingDoctypes.get(slug) || salesDoctypes.get(slug) || inventoryDoctypes.get(slug) || assetDoctypes.get(slug) || manufacturingDoctypes.get(slug) || projectDoctypes.get(slug) || qualityDoctypes.get(slug) || supportDoctypes.get(slug) || administrationDoctypes.get(slug) || integrationDoctypes.get(slug) || financeDoctypes.get(slug) || secondaryDoctypes.get(slug)?.name || (["list", "form", "tree"].includes(routeType) ? parts[1] : null);
 		let surface = "page";
-		if (first === "List") surface = "list";
-		else if (first === "Form") surface = "form";
-		else if (first === "Tree") surface = "tree";
-		else if (first === "query-report" || first === "Report") surface = "report";
-		else if (workspaceModules.has(slug) && !slug.startsWith("pridict-")) surface = "workspace";
+		if (routeType === "list") surface = "list";
+		else if (routeType === "form") surface = "form";
+		else if (routeType === "tree") surface = "tree";
+		else if (["query-report", "report"].includes(routeType)) surface = "report";
+		else if (routeType === "workspaces" || (workspaceModules.has(slug) && !slug.startsWith("pridict-"))) surface = "workspace";
 
 		let module = workspaceModules.get(slug) || null;
 		if (purchasingDoctypes.has(slug)) module = "procurement";
@@ -190,6 +199,7 @@
 		return {
 			parts,
 			slug,
+			route: routeType === "workspaces" ? slug : parts.join("/") || slug,
 			doctype,
 			module: module || "overview",
 			surface,

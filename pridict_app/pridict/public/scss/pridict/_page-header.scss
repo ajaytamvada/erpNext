@@ -69,7 +69,7 @@ html.pridict-ui .pridict-page-actions .pridict-page-action.is-danger:not(.btn-pr
 
 @media (max-width: 767px) {
 	html.pridict-ui .pridict-page-breadcrumbs {
-		max-width: min(62vw, 360px);
+		display: none;
 	}
 
 	html.pridict-ui .pridict-page-actions {

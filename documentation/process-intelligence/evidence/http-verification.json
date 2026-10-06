@@ -1,0 +1,15 @@
+{
+  "login_http": 200,
+  "guest_api_denied": true,
+  "authorized_page_script": true,
+  "page_css_and_navigation_asset": true,
+  "analysis_seconds": 44.27,
+  "ordinary_analyst_analysis": {
+    "documents": 7,
+    "journeys": 1,
+    "links": 10
+  },
+  "supporting_documents_load": 7,
+  "user_without_analysis_role_page_and_api_denied": true,
+  "other_company_api_denied": true
+}

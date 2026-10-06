@@ -1,9 +1,68 @@
 # Pridict project handoff
 
+## Resume checkpoint - 3 October 2026 (India time)
+
+The user paused after being told that the agreed purchasing Process Intelligence implementation
+is complete locally, but acceptance and release are still pending. Their request to save context
+is not visual sign-off, performance acceptance, commit/push approval or deployment authorization.
+
+- Preserve the existing uncommitted work, including the saved shared-UI fixes and unrelated
+  pre-existing edits. No commit or push was made; do not reset, clean or rebuild from scratch.
+- Verified: 19 backend regression tests, nine isolated-site integration tests, 30 purchasing
+  browser assertions, 66 shared-UI browser assertions, renderer/pagination checks, eight route
+  cases, syntax checks for 62 application JavaScript files and the production asset build.
+- There are 36 successful-run screenshots. Human visual inspection/sign-off remains pending.
+  The last local analysis took 44.27 seconds; performance needs review before release.
+- Start the next session by reading `documentation/process-intelligence/UI-IMPLEMENTATION.md`
+  and `design/ui-bug-review/README.md`, then inspect the working tree and local runtime.
+  Do not mistake historical statements about the missing screen for current implementation status.
+- Next work to discuss with the user: local visual review and latency profiling/tuning, followed
+  by separately authorized release preparation. Never create or change UAT business transactions.
+- The review site is `http://process-intelligence.localhost:8000/app/process-intelligence`.
+  The local Docker server was left running; the temporary headless test browser was closed.
+  Recheck runtime availability on return. The implementation document records Windows IPv6
+  loopback/IPv4 port-conflict details and local-only test access instructions.
+- Unsupported duration/handoff metrics remain explicitly unavailable because evidence is
+  insufficient. Decision Intelligence and workflow redesign remain outside the agreed scope.
+
 ## Approved direction
 Rebrand ERPNext as Pridict with the approved Enterprise visual design in light and dark themes. Preserve current functionality, document behavior, permissions and workflows. No workflow redesign is authorized yet. Pridict 0.1.0 is now deployed to the Azure UAT site; see the current release record below.
 
 The design preview is https://pridict-enterprise-preview.ajay-tamvada.chatgpt.site (owner-private). It is a mockup, not the running ERP system.
+
+## Process Intelligence local implementation and UI verification
+
+The work described by the acceptance correction below has now been implemented and exercised
+on the isolated `process-intelligence.localhost` site. Thirty purchasing browser assertions and
+66 shared-UI assertions pass, with 36 real-page screenshots recorded in
+`documentation/process-intelligence/evidence/browser/`. Both navigation entries, the complete
+seven-document purchasing journey, supporting links, filters, evidence panels, permissions,
+keyboard selection and failure recovery were exercised. The production asset build and focused
+JavaScript/renderer/route tests pass. See `documentation/process-intelligence/UI-IMPLEMENTATION.md`
+for the integration result, reproduction commands and the exact remaining acceptance boundary.
+
+Resumed fixes include the incomplete local demo setup, clipped mobile row gutters, analysis-page
+classification and journey pagination/focus. The saved Website/Workflow State routing, compact
+list-filter and notification fixes passed targeted desktop/mobile regression checks.
+
+This is **local implementation and automated verification, not final user acceptance or UAT
+deployment**. Human screenshot review remains pending; local analysis took 44.27 seconds on the
+latest HTTP check, so production performance is not certified. No UAT business transactions,
+Azure resources, release images, commits or pushes were changed by this continuation. The next
+step is user review of the local feature and evidence, followed by separately authorized release
+preparation if accepted; do not restart implementation as though the screen were still absent.
+
+## Process Intelligence acceptance correction - 2 October 2026
+
+Process Intelligence is **not accepted as complete**. The September 30 release deployed
+backend APIs and passed operational checks, but did not deliver a usable purchasing analysis
+page. The authorized current scope is a permission-controlled page using the existing backend,
+company/creation-date selection, observed results, a graph, transaction journeys and supporting
+document links. Facts, missing evidence and unsupported metrics must remain distinct.
+Demonstration must use a complete linked purchasing flow in an isolated local test site;
+UAT business transactions must not be created or changed. Decision Intelligence and unrelated
+UI redesign are outside this task. See `documentation/process-intelligence/UI-IMPLEMENTATION.md`
+for implementation and separate backend, UI, integration and deployment status.
 
 ## Process Intelligence Milestone 2 UAT release - 30 September 2026
 

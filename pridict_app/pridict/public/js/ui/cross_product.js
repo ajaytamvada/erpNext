@@ -49,7 +49,8 @@
 	function apply() {
 		if (!window.location.pathname.startsWith("/app")) return;
 		document.querySelectorAll(".modal").forEach(classifyDialog);
-		mark(".notifications-list, .notification-list, .dropdown-notifications", "pridict-notification-surface");
+		document.querySelectorAll(".dropdown-notifications.pridict-notification-surface").forEach((element) => element.classList.remove("pridict-notification-surface"));
+		mark(".notifications-list, .notification-list, .dropdown-notifications > .dropdown-menu", "pridict-notification-surface");
 		mark(".search-dialog, .search-results, .search-results-container", "pridict-search-surface");
 		mark(".file-upload-area, .file-uploader, .file-upload", "pridict-upload-surface");
 		mark(".msgprint-dialog, .toast-message, .alert", "pridict-message-surface");

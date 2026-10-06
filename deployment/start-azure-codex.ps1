@@ -1,7 +1,7 @@
 param([switch]$TestConnection)
 $ErrorActionPreference = 'Stop'
 $projectDirectory = Split-Path $PSScriptRoot -Parent
-$codexExecutable = 'C:/Users/tjm06/AppData/Local/OpenAI/Codex/bin/12219cbfbcbddde7/codex.exe'
+$codexExecutable = 'C:/Users/tjm06/AppData/Local/OpenAI/Codex/bin/de8a38d2100ae498/codex.exe'
 if (-not (Test-Path -LiteralPath $codexExecutable)) { $codexExecutable = (Get-Command codex -ErrorAction Stop).Source }
 $previousKey = $env:AZURE_OPENAI_API_KEY
 try {
@@ -11,13 +11,13 @@ try {
     $azureKey = $null
     $arguments = @(
         '-C', $projectDirectory,
-        '-c', 'model="pridict-gpt56-sol"',
+        '-c', 'model="gpt-6-astra"',
         '-c', 'model_provider="pridict_azure"',
         '-c', 'model_providers.pridict_azure.name="Azure OpenAI"',
         '-c', 'model_providers.pridict_azure.base_url="https://ridcode.openai.azure.com/openai/v1"',
         '-c', 'model_providers.pridict_azure.env_key="AZURE_OPENAI_API_KEY"',
         '-c', 'model_providers.pridict_azure.wire_api="responses"',
-        '-c', 'model_reasoning_effort="medium"'
+        '-c', 'model_reasoning_effort="high"'
     )
     if ($TestConnection) {
         & $codexExecutable @arguments exec --ephemeral --sandbox read-only 'Do not use tools or read files. Reply with exactly: Azure Codex connection successful.'

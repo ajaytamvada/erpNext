@@ -1,0 +1,37 @@
+{
+  "site": "process-intelligence.localhost",
+  "company": "PI Demonstration",
+  "date": "2026-10-02",
+  "documents": [
+    {
+      "doctype": "Material Request",
+      "name": "MAT-MR-2026-00001"
+    },
+    {
+      "doctype": "Request for Quotation",
+      "name": "PUR-RFQ-2026-00001"
+    },
+    {
+      "doctype": "Supplier Quotation",
+      "name": "PUR-SQTN-2026-00001"
+    },
+    {
+      "doctype": "Purchase Order",
+      "name": "PUR-ORD-2026-00001"
+    },
+    {
+      "doctype": "Purchase Receipt",
+      "name": "MAT-PRE-2026-00001"
+    },
+    {
+      "doctype": "Purchase Invoice",
+      "name": "ACC-PINV-2026-00001"
+    },
+    {
+      "doctype": "Payment Entry",
+      "name": "ACC-PAY-2026-00001"
+    }
+  ],
+  "quantity": 10,
+  "invoice_total": 1000.0
+}

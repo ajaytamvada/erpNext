@@ -18,6 +18,7 @@
 		website: ["Website", "website"],
 		integrations: ["Integrations", "pridict-integrations"],
 		governance: ["Schema Intelligence", "schema-intelligence"],
+		"process-intelligence": ["Process Intelligence", "process-intelligence"],
 		administration: ["Administration", "pridict-administration"],
 	};
 
@@ -47,7 +48,7 @@
 
 		const [moduleLabel, moduleRoute] = moduleHomes[context.module] || moduleHomes.overview;
 		const currentTitle = pageTitle(page, context);
-		const currentRoute = context.parts.join("/") || context.slug;
+		const currentRoute = context.route || context.parts.join("/") || context.slug;
 		const atModuleHome = currentRoute === moduleRoute;
 		const markup = atModuleHome
 			? `<span aria-current="page">${surface.escape(__(moduleLabel))}</span>`

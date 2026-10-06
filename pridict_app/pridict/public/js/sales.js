@@ -86,19 +86,17 @@
 	function ensureListIntro(page, context) {
 		const config = documentConfig[context.doctype];
 		if (context.surface !== "list" || !config) return;
-		let intro = page.querySelector(".pridict-sales-list-intro");
-		if (!intro) {
-			intro = document.createElement("section");
-			intro.className = "pridict-sales-list-intro";
-			page.querySelector(".page-body .container, .page-body")?.prepend(intro);
-		}
-		surface.render(intro, `<div><span>${__("Customer operations")}</span><strong>${__(context.doctype)}</strong><p>${__(config.description)}</p></div><div class="pridict-sales-list-presets"><button type="button" class="btn btn-default btn-sm" data-sales-list-all>${__("All")}</button>${config.presets.map(([label, filters]) => `<button type="button" class="btn btn-default btn-sm" data-sales-list-filter="${escape(JSON.stringify(filters))}">${__(label)}</button>`).join("")}</div>`);
+		const intro = surface.ensureListContext(page, {
+			className: "pridict-sales-list-intro",
+			label: "Quick filters",
+			actionsClass: "pridict-sales-list-presets",
+			actions: `<button type="button" class="btn btn-default btn-sm" data-sales-list-all>${__("All")}</button>${config.presets.map(([label, filters]) => `<button type="button" class="btn btn-default btn-sm" data-sales-list-filter="${escape(JSON.stringify(filters))}">${__(label)}</button>`).join("")}`,
+		});
 		intro.onclick = (event) => {
 			const filter = event.target.closest("[data-sales-list-filter]");
 			const all = event.target.closest("[data-sales-list-all]");
 			if (!filter && !all) return;
-			frappe.route_options = filter ? JSON.parse(filter.dataset.salesListFilter) : {};
-			frappe.set_route("List", context.doctype, "List");
+			surface.applyListFilters(context.doctype, filter ? JSON.parse(filter.dataset.salesListFilter) : {});
 		};
 	}
 

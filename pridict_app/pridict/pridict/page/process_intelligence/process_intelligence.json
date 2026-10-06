@@ -1,0 +1,10 @@
+{
+ "doctype": "Page",
+ "name": "process-intelligence",
+ "page_name": "process-intelligence",
+ "title": "Process Intelligence",
+ "module": "Pridict",
+ "standard": "Yes",
+ "system_page": 0,
+ "roles": [{"role": "System Manager"}, {"role": "Process Analyst"}]
+}

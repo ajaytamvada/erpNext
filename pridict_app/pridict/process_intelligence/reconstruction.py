@@ -10,7 +10,7 @@ from typing import Any
 from pridict.schema_intelligence.normalization import canonical_json
 
 from pridict.process_intelligence.models import ProcessModel
-from pridict.process_intelligence.schema_adapter import PurchasingSchemaView
+from pridict.process_intelligence.schema_adapter import PURCHASING_CANDIDATES, PurchasingSchemaView
 from pridict.process_intelligence.transaction_models import (
 	RECONSTRUCTION_VERSION,
 	CorrelationEdge,
@@ -259,7 +259,7 @@ def reconstruct_purchasing(
 
 	for row in dataset["children"].get("Payment Entry Reference", []):
 		if (
-			row.get("reference_doctype") not in document_ids_by_doctype(document_ids)
+			row.get("reference_doctype") not in PURCHASING_CANDIDATES
 			or not row.get("reference_name")
 		):
 			continue
@@ -431,10 +431,12 @@ def _classify_allocations(
 	child_rows: dict[tuple[str, str], dict[str, Any]],
 	site_hash: str,
 ) -> list[CorrelationEdge]:
-	totals: dict[str, float] = defaultdict(float)
+	# The same row may be referenced by a quotation, order, receipt and invoice.
+	# Those are separate stages, not competing allocations of the source quantity.
+	totals: dict[tuple[str, str, str], float] = defaultdict(float)
 	for edge in edges:
 		if edge.source_row_id and edge.quantity is not None:
-			totals[edge.source_row_id] += edge.quantity
+			totals[(edge.source_row_id, edge.target_doctype, edge.relation_type)] += edge.quantity
 	result = []
 	for edge in edges:
 		status = edge.allocation_status
@@ -453,7 +455,7 @@ def _classify_allocations(
 			if source_qty is None and raw_source:
 				source_qty = _number(raw_source.get("qty"))
 			if source_qty is not None:
-				allocated = totals[edge.source_row_id]
+				allocated = totals[(edge.source_row_id, edge.target_doctype, edge.relation_type)]
 				if abs(allocated - source_qty) < 1e-9:
 					status = "FULL"
 				elif allocated < source_qty:

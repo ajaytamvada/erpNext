@@ -1,8 +1,9 @@
 (() => {
 	const namespace = (window.pridict = window.pridict || {});
 	const routeContext = namespace.routeContext;
+	const surface = namespace.surface;
 	const components = namespace.components;
-	if (!routeContext || !components) return;
+	if (!routeContext || !surface || !components) return;
 
 	const documentConfig = {
 		"Material Request": {
@@ -158,24 +159,18 @@
 		if (context.surface !== "list" || !context.doctype || page.querySelector(".pridict-list-intro")) return;
 		const config = documentConfig[context.doctype];
 		if (!config) return;
-		const intro = document.createElement("section");
-		intro.className = "pridict-list-intro";
-		intro.innerHTML = `
-			<div><span>${__("Procurement operations")}</span><strong>${__(context.doctype)}</strong><p>${__(config.description)}</p></div>
-			<div class="pridict-list-presets" aria-label="${__("Common filters")}">
-				<button type="button" class="btn btn-default btn-sm" data-pridict-list-all>${__("All")}</button>
-				${(config.presets || []).map(([label, filters]) => `<button type="button" class="btn btn-default btn-sm" data-pridict-list-filter="${escape(JSON.stringify(filters))}">${__(label)}</button>`).join("")}
-			</div>
-		`;
+		const intro = surface.ensureListContext(page, {
+			className: "pridict-list-intro",
+			label: "Quick filters",
+			actionsClass: "pridict-list-presets",
+			actions: `<button type="button" class="btn btn-default btn-sm" data-pridict-list-all>${__("All")}</button>${(config.presets || []).map(([label, filters]) => `<button type="button" class="btn btn-default btn-sm" data-pridict-list-filter="${escape(JSON.stringify(filters))}">${__(label)}</button>`).join("")}`,
+		});
 		intro.addEventListener("click", (event) => {
 			const allButton = event.target.closest("[data-pridict-list-all]");
 			const filterButton = event.target.closest("[data-pridict-list-filter]");
 			if (!allButton && !filterButton) return;
-			frappe.route_options = filterButton ? JSON.parse(filterButton.dataset.pridictListFilter) : {};
-			frappe.set_route("List", context.doctype, "List");
+			surface.applyListFilters(context.doctype, filterButton ? JSON.parse(filterButton.dataset.pridictListFilter) : {});
 		});
-		const body = page.querySelector(".page-body .container, .page-body");
-		body?.prepend(intro);
 	}
 
 	function progressValues(context, doc) {

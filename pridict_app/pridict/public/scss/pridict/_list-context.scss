@@ -1,0 +1,46 @@
+html.pridict-ui .pridict-list-context {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 42px;
+	padding: 7px 10px;
+	margin: 10px 0;
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border);
+	border-radius: 7px;
+	box-shadow: none;
+}
+
+html.pridict-ui .pridict-list-context-label {
+	flex: 0 0 auto;
+	color: var(--pridict-text-muted);
+	font-size: 11px;
+	font-weight: 650;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+html.pridict-ui .pridict-list-context-actions {
+	display: flex;
+	flex: 1 1 auto;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 6px;
+}
+
+html.pridict-ui .pridict-list-context-actions:empty {
+	display: none;
+}
+
+@media (max-width: 767px) {
+	html.pridict-ui .pridict-list-context {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	html.pridict-ui .pridict-list-context-actions {
+		justify-content: flex-start;
+		width: 100%;
+		overflow-x: auto;
+	}
+}

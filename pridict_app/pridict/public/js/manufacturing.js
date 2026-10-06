@@ -56,10 +56,8 @@
 		}
 		const current = config[context.doctype];
 		if (context.surface !== "list" || !current) return;
-		let intro = page.querySelector(".pridict-manufacturing-intro");
-		if (!intro) { intro = document.createElement("section"); intro.className = "pridict-manufacturing-intro"; page.querySelector(".page-body .container,.page-body")?.prepend(intro); }
-		surface.render(intro, `<div><span>${__("Production operations")}</span><strong>${__(context.doctype)}</strong><p>${__(current.description)}</p></div><div>${current.presets.map(([label, filters]) => `<button class="btn btn-default btn-sm" data-filter="${surface.escape(JSON.stringify(filters))}">${__(label)}</button>`).join("")}</div>`);
-		intro.onclick = (event) => { const button = event.target.closest("[data-filter]"); if (!button) return; frappe.route_options = JSON.parse(button.dataset.filter); frappe.set_route("List", context.doctype, "List"); };
+		const intro = surface.ensureListContext(page, { className: "pridict-manufacturing-intro", label: "Quick filters", actions: current.presets.map(([label, filters]) => `<button class="btn btn-default btn-sm" data-filter="${surface.escape(JSON.stringify(filters))}">${__(label)}</button>`).join("") });
+		intro.onclick = (event) => { const button = event.target.closest("[data-filter]"); if (!button) return; surface.applyListFilters(context.doctype, JSON.parse(button.dataset.filter)); };
 	}
 
 	function progress(doctype, doc) {
