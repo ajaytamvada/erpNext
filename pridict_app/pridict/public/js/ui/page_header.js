@@ -34,6 +34,8 @@
 		const titleArea = page.querySelector(".page-head .title-area, .page-head .page-title");
 		if (!titleArea) return;
 		titleArea.classList.add("pridict-has-breadcrumbs");
+		titleArea.querySelector(".pridict-page-context")?.remove();
+
 		let breadcrumbs = titleArea.querySelector(".pridict-page-breadcrumbs");
 		if (!breadcrumbs) {
 			breadcrumbs = document.createElement("nav");
@@ -46,13 +48,38 @@
 			titleArea.prepend(breadcrumbs);
 		}
 
+		const sidebarBtn = titleArea.querySelector(".sidebar-toggle-btn");
+		if (sidebarBtn) {
+			titleArea.prepend(breadcrumbs);
+			titleArea.prepend(sidebarBtn);
+		}
+
 		const [moduleLabel, moduleRoute] = moduleHomes[context.module] || moduleHomes.overview;
 		const currentTitle = pageTitle(page, context);
 		const currentRoute = context.route || context.parts.join("/") || context.slug;
-		const atModuleHome = currentRoute === moduleRoute;
-		const markup = atModuleHome
-			? `<span aria-current="page">${surface.escape(__(moduleLabel))}</span>`
-			: `<button type="button" data-route="${surface.escape(moduleRoute)}">${surface.escape(__(moduleLabel))}</button><span aria-hidden="true">/</span><span aria-current="page">${surface.escape(currentTitle)}</span>`;
+		const normTitle = routes.normalize(currentTitle);
+		const normModule = routes.normalize(moduleLabel);
+		const atModuleHome = currentRoute === moduleRoute || normTitle === normModule ||
+			(context.surface === "page" && ["process-intelligence", "schema-intelligence", "pridict-home"].includes(context.slug));
+
+		if (atModuleHome) {
+			breadcrumbs.style.display = "none";
+			surface.render(breadcrumbs, "");
+			return;
+		}
+
+		breadcrumbs.style.display = "inline-flex";
+		const crumbs = [];
+		crumbs.push(`<button type="button" class="pridict-breadcrumb-link" data-route="${surface.escape(moduleRoute)}">${surface.escape(__(moduleLabel))}</button>`);
+
+		if ((context.surface === "form" || (context.parts.length > 2 && context.doctype)) && context.doctype) {
+			const doctypeRoute = context.slug || `List/${context.doctype}`;
+			if (normTitle !== routes.normalize(context.doctype)) {
+				crumbs.push(`<button type="button" class="pridict-breadcrumb-link" data-route="${surface.escape(doctypeRoute)}">${surface.escape(__(context.doctype))}</button>`);
+			}
+		}
+
+		const markup = crumbs.map((crumb) => `${crumb}<span class="pridict-breadcrumb-separator" aria-hidden="true">/</span>`).join("");
 		surface.render(breadcrumbs, markup);
 	}
 

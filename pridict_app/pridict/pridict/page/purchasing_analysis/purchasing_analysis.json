@@ -1,0 +1,10 @@
+{
+ "doctype": "Page",
+ "name": "purchasing-analysis",
+ "page_name": "purchasing-analysis",
+ "title": "Purchasing Analysis",
+ "module": "Pridict",
+ "standard": "Yes",
+ "system_page": 0,
+ "roles": [{"role": "System Manager"}, {"role": "Process Analyst"}]
+}

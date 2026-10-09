@@ -14,6 +14,8 @@ const examples = [
 	[["Form", "Purchase Order", "PUR-ORD-2026-00001"], "procurement", "form", "Form/Purchase Order/PUR-ORD-2026-00001"],
 	[["query-report", "General Ledger"], "finance", "report", "query-report/General Ledger"],
 	[["process-intelligence"], "process-intelligence", "page", "process-intelligence"],
+	[["purchasing-analysis"], "process-intelligence", "page", "purchasing-analysis"],
+	[["schema-intelligence"], "governance", "page", "schema-intelligence"],
 ];
 for (const [parts, module, surface, expectedRoute] of examples) {
 	route = parts;

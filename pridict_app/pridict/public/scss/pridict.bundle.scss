@@ -61,6 +61,23 @@ html.pridict-ui[data-theme="dark"] {
 	--pridict-danger-text: #ef9a91;
 	--pridict-shadow: 0 1px 2px rgb(0 0 0 / 24%);
 	--text-light: #8290a4;
+
+	--bg-color: var(--pridict-canvas);
+	--fg-color: var(--pridict-surface);
+	--card-bg: var(--pridict-surface);
+	--subtle-fg: var(--pridict-surface-muted);
+	--border-color: var(--pridict-border);
+	--dark-border-color: var(--pridict-border-strong);
+	--text-color: var(--pridict-text);
+	--text-muted: var(--pridict-text-muted);
+	--control-bg: var(--pridict-surface-muted);
+	--btn-default-bg: var(--pridict-surface-muted);
+	--btn-default-hover-bg: var(--pridict-border);
+	--modal-bg: var(--pridict-surface);
+	--popover-bg: var(--pridict-surface);
+	--primary: var(--pridict-blue-600);
+	--primary-color: var(--pridict-blue-600);
+	--highlight-color: var(--pridict-blue-100);
 }
 
 html.pridict-ui {
@@ -939,7 +956,8 @@ html.pridict-ui .btn {
 	font-weight: 500;
 }
 
-html.pridict-ui .btn-primary {
+html.pridict-ui .btn-primary,
+html.pridict-ui .primary-action {
 	color: #ffffff;
 	background: var(--pridict-blue-600);
 	border-color: var(--pridict-blue-600);
@@ -947,10 +965,51 @@ html.pridict-ui .btn-primary {
 }
 
 html.pridict-ui .btn-primary:hover,
-html.pridict-ui .btn-primary:focus {
+html.pridict-ui .btn-primary:focus,
+html.pridict-ui .primary-action:hover,
+html.pridict-ui .primary-action:focus {
 	color: #ffffff;
 	background: var(--pridict-blue-700);
 	border-color: var(--pridict-blue-700);
+}
+
+html.pridict-ui .btn-default,
+html.pridict-ui .btn-secondary,
+html.pridict-ui .btn-light,
+html.pridict-ui .inner-group-button .btn,
+html.pridict-ui .page-actions .btn:not(.btn-primary):not(.btn-danger) {
+	color: var(--pridict-text);
+	background: var(--pridict-surface-muted);
+	border: 1px solid var(--pridict-border);
+	box-shadow: 0 1px 2px rgb(20 31 48 / 4%);
+	transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+
+	&:hover,
+	&:active,
+	&:focus {
+		color: var(--pridict-text);
+		background: var(--pridict-border);
+		border-color: var(--pridict-border-strong);
+	}
+}
+
+html.pridict-ui[data-theme="dark"] .btn-default,
+html.pridict-ui[data-theme="dark"] .btn-secondary,
+html.pridict-ui[data-theme="dark"] .btn-light,
+html.pridict-ui[data-theme="dark"] .inner-group-button .btn,
+html.pridict-ui[data-theme="dark"] .page-actions .btn:not(.btn-primary):not(.btn-danger) {
+	color: var(--pridict-text);
+	background: var(--pridict-surface-muted);
+	border: 1px solid var(--pridict-border);
+	box-shadow: 0 1px 2px rgb(0 0 0 / 24%);
+
+	&:hover,
+	&:active,
+	&:focus {
+		color: #ffffff;
+		background: var(--pridict-border);
+		border-color: var(--pridict-border-strong);
+	}
 }
 
 html.pridict-ui .form-control,

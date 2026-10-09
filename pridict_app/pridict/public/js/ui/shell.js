@@ -147,13 +147,7 @@
 		applyLayoutOwnership(page, context);
 		const titleArea = page.querySelector(".page-head .title-area, .page-head .page-title");
 		if (titleArea) {
-			let contextLabel = titleArea.querySelector(".pridict-page-context");
-			if (!contextLabel) {
-				contextLabel = document.createElement("span");
-				contextLabel.className = "pridict-page-context";
-				titleArea.prepend(contextLabel);
-			}
-			contextLabel.textContent = labelForContext(context);
+			titleArea.querySelector(".pridict-page-context")?.remove();
 		}
 	}
 

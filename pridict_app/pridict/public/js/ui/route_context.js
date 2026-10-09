@@ -1,5 +1,31 @@
 (() => {
-	const namespace = (window.pridict = window.pridict || {});
+	if (typeof window !== "undefined") {
+		if (window.location?.pathname && (window.location.pathname === "/app/purchasing-analysis" || window.location.pathname.startsWith("/app/purchasing-analysis/"))) {
+			window.history?.replaceState?.(null, "", "/app/process-intelligence");
+		}
+
+		function patchRouter() {
+			if (window.frappe && !window.frappe._pridict_patched_set_route) {
+				const originalSetRoute = window.frappe.set_route;
+				if (typeof originalSetRoute === "function") {
+					window.frappe._pridict_patched_set_route = originalSetRoute;
+					window.frappe.set_route = function (...args) {
+						if (args[0] === "purchasing-analysis") {
+							args[0] = "process-intelligence";
+						}
+						return originalSetRoute.apply(this, args);
+					};
+				}
+			}
+		}
+		patchRouter();
+		if (typeof window.setTimeout === "function") {
+			window.setTimeout(patchRouter, 60);
+			window.setTimeout(patchRouter, 300);
+		}
+	}
+
+	const namespace = (typeof window !== "undefined" ? (window.pridict = window.pridict || {}) : {});
 	const purchasingDoctypes = new Map([
 		["material-request", "Material Request"],
 		["purchase-order", "Purchase Order"],
@@ -40,7 +66,6 @@
 		["integrations", "integrations"],
 		["erpnext-integrations", "integrations"],
 		["pridict-integrations", "integrations"],
-		["schema-intelligence", "governance"],
 	]);
 	const salesDoctypes = new Map([
 		["lead", "Lead"],
@@ -136,7 +161,15 @@
 	};
 	const secondaryDoctypes = new Map(Object.entries(secondaryDoctypeGroups).flatMap(([module, names]) => names.map((name) => [normalize(name), { name, module }])));
 	const secondaryReports = new Map(Object.entries(secondaryReportGroups).flatMap(([module, names]) => names.map((name) => [normalize(name), module])));
-	const specialPages = new Map([["sales-funnel", "sales"], ["bom-comparison-tool", "manufacturing"], ["backups", "administration"], ["print-format-builder", "administration"], ["process-intelligence", "process-intelligence"]]);
+	const specialPages = new Map([
+		["sales-funnel", "sales"],
+		["bom-comparison-tool", "manufacturing"],
+		["backups", "administration"],
+		["print-format-builder", "administration"],
+		["process-intelligence", "process-intelligence"],
+		["purchasing-analysis", "process-intelligence"],
+		["schema-intelligence", "governance"],
+	]);
 
 	function getRouteParts() {
 		const route = window.frappe?.get_route?.();
@@ -222,6 +255,11 @@
 		let scheduled;
 		const run = () => {
 			window.clearTimeout(scheduled);
+			const parts = getRouteParts();
+			if (parts[0] === "purchasing-analysis") {
+				window.frappe?.set_route?.("process-intelligence");
+				return;
+			}
 			scheduled = window.setTimeout(() => callback(classify()), 40);
 		};
 		window.addEventListener("popstate", run);

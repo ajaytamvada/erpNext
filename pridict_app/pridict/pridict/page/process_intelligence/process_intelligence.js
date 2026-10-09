@@ -3,6 +3,12 @@ frappe.pages["process-intelligence"].on_page_load = async (wrapper) => {
 	wrapper.process_intelligence = new PurchasingProcessIntelligence(wrapper);
 };
 
+frappe.pages["purchasing-analysis"] = {
+	on_page_load: () => {
+		frappe.set_route("process-intelligence");
+	},
+};
+
 class PurchasingProcessIntelligence {
 	constructor(wrapper) {
 		this.page = frappe.ui.make_app_page({ parent: wrapper, title: __("Process Intelligence"), single_column: true });

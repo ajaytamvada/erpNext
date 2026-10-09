@@ -74,14 +74,7 @@ html.pridict-shell-active .pridict-executive-sidebar {
 }
 
 .pridict-page-context {
-	display: block;
-	margin-bottom: 2px;
-	color: var(--pridict-blue-600);
-	font-size: 10px;
-	font-weight: 650;
-	letter-spacing: 0.12em;
-	line-height: 1.2;
-	text-transform: uppercase;
+	display: none !important;
 }
 
 .pridict-shell-toggle-item {

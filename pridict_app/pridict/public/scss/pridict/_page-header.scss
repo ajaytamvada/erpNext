@@ -1,66 +1,148 @@
-html.pridict-ui .pridict-page-head {
+html.pridict-ui .pridict-page-head,
+html.pridict-ui .page-head {
 	background: var(--pridict-surface);
 	border-bottom: 1px solid var(--pridict-border);
 	box-shadow: 0 1px 0 rgb(20 31 48 / 2%);
+	min-height: 54px;
 }
 
-html.pridict-ui .pridict-page-head .pridict-has-breadcrumbs > .pridict-page-context {
-	display: none;
+html.pridict-ui .page-head .container {
+	display: flex;
+	align-items: center;
+	min-height: 54px;
+}
+
+html.pridict-ui .page-head .page-head-content {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+html.pridict-ui .pridict-page-context {
+	display: none !important;
+}
+
+html.pridict-ui .page-head .title-area {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 6px;
+	min-height: 36px;
+}
+
+html.pridict-ui .page-head .sidebar-toggle-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 30px;
+	width: 30px;
+	padding: 0;
+	margin: 0 4px 0 0;
+	border-radius: 6px;
+	background: var(--pridict-surface-muted);
+	border: 1px solid var(--pridict-border);
+	color: var(--pridict-text-muted);
+
+	&:hover {
+		background: var(--pridict-border);
+		color: var(--pridict-text);
+	}
 }
 
 html.pridict-ui .pridict-page-breadcrumbs {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
-	gap: 6px;
+	gap: 4px;
 	min-width: 0;
-	margin-bottom: 3px;
+	margin: 0;
 	color: var(--pridict-text-muted);
-	font-size: 11px;
-	font-weight: 600;
-	line-height: 1.25;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1;
 }
 
-html.pridict-ui .pridict-page-breadcrumbs button {
-	padding: 0;
-	color: var(--pridict-blue-600);
+html.pridict-ui .pridict-page-breadcrumbs button,
+html.pridict-ui .pridict-page-breadcrumbs .pridict-breadcrumb-link {
+	padding: 3px 6px;
+	color: var(--pridict-text-muted);
 	font: inherit;
 	background: transparent;
 	border: 0;
+	border-radius: 4px;
 	cursor: pointer;
+	transition: color 140ms ease, background 140ms ease;
 }
 
-html.pridict-ui .pridict-page-breadcrumbs button:hover {
-	color: var(--pridict-blue-700);
-	text-decoration: underline;
-	text-underline-offset: 2px;
+html.pridict-ui .pridict-page-breadcrumbs button:hover,
+html.pridict-ui .pridict-page-breadcrumbs .pridict-breadcrumb-link:hover {
+	color: var(--pridict-blue-600);
+	background: var(--pridict-blue-100);
+	text-decoration: none;
 }
 
-html.pridict-ui .pridict-page-breadcrumbs button:focus-visible {
-	border-radius: 3px;
+html.pridict-ui .pridict-page-breadcrumbs button:focus-visible,
+html.pridict-ui .pridict-page-breadcrumbs .pridict-breadcrumb-link:focus-visible {
+	border-radius: 4px;
 	outline: 2px solid var(--pridict-blue-600);
-	outline-offset: 2px;
+	outline-offset: 1px;
 }
 
-html.pridict-ui .pridict-page-breadcrumbs span[aria-current="page"] {
-	min-width: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+html.pridict-ui .pridict-breadcrumb-separator {
+	display: inline-block;
+	color: var(--pridict-text-muted);
+	opacity: 0.65;
+	font-size: 14px;
+	line-height: 1;
+	user-select: none;
+	margin-inline: 4px;
+}
+
+html.pridict-ui .page-head .page-title,
+html.pridict-ui .page-head .page-title h3,
+html.pridict-ui .page-head .title-text,
+html.pridict-ui .page-head h3 {
+	font-size: 18px;
+	font-weight: 650;
+	color: var(--pridict-text);
+	line-height: 1.25;
+	margin: 0;
 }
 
 html.pridict-ui .pridict-page-actions {
 	display: flex;
 	align-items: center;
 	gap: 6px;
+	flex-wrap: wrap;
 }
 
-html.pridict-ui .pridict-page-actions .pridict-page-action {
+html.pridict-ui .pridict-page-actions .pridict-page-action,
+html.pridict-ui .page-actions .btn {
 	min-height: 32px;
 	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 550;
+	padding: 5px 12px;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
 }
 
-html.pridict-ui .pridict-page-actions .pridict-page-action.is-primary {
+html.pridict-ui .pridict-page-actions .pridict-page-action.is-primary,
+html.pridict-ui .page-actions .btn.btn-primary,
+html.pridict-ui .page-actions .btn.primary-action {
+	background: var(--pridict-blue-600);
+	border-color: var(--pridict-blue-600);
+	color: #ffffff;
 	box-shadow: 0 1px 2px rgb(20 31 48 / 12%);
+
+	&:hover,
+	&:active,
+	&:focus {
+		background: var(--pridict-blue-700);
+		border-color: var(--pridict-blue-700);
+		color: #ffffff;
+	}
 }
 
 html.pridict-ui .pridict-page-actions .pridict-page-action.is-danger:not(.btn-primary) {
