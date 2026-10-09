@@ -1,0 +1,20 @@
+{
+ "doctype": "Page",
+ "name": "decision-intelligence",
+ "page_name": "decision-intelligence",
+ "title": "Decision Intelligence",
+ "module": "Pridict",
+ "standard": "Yes",
+ "system_page": 0,
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Process Analyst"
+  },
+  {
+   "role": "Purchase Manager"
+  }
+ ]
+}

@@ -18,6 +18,7 @@
 		{ key: "integrations", label: "Integrations", route: "pridict-integrations", icon: "integration", roles: ["System Manager"] },
 		{ key: "governance", label: "Schema Intelligence", route: "schema-intelligence", icon: "branch", roles: ["Schema Reviewer", "System Manager"] },
 		{ key: "process-intelligence", label: "Process Intelligence", route: "process-intelligence", icon: "branch", roles: ["Process Analyst", "System Manager"] },
+		{ key: "decision-intelligence", label: "Decision Intelligence", route: "decision-intelligence", icon: "intelligence", roles: ["Purchase Manager", "Process Analyst", "System Manager"] },
 		{ key: "administration", label: "Administration", route: "pridict-administration", icon: "setting-gear", roles: ["System Manager"] },
 	];
 

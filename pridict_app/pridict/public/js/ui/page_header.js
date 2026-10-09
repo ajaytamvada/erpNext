@@ -19,6 +19,7 @@
 		integrations: ["Integrations", "pridict-integrations"],
 		governance: ["Schema Intelligence", "schema-intelligence"],
 		"process-intelligence": ["Process Intelligence", "process-intelligence"],
+		"decision-intelligence": ["Decision Intelligence", "decision-intelligence"],
 		administration: ["Administration", "pridict-administration"],
 	};
 
@@ -60,7 +61,7 @@
 		const normTitle = routes.normalize(currentTitle);
 		const normModule = routes.normalize(moduleLabel);
 		const atModuleHome = currentRoute === moduleRoute || normTitle === normModule ||
-			(context.surface === "page" && ["process-intelligence", "schema-intelligence", "pridict-home"].includes(context.slug));
+			(context.surface === "page" && ["process-intelligence", "decision-intelligence", "schema-intelligence", "pridict-home"].includes(context.slug));
 
 		if (atModuleHome) {
 			breadcrumbs.style.display = "none";

@@ -168,6 +168,7 @@
 		["print-format-builder", "administration"],
 		["process-intelligence", "process-intelligence"],
 		["purchasing-analysis", "process-intelligence"],
+		["decision-intelligence", "decision-intelligence"],
 		["schema-intelligence", "governance"],
 	]);
 

@@ -40,7 +40,7 @@ class PurchasingProcessIntelligence {
 	build() {
 		const company = this.options.companies.includes(this.options.default_company) ? this.options.default_company : this.options.companies[0];
 		this.$root.html(`
-			<header class="pi-intro"><div><span class="pi-eyebrow">${this.text("Purchasing analysis")}</span><h1>${this.text("Follow the evidence behind each purchase")}</h1><p>${this.text("Explore recorded document relationships, current states and available history.")}</p></div><span class="pi-badge">${this.text("Read-only analysis")}</span></header>
+			<header class="pi-intro"><div><span class="pi-eyebrow">${this.text("Purchasing analysis")}</span><h1>${this.text("Follow the evidence behind each purchase")}</h1><p>${this.text("Explore recorded document relationships, current states and available history.")}</p></div><div class="d-flex align-items-center gap-2"><a href="/app/decision-intelligence" class="btn btn-default btn-sm"><i class="fa fa-gavel mr-1"></i> ${this.text("Decision Intelligence")}</a><span class="pi-badge">${this.text("Read-only analysis")}</span></div></header>
 			<form class="pi-panel pi-filters" aria-label="${this.text("Analysis scope")}">
 				<label>${this.text("Company")}<select name="company" required class="form-control">${this.options.companies.map((name) => `<option ${name === company ? "selected" : ""} value="${this.escape(name)}">${this.escape(name)}</option>`).join("")}</select></label>
 				<label>${this.text("Created from")}<input name="start_date" type="date" required class="form-control" value="${this.options.today.slice(0, 7)}-01"></label>
