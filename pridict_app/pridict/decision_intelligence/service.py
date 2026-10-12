@@ -81,12 +81,17 @@ def evaluate_decisions(
 			else []
 		)
 
+		pr_filters = {"company": company}
+		if start_date and end_date:
+			pr_filters["posting_date"] = ["between", [start_date, end_date]]
+
 		pr_rows = [
 			dict(r)
 			for r in frappe.get_list(
 				"Purchase Receipt",
-				filters=po_filters,
+				filters=pr_filters,
 				fields=["name", "company", "supplier", "grand_total", "docstatus", "status", "posting_date", "creation"],
+				order_by="posting_date desc, creation desc",
 				limit_page_length=limit,
 			)
 		]
