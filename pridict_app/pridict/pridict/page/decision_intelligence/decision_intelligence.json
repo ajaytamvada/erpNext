@@ -3,6 +3,7 @@
  "name": "decision-intelligence",
  "page_name": "decision-intelligence",
  "title": "Decision Intelligence",
+ "icon": "intelligence",
  "module": "Pridict",
  "standard": "Yes",
  "system_page": 0,

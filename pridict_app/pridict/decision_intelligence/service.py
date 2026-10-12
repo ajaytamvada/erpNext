@@ -70,7 +70,7 @@ def evaluate_decisions(
 		po_items = (
 			[
 				dict(r)
-				for r in frappe.get_list(
+				for r in frappe.get_all(
 					"Purchase Order Item",
 					filters={"parent": ["in", po_names]},
 					fields=["name", "parent", "item_code", "item_name", "qty", "rate", "amount", "material_request", "supplier_quotation", "cost_center", "project"],
@@ -95,7 +95,7 @@ def evaluate_decisions(
 		pr_items = (
 			[
 				dict(r)
-				for r in frappe.get_list(
+				for r in frappe.get_all(
 					"Purchase Receipt Item",
 					filters={"parent": ["in", pr_names]},
 					fields=["name", "parent", "item_code", "qty", "received_qty", "rejected_qty", "purchase_order"],

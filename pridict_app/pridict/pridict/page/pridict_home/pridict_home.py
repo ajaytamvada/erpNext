@@ -211,8 +211,8 @@ def _get_tasks(company, to_date):
 
 def _get_business_areas():
 	areas = (
-		("Procurement", "pridict-procurement", "Purchase Order", "shopping-cart"),
-		("Sales", "pridict-sales", "Sales Order", "trend-up"),
+		("Procurement", "pridict-procurement", "Purchase Order", "buying"),
+		("Sales", "pridict-sales", "Sales Order", "sell"),
 		("Finance", "pridict-finance", "GL Entry", "accounting"),
 		("Inventory", "pridict-inventory", "Stock Entry", "stock"),
 	)

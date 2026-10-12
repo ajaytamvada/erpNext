@@ -5,8 +5,8 @@
 
 	const navigation = [
 		{ key: "overview", label: "Overview", route: "pridict-home", icon: "home" },
-		{ key: "procurement", label: "Procurement", route: "pridict-procurement", icon: "shopping-cart", doctype: "Purchase Order" },
-		{ key: "sales", label: "Sales & CRM", route: "pridict-sales", icon: "trend-up", doctype: "Sales Order" },
+		{ key: "procurement", label: "Procurement", route: "pridict-procurement", icon: "buying", doctype: "Purchase Order" },
+		{ key: "sales", label: "Sales & CRM", route: "pridict-sales", icon: "sell", doctype: "Sales Order" },
 		{ key: "finance", label: "Finance", route: "pridict-finance", icon: "accounting", doctype: "GL Entry" },
 		{ key: "inventory", label: "Inventory", route: "pridict-inventory", icon: "stock", doctype: "Stock Entry" },
 		{ key: "assets", label: "Assets", route: "pridict-assets", icon: "assets", doctype: "Asset" },
@@ -21,6 +21,27 @@
 		{ key: "decision-intelligence", label: "Decision Intelligence", route: "decision-intelligence", icon: "intelligence", roles: ["Purchase Manager", "Process Analyst", "System Manager"] },
 		{ key: "administration", label: "Administration", route: "pridict-administration", icon: "setting-gear", roles: ["System Manager"] },
 	];
+
+	const customIcons = {
+		home: `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+		"getting-started": `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+		"shopping-cart": `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>`,
+		buying: `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>`,
+		"trend-up": `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
+		sell: `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
+		crm: `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+		intelligence: `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg>`,
+		"decision-intelligence": `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg>`,
+	};
+
+	function hasSvgSymbol(id) {
+		if (typeof document === "undefined") return false;
+		return Boolean(
+			document.getElementById(`icon-${id}`) ||
+			document.getElementById(`es-line-${id}`) ||
+			document.getElementById(id)
+		);
+	}
 
 	function hasRole(roles) {
 		return !roles?.length || roles.some((role) => window.frappe?.user_roles?.includes(role));
@@ -37,9 +58,15 @@
 
 	function icon(name) {
 		try {
-			return window.frappe?.utils?.icon ? window.frappe.utils.icon(name, "sm") : "";
+			if (window.frappe?.utils?.icon && hasSvgSymbol(name)) {
+				return window.frappe.utils.icon(name, "sm");
+			}
+			if (customIcons[name]) {
+				return customIcons[name];
+			}
+			return window.frappe?.utils?.icon ? window.frappe.utils.icon(name, "sm") : (customIcons[name] || "");
 		} catch (_error) {
-			return "";
+			return customIcons[name] || "";
 		}
 	}
 
