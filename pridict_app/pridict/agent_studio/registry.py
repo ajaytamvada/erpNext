@@ -110,7 +110,12 @@ TOOLS: list[dict] = [
 		"description": "Purchase rates paid for the item over the last N days, with the average.",
 		"input_schema": _obj({"item_code": STR, "days": _int(365)}),
 		"output_schema": _obj(
-			{"prices": _list(_obj({"supplier": STR, "rate": NUM, "date": DATE})), "avg_rate": NUM}
+			{
+				"prices": _list(_obj({"supplier": STR, "rate": NUM, "date": DATE})),
+				"avg_rate": NUM,
+				"by_supplier": _list(_obj({"supplier": STR, "last_rate": NUM, "last_date": DATE})),
+				"line_count": NUM,
+			}
 		),
 	},
 	{
@@ -135,7 +140,22 @@ TOOLS: list[dict] = [
 		"timeout_s": 10,
 		"description": "Score suppliers with the Decision Intelligence vendor scoring engine.",
 		"input_schema": _obj({"suppliers": _list(STR)}),
-		"output_schema": _obj({"scores": _list(_obj({"supplier": STR, "score": NUM, "tier": STR}))}),
+		"output_schema": _obj(
+			{
+				"scores": _list(
+					_obj(
+						{
+							"supplier": STR,
+							"score": NUM,
+							"tier": STR,
+							"orders_365d": NUM,
+							"on_time_pct": NUM,
+							"risk_flags": _list(STR),
+						}
+					)
+				)
+			}
+		),
 	},
 	{
 		"tool_name": "detect_price_anomalies",
@@ -147,7 +167,10 @@ TOOLS: list[dict] = [
 		"description": "Flag a proposed rate that deviates from recent purchase history.",
 		"input_schema": _obj({"item_code": STR, "proposed_rate": NUM}),
 		"output_schema": _obj(
-			{"anomalies": _list(_obj({"title": STR, "severity": STR, "variance_pct": NUM}))}
+			{
+				"anomalies": _list(_obj({"title": STR, "severity": STR, "variance_pct": NUM})),
+				"benchmark_rate": NUM,
+			}
 		),
 	},
 	{

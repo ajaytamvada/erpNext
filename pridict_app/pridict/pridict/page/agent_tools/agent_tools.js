@@ -89,6 +89,7 @@ frappe.pages["agent-tools"].on_page_load = async (wrapper) => {
 						</div>
 						<div class="as-actions">
 							${studio.formLink("Change status", "Agent Tool", tool.name)}
+							${tool.access === "Read" && tool.status === "Enabled" ? `<button type="button" class="btn btn-default btn-sm as-try" data-tool="${escape(tool.name)}">${t("Try it")}</button>` : ""}
 						</div>
 					</aside>
 				</div>`;
@@ -101,6 +102,7 @@ frappe.pages["agent-tools"].on_page_load = async (wrapper) => {
 					this.refresh();
 				})
 			);
+			body.querySelector(".as-try")?.addEventListener("click", (event) => this.tryTool(event.currentTarget.dataset.tool));
 			body.querySelectorAll(".as-filter").forEach((button) =>
 				button.addEventListener("click", () => {
 					this.filter = button.dataset.filter;
@@ -109,6 +111,29 @@ frappe.pages["agent-tools"].on_page_load = async (wrapper) => {
 			);
 		}
 	}
+
+	AgentToolsPage.prototype.tryTool = function (name) {
+		const tool = this.data.tools.find((x) => x.name === name);
+		// Pre-fill the arguments with the schema's field names so the admin only fills values.
+		const example = Object.fromEntries(Object.entries(tool.input.properties || {}).map(([key, spec]) => [key, spec.type === "array" ? [] : spec.type === "string" ? "" : null]));
+		const dialog = new frappe.ui.Dialog({
+			title: __("Try {0}", [name]),
+			size: "large",
+			fields: [
+				{ fieldname: "arguments", fieldtype: "Code", options: "JSON", label: __("Arguments"), default: JSON.stringify(example, null, 2) },
+				{ fieldname: "result", fieldtype: "HTML" },
+			],
+			primary_action_label: __("Run as me"),
+			primary_action: async ({ arguments: args }) => {
+				const r = await frappe.xcall("pridict.agent_studio.tools.try_tool", { name, arguments: args });
+				dialog.fields_dict.result.$wrapper.html(
+					`<p class="as-muted">${r.ok ? __("Succeeded") : __("Failed")} · ${r.duration_ms ?? 0} ms</p>
+					<pre style="max-height:360px;overflow:auto;font-size:12px;padding:10px;border-radius:6px;background:var(--control-bg)">${escape(r.ok ? JSON.stringify(r.result, null, 2) : r.error)}</pre>`
+				);
+			},
+		});
+		dialog.show();
+	};
 
 	wrapper.agent_studio = new AgentToolsPage(wrapper);
 };
