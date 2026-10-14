@@ -264,7 +264,16 @@ def get_runs(limit: int = 50):
 		order_by="creation desc",
 		limit=min(int(limit), 200),
 	)
-	return {"runs": runs}
+	# Agents this user may start: active ones, plus drafts for administrators (testing).
+	statuses = ["Active", "Draft"] if "System Manager" in frappe.get_roles() else ["Active"]
+	agents = frappe.get_all(
+		"Agent Definition",
+		filters={"status": ["in", statuses], "workflow_key": ["is", "set"]},
+		fields=["name", "status", "version"],
+		order_by="agent_name asc",
+	)
+	can_start = bool({"System Manager", "Purchase Manager", "Purchase User"} & set(frappe.get_roles()))
+	return {"runs": runs, "agents": agents if can_start else []}
 
 
 @frappe.whitelist()
@@ -282,6 +291,8 @@ def get_run(name: str):
 		"duration_s": doc.duration_s,
 		"outcome": doc.outcome,
 		"error": doc.error,
+		"pending_question": doc.pending_question,
+		"can_act": doc.requested_by == frappe.session.user or "System Manager" in frappe.get_roles(),
 		"model_config": doc.model_config,
 		"llm_calls": doc.llm_calls,
 		"total_tokens": doc.total_tokens,

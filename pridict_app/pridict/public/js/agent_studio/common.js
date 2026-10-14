@@ -38,6 +38,7 @@
 		testing: "as-badge-warn", draft: "as-badge-warn", "awaiting approval": "as-badge-warn", "waiting for buyer": "as-badge-warn", pending: "as-badge-warn", warn: "as-badge-warn", medium: "as-badge-warn", "approval required": "as-badge-warn", approval: "as-badge-warn", "ask buyer": "as-badge-info",
 		recommended: "as-badge-good", preferred: "as-badge-info", watchlist: "as-badge-warn", "changes requested": "as-badge-warn",
 		read: "as-badge-info", "write (draft)": "as-badge-warn", "write (submit)": "as-badge-bad",
+		queued: "as-badge-info", running: "as-badge-info", interrupted: "as-badge-warn", cancelled: "as-badge-muted", expired: "as-badge-muted", "not tested": "as-badge-muted",
 		failed: "as-badge-bad", rejected: "as-badge-bad", fail: "as-badge-bad", block: "as-badge-bad", high: "as-badge-bad", "blocked for agents": "as-badge-bad",
 	};
 

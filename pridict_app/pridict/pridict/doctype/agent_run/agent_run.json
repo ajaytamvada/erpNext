@@ -16,6 +16,7 @@
   "section_request",
   "request",
   "request_summary",
+  "pending_question",
   "outcome",
   "error",
   "section_usage",
@@ -115,6 +116,13 @@
    "hidden": 1
   },
   {
+   "fieldname": "pending_question",
+   "fieldtype": "Small Text",
+   "label": "Waiting On",
+   "read_only": 1,
+   "description": "The question or approval the run is paused for."
+  },
+  {
    "fieldname": "outcome",
    "fieldtype": "Small Text",
    "label": "Outcome",
@@ -187,7 +195,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-14 00:00:00.000000",
+ "modified": "2026-10-14 02:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pridict",
  "name": "Agent Run",

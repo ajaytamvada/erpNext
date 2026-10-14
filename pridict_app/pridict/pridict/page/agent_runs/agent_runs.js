@@ -19,6 +19,8 @@ frappe.pages["agent-runs"].on_page_load = async (wrapper) => {
 	];
 
 	const waiting = (status) => ["Awaiting approval", "Waiting for buyer"].includes(status);
+	const finishedStatuses = ["Completed", "Failed", "Rejected", "Cancelled"];
+	const runtime = (method, args) => frappe.xcall(`pridict.agent_studio.runtime.${method}`, args);
 
 	class AgentRunsPage extends studio.StudioPage {
 		constructor(wrapper) {
@@ -31,6 +33,13 @@ frappe.pages["agent-runs"].on_page_load = async (wrapper) => {
 			this.selected = null;
 			this.details = {};
 			this.tab = "trace";
+			this.draft = "";
+			this.answer = "";
+			// Runs progress in a background job; the server announces each step.
+			frappe.realtime.on("agent_run_update", () => {
+				clearTimeout(this.pending);
+				this.pending = setTimeout(() => document.body.contains(this.root) && this.reload(), 400);
+			});
 			this.reload();
 		}
 
@@ -45,6 +54,7 @@ frappe.pages["agent-runs"].on_page_load = async (wrapper) => {
 			const finished = runs.filter((r) => ["Completed", "Rejected"].includes(r.status)).length;
 			const tokens = runs.reduce((s, r) => s + (r.total_tokens || 0), 0);
 			return `
+				${this.renderStart()}
 				<div class="as-metrics">
 					${studio.metric("Runs", runs.length, t("Most recent 50"))}
 					${studio.metric("Finished cleanly", runs.length ? `${Math.round((finished / runs.length) * 100)}%` : "—", t("Completed or rejected by a human"))}
@@ -82,6 +92,25 @@ frappe.pages["agent-runs"].on_page_load = async (wrapper) => {
 				${this.tab === "trace" ? this.renderTrace() : this.renderEvals()}`;
 		}
 
+		renderStart() {
+			const agents = this.data.agents || [];
+			if (!agents.length) return "";
+			return `
+				<section class="as-panel">
+					<div class="as-panel-head">
+						<h2>${t("Ask an agent")}</h2>
+						<select class="form-control as-agent" style="max-width:320px">
+							${agents.map((a) => `<option value="${escape(a.name)}" ${a.name === this.agent ? "selected" : ""}>${escape(a.name)} ${escape(a.version || "")}${a.status !== "Active" ? ` (${__(a.status)})` : ""}</option>`).join("")}
+						</select>
+					</div>
+					<textarea class="form-control as-request" rows="2" placeholder="${t("For example: Source 500 kg of aluminium sheet for Stores - PRD by 30 October.")}">${escape(this.draft)}</textarea>
+					<div class="as-actions" style="margin-top:10px">
+						<button type="button" class="btn btn-primary btn-sm as-start">${t("Start run")}</button>
+						<span class="as-muted">${t("The agent works in the background; this page updates as each step finishes.")}</span>
+					</div>
+				</section>`;
+		}
+
 		renderTrace() {
 			if (!this.selected) return `<section class="as-panel">${studio.empty("Select a run to see its trace.")}</section>`;
 			const run = this.details[this.selected];
@@ -91,8 +120,23 @@ frappe.pages["agent-runs"].on_page_load = async (wrapper) => {
 				<section class="as-panel">
 					<div class="as-panel-head">
 						<div><h2>${escape(run.name)} ${badge(run.status)}</h2><p class="as-muted" style="margin:0">${escape(run.request)}</p></div>
-						${studio.formLink("Open record", "Agent Run", run.name)}
+						<div class="as-actions">
+							${run.can_act && !finishedStatuses.includes(run.status) && run.status !== "Running" ? `<button type="button" class="btn btn-default btn-sm as-cancel">${t("Cancel run")}</button>` : ""}
+							${studio.formLink("Open record", "Agent Run", run.name)}
+						</div>
 					</div>
+					${["Queued", "Running"].includes(run.status) ? `<div class="as-callout"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i> ${t(run.status === "Queued" ? "Waiting for a worker to pick up the run…" : "The agent is working…")}</div>` : ""}
+					${run.status === "Waiting for buyer" ? `
+						<div class="as-decision" style="margin-bottom:14px">
+							<strong>${t("The agent needs more information")}</strong>
+							<p style="white-space:pre-wrap;margin:0">${escape(run.pending_question || "")}</p>
+							${run.can_act ? `
+								<textarea class="form-control as-answer" rows="2" placeholder="${t("Your answer")}">${escape(this.answer)}</textarea>
+								<div class="as-actions"><button type="button" class="btn btn-primary btn-sm as-send-answer">${t("Send answer")}</button></div>`
+							: `<p class="as-muted" style="margin:0">${t("Only the person who started the run can answer.")}</p>`}
+						</div>` : ""}
+					${run.outcome && finishedStatuses.includes(run.status) ? `<div class="as-callout"><strong>${t("Outcome")}:</strong> ${escape(run.outcome)}</div>` : ""}
+					${run.result?.explanation ? `<p>${escape(run.result.explanation)}</p>` : ""}
 					${run.error ? `<div class="as-callout" style="border-left-color:#dc2626">${escape(run.error)}</div>` : ""}
 					${run.steps.length ? `
 						<ol class="as-timeline">
@@ -142,6 +186,36 @@ frappe.pages["agent-runs"].on_page_load = async (wrapper) => {
 				button.addEventListener("click", () => {
 					this.tab = button.dataset.tab;
 					this.refresh();
+				})
+			);
+			body.querySelector(".as-request")?.addEventListener("input", (e) => (this.draft = e.target.value));
+			body.querySelector(".as-answer")?.addEventListener("input", (e) => (this.answer = e.target.value));
+			body.querySelector(".as-agent")?.addEventListener("change", (e) => (this.agent = e.target.value));
+			body.querySelector(".as-start")?.addEventListener("click", async (event) => {
+				event.currentTarget.disabled = true;
+				try {
+					const { run } = await runtime("start_run", { agent: body.querySelector(".as-agent").value, request: this.draft });
+					this.draft = "";
+					this.selected = run;
+					this.tab = "trace";
+					this.notify(`Started ${run}`, "green");
+				} finally {
+					this.reload();
+				}
+			});
+			body.querySelector(".as-send-answer")?.addEventListener("click", async (event) => {
+				event.currentTarget.disabled = true;
+				try {
+					await runtime("answer_run", { run: this.selected, answer: this.answer });
+					this.answer = "";
+				} finally {
+					this.reload();
+				}
+			});
+			body.querySelector(".as-cancel")?.addEventListener("click", () =>
+				frappe.confirm(__("Cancel this run? Any pending approval will expire."), async () => {
+					await runtime("cancel_run", { run: this.selected });
+					this.reload();
 				})
 			);
 			body.querySelector(".as-open-approval")?.addEventListener("click", (event) => {

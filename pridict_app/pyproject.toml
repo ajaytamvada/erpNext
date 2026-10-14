@@ -7,7 +7,10 @@ description = "Pridict branding and Enterprise UI for ERPNext"
 requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]
-dependencies = []
+dependencies = [
+    # Agent Studio runtime (graph execution, interrupts, checkpoints)
+    "langgraph>=1.2,<2",
+]
 
 [build-system]
 requires = ["flit_core >=3.4,<4"]

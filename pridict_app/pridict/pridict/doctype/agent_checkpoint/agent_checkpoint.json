@@ -1,0 +1,83 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-10-14 02:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "description": "LangGraph checkpoint storage for Agent Studio. Managed by the runtime; do not edit.",
+ "field_order": [
+  "thread_id",
+  "checkpoint_ns",
+  "checkpoint_id",
+  "parent_checkpoint_id",
+  "checkpoint_type",
+  "checkpoint_data",
+  "metadata_type",
+  "metadata_data"
+ ],
+ "fields": [
+  {
+   "fieldname": "thread_id",
+   "fieldtype": "Data",
+   "label": "Thread ID",
+   "search_index": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "checkpoint_ns",
+   "fieldtype": "Data",
+   "label": "Namespace"
+  },
+  {
+   "fieldname": "checkpoint_id",
+   "fieldtype": "Data",
+   "label": "Checkpoint ID",
+   "search_index": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "parent_checkpoint_id",
+   "fieldtype": "Data",
+   "label": "Parent Checkpoint ID"
+  },
+  {
+   "fieldname": "checkpoint_type",
+   "fieldtype": "Data",
+   "label": "Checkpoint Type"
+  },
+  {
+   "fieldname": "checkpoint_data",
+   "fieldtype": "Long Text",
+   "label": "Checkpoint"
+  },
+  {
+   "fieldname": "metadata_type",
+   "fieldtype": "Data",
+   "label": "Metadata Type"
+  },
+  {
+   "fieldname": "metadata_data",
+   "fieldtype": "Long Text",
+   "label": "Metadata"
+  }
+ ],
+ "in_create": 1,
+ "read_only": 1,
+ "links": [],
+ "modified": "2026-10-14 02:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pridict",
+ "name": "Agent Checkpoint",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "delete": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

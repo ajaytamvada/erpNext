@@ -113,14 +113,16 @@
   {
    "fieldname": "max_steps",
    "fieldtype": "Int",
-   "label": "Max Steps",
-   "default": "8"
+   "label": "Max LLM Calls",
+   "default": "8",
+   "description": "Hard stop on model calls per run, so the agent cannot loop."
   },
   {
    "fieldname": "max_runtime_s",
    "fieldtype": "Int",
    "label": "Max Runtime (seconds)",
-   "default": "180"
+   "default": "180",
+   "description": "Working time per execution; time spent waiting for people is not counted."
   },
   {
    "fieldname": "token_budget",
@@ -164,7 +166,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-14 00:00:00.000000",
+ "modified": "2026-10-14 02:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pridict",
  "name": "Agent Definition",
