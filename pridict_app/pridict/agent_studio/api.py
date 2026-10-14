@@ -41,6 +41,7 @@ def get_models():
 			"max_tokens",
 			"timeout_s",
 			"retries",
+			"reasoning_effort",
 			"fallback",
 			"description",
 		],

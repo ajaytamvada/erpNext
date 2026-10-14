@@ -96,6 +96,7 @@ frappe.pages["agent-models"].on_page_load = async (wrapper) => {
 				["Max output tokens", config.max_tokens],
 				["Timeout", `${config.timeout_s}s`],
 				["Retries", config.retries],
+				["Reasoning effort", escape(config.reasoning_effort || t("Model default"))],
 				["Fallback configuration", escape(config.fallback || t("None"))],
 			];
 			return `
@@ -112,7 +113,7 @@ frappe.pages["agent-models"].on_page_load = async (wrapper) => {
 				</div>
 				<div class="as-actions">
 					${formLink("Edit configuration", "LLM Model Config", config.name, "btn btn-primary btn-sm")}
-					<button type="button" class="btn btn-default btn-sm as-test" data-provider="${escape(config.provider)}">${t("Send test prompt")}</button>
+					<button type="button" class="btn btn-default btn-sm as-prompt" data-config="${escape(config.name)}">${t("Send test prompt")}</button>
 				</div>`;
 		}
 
@@ -124,7 +125,41 @@ frappe.pages["agent-models"].on_page_load = async (wrapper) => {
 				})
 			);
 			body.querySelectorAll(".as-test").forEach((button) =>
-				button.addEventListener("click", () => this.notify("Connection testing arrives with the LLM gateway (next build step).", "orange"))
+				button.addEventListener("click", () => this.testProvider(button))
+			);
+			body.querySelector(".as-prompt")?.addEventListener("click", (event) => this.sendTestPrompt(event.currentTarget.dataset.config));
+		}
+
+		async testProvider(button) {
+			button.disabled = true;
+			button.textContent = __("Testing…");
+			const result = await frappe.xcall("pridict.agent_studio.gateway.test_provider", { name: button.dataset.provider });
+			this.notify(
+				result.ok ? `${result.provider}: connected in ${result.latency_ms} ms (${result.model})` : `${result.provider}: ${result.error}`,
+				result.ok ? "green" : "red"
+			);
+			this.reload();
+		}
+
+		sendTestPrompt(config) {
+			frappe.prompt(
+				{ fieldname: "prompt", fieldtype: "Small Text", label: __("Prompt"), reqd: 1, default: __("In one sentence, what does a purchase requisition do?") },
+				async ({ prompt }) => {
+					const r = await frappe.xcall("pridict.agent_studio.gateway.send_test_prompt", { config, prompt });
+					if (!r.ok) {
+						frappe.msgprint({ title: __("Test prompt failed"), message: escape(r.error), indicator: "red" });
+						return;
+					}
+					const fallback = r.fallbacks.length ? `<p class="text-warning">${t("Answered by fallback")} <code>${escape(r.model_config)}</code> ${t("after")}: ${r.fallbacks.map((f) => escape(`${f.config} (${f.error})`)).join("; ")}</p>` : "";
+					frappe.msgprint({
+						title: __("Model reply"),
+						indicator: "green",
+						message: `<p style="white-space:pre-wrap">${escape(r.reply || "")}</p>${fallback}
+							<p class="text-muted small">${escape(r.model)} · ${r.latency_ms} ms · ${r.usage.prompt_tokens} + ${r.usage.completion_tokens} = ${r.usage.total_tokens} ${t("tokens")} · ${t("attempts")}: ${r.attempts}${r.finish_reason && r.finish_reason !== "stop" ? ` · ${t("finish")}: ${escape(r.finish_reason)}` : ""}</p>`,
+					});
+				},
+				__("Send test prompt"),
+				__("Send")
 			);
 		}
 	}

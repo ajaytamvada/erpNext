@@ -13,6 +13,7 @@
   "max_tokens",
   "timeout_s",
   "retries",
+  "reasoning_effort",
   "fallback",
   "section_notes",
   "description"
@@ -83,6 +84,13 @@
    "default": "2"
   },
   {
+   "fieldname": "reasoning_effort",
+   "fieldtype": "Select",
+   "label": "Reasoning Effort",
+   "options": "\nminimal\nlow\nmedium\nhigh",
+   "description": "Reasoning models only (e.g. gpt-5.x, o-series). Lower is faster and cheaper. Leave empty for the model default."
+  },
+  {
    "fieldname": "fallback",
    "fieldtype": "Link",
    "label": "Fallback Configuration",
@@ -100,7 +108,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-14 00:00:00.000000",
+ "modified": "2026-10-14 01:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pridict",
  "name": "LLM Model Config",
