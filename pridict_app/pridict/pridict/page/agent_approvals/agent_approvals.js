@@ -117,7 +117,7 @@ frappe.pages["agent-approvals"].on_page_load = async (wrapper) => {
 
 					<h3 style="margin-top:14px">${t("Decision")}</h3>
 					<div class="as-decision">
-						<p class="as-muted" style="margin:0">${t("Estimated value")} ${value(a.estimated_value)} · ${t("Risk")}: ${a.risk ? badge(a.risk) : "—"}</p>
+						<p class="as-muted" style="margin:0">${Number(a.estimated_value) ? `${t("Estimated value")} ${inr(a.estimated_value)}` : t("Value unknown")} · ${t("Risk")}: ${a.risk ? badge(a.risk) : "—"}</p>
 						<div class="as-table-scroll"><table class="as-table"><tbody>
 							${a.required_roles.map((role) => {
 								const by = a.covered[role];

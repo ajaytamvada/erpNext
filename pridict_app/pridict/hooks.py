@@ -88,7 +88,7 @@ after_install = "pridict.setup.install.apply_pridict_setup"
 after_migrate = "pridict.setup.install.apply_pridict_setup"
 
 scheduler_events = {
-	"hourly": ["pridict.schema_intelligence.scheduler.hourly"],
+	"hourly": ["pridict.schema_intelligence.scheduler.hourly", "pridict.agent_studio.maintenance.hourly"],
 }
 
 notification_skip_email_types = ["Schema Intelligence"]

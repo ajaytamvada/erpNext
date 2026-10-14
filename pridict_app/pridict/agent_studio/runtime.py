@@ -29,6 +29,7 @@ from pridict.agent_studio.checkpointer import MariaDBSaver
 RUN_EVENT = "agent_run_update"
 RECURSION_LIMIT = 80
 STARTER_ROLES = {"System Manager", "Purchase Manager", "Purchase User"}
+MAX_ACTIVE_RUNS_PER_USER = 3
 WAITING = ("Waiting for buyer", "Awaiting approval")
 FINISHED = ("Completed", "Failed", "Rejected", "Cancelled")
 
@@ -48,9 +49,13 @@ def _json(value) -> str:
 	return json.dumps(value, indent=1, default=str, ensure_ascii=False)
 
 
+def sandboxed() -> bool:
+	"""Tests and evaluations run inside one transaction that is rolled back afterwards."""
+	return bool(frappe.flags.in_test or frappe.flags.agent_eval)
+
+
 def _commit():
-	# Tests run inside one transaction that is rolled back afterwards.
-	if not frappe.flags.in_test:
+	if not sandboxed():
 		frappe.db.commit()
 
 
@@ -111,7 +116,7 @@ class RunContext:
 			raise BudgetExceeded(
 				_("Stopped: the agent used its token budget of {0}.").format(self.token_budget)
 			)
-		if not self.agent.model_config:
+		if not self.agent.model_config and not frappe.flags.agent_eval_offline:
 			raise BudgetExceeded(_("The agent has no model configuration."))
 		self.llm_calls += 1
 		system = {"role": "system", "content": self.agent.instructions or ""}
@@ -276,6 +281,8 @@ def _finish(run_name: str, values: dict):
 		},
 		update_modified=False,
 	)
+	# A finished run can never resume, so its checkpoints are no longer needed.
+	MariaDBSaver().delete_thread(run.thread_id or run_name)
 	return status
 
 
@@ -338,7 +345,7 @@ def execute(run: str, resume: dict | None = None):
 			status = _finish(run, snapshot.values)
 	except Exception as error:
 		status = "Failed"
-		if not frappe.flags.in_test:
+		if not sandboxed():
 			frappe.db.rollback()
 		if not isinstance(error, (BudgetExceeded, gateway.LLMError, tools.ToolError)):
 			frappe.log_error(
@@ -355,6 +362,8 @@ def execute(run: str, resume: dict | None = None):
 			},
 			update_modified=False,
 		)
+		ctx.saver.discard()
+		ctx.saver.delete_thread(doc.thread_id or run)
 	finally:
 		_current.reset(token)
 		frappe.set_user(previous_user)
@@ -364,6 +373,10 @@ def execute(run: str, resume: dict | None = None):
 
 
 def _enqueue(run: str, resume: dict | None = None):
+	if frappe.flags.agent_eval:
+		# Evaluations must finish inside their own transaction, so run inline.
+		execute(run, resume)
+		return
 	agent = frappe.db.get_value("Agent Run", run, "agent")
 	runtime = frappe.db.get_value("Agent Definition", agent, "max_runtime_s") or 180
 	frappe.enqueue(
@@ -405,6 +418,11 @@ def start_run(agent: str, request: str) -> dict:
 		frappe.throw(_("Agent {0} is {1}.").format(agent, _(status).lower()))
 	if workflow_key not in WORKFLOW_MODULES:
 		frappe.throw(_("Agent {0} has no runnable workflow.").format(agent))
+	active = frappe.db.count(
+		"Agent Run", {"requested_by": frappe.session.user, "status": ["in", ["Queued", "Running"]]}
+	)
+	if active >= MAX_ACTIVE_RUNS_PER_USER and not frappe.flags.agent_eval:
+		frappe.throw(_("You already have {0} runs in progress. Wait for one to finish.").format(active))
 	run = frappe.get_doc(
 		{
 			"doctype": "Agent Run",

@@ -79,6 +79,8 @@ def _notify(users, subject: str, approval: str):
 
 def notify_approvers(approval) -> None:
 	"""Tell holders of the required roles that a proposal is waiting (called when it is created)."""
+	if frappe.flags.agent_eval:
+		return
 	users = frappe.get_all(
 		"Has Role",
 		filters={"role": ["in", required_roles(approval)], "parenttype": "User"},

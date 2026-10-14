@@ -2,7 +2,8 @@
 
 Usage:
 	python build_pdf.py              # diagrams + PDF (uses existing screenshots)
-	python build_pdf.py --screens    # also recapture page screenshots first
+	python build_pdf.py --screens [base_url user password]
+	                                 # also recapture screenshots from a running site first
 """
 import subprocess
 import sys
@@ -16,7 +17,8 @@ CHROME = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
 def main() -> None:
 	subprocess.run([sys.executable, str(HERE / "diagrams.py")], check=True)
 	if "--screens" in sys.argv:
-		subprocess.run([sys.executable, str(HERE / "capture_screens.py"), CHROME], check=True)
+		extra = [a for a in sys.argv[1:] if a != "--screens"]
+		subprocess.run([sys.executable, str(HERE / "capture_screens.py"), *extra], check=True)
 	source = (DOCS / "Agent-Studio-Explainer.html").as_uri()
 	target = DOCS / "Agent-Studio-Explainer.pdf"
 	subprocess.run(

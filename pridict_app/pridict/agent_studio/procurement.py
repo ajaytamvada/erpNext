@@ -686,7 +686,9 @@ def check_limits(state: State, ctx: RunContext) -> dict:
 	ctx.note(
 		_("Estimated {0} ({1} × {2}); risk {3}").format(
 			money(estimate), _num(state["shortage_qty"]), money(rate), risk
-		),
+		)
+		if rate
+		else _("Value unknown: no quotation or purchase history; risk {0}").format(risk),
 		results,
 	)
 	return {

@@ -26,6 +26,42 @@ class AgentDefinition(Document):
 				_("Agents that can prepare documents must keep Human Approval Required switched on.")
 			)
 		self.validate_tools()
+		self.validate_evaluation()
+
+	def validate_evaluation(self):
+		"""An agent with a workflow goes live only after its current version passed a live evaluation."""
+		previous = self.get_doc_before_save()
+		activating = self.status == "Active" and (
+			not previous or previous.status != "Active" or previous.version != self.version
+		)
+		if not activating or not self.workflow_key:
+			return
+		latest = frappe.get_all(
+			"Agent Evaluation",
+			filters={
+				"agent": self.name,
+				"agent_version": self.version,
+				"mode": "Live",
+				"status": "Completed",
+			},
+			fields=["name", "passed", "total"],
+			order_by="creation desc",
+			limit=1,
+		)
+		if not latest or latest[0].passed != latest[0].total:
+			frappe.throw(
+				_(
+					"Before activating version {0}, run the evaluation suite in Live mode (Runs & Traces > Evaluation suite) and make sure every scenario passes."
+				).format(self.version)
+				+ (
+					" "
+					+ _("Latest: {0}/{1} passed ({2}).").format(
+						latest[0].passed, latest[0].total, latest[0].name
+					)
+					if latest
+					else ""
+				)
+			)
 
 	def validate_tools(self):
 		seen = set()

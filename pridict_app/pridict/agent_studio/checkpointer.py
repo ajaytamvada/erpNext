@@ -64,6 +64,11 @@ class MariaDBSaver(BaseCheckpointSaver[str]):
 		with self._lock:
 			self._queue.append(operation)
 
+	def discard(self) -> None:
+		"""Drop queued rows (used when a failed run's checkpoints are deleted anyway)."""
+		with self._lock:
+			self._queue.clear()
+
 	def flush(self) -> None:
 		"""Write queued rows. Call only from the thread that owns the database connection."""
 		while True:

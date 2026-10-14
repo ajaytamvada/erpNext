@@ -35,14 +35,17 @@ def workflow_svg() -> str:
 		"end1": ("L", 7, "END", "end"),
 		"find": ("C", 7, "7 · Find eligible suppliers", "tool"),
 		"analyze": ("C", 8, "8 · Analyze sourcing options", "llm"),
-		"prepare": ("C", 9, "9 · Prepare recommendation", "llm"),
-		"review": ("C", 10, "10 · Human review (pause)", "human"),
-		"reject": ("L", 10, "Record rejection", "rule"),
-		"end2": ("L", 11, "END", "end"),
-		"revalidate": ("C", 11, "11 · Re-validate policies", "rule"),
-		"create": ("C", 12, "12 · Create DRAFT RFQ", "tool"),
-		"verify": ("C", 13, "13 · Verify & audit", "rule"),
-		"end3": ("C", 14, "END", "end"),
+		"check": ("C", 9, "9 · Check value limits", "rule"),
+		"blocked": ("L", 9, "Explain: blocked by policy", "llm"),
+		"end4": ("L", 10, "END", "end"),
+		"prepare": ("C", 10, "10 · Prepare recommendation", "llm"),
+		"review": ("C", 11, "11 · Human review (pause)", "human"),
+		"reject": ("L", 11, "Record rejection", "rule"),
+		"end2": ("L", 12, "END", "end"),
+		"revalidate": ("C", 12, "12 · Re-validate approvers & stock", "rule"),
+		"create": ("C", 13, "13 · Create DRAFT RFQ", "tool"),
+		"verify": ("C", 14, "14 · Verify & audit", "rule"),
+		"end3": ("C", 15, "END", "end"),
 	}
 
 	def box(key):
@@ -76,8 +79,15 @@ def workflow_svg() -> str:
 			lx, ly = label_at
 			parts.append(f'<text x="{lx}" y="{ly}" font-size="11" font-weight="700" fill="#4b5563" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4">{escape(label)}</text>')
 
-	spine = ["start", "parse", "resolve", "validate", "read", "calc", "router", "find", "analyze", "prepare", "review", "revalidate", "create", "verify", "end3"]
-	labels = {("router", "find"): "yes", ("validate", "read"): "valid", ("find", "analyze"): "enough data", ("review", "revalidate"): "approved", ("revalidate", "create"): "pass"}
+	spine = ["start", "parse", "resolve", "validate", "read", "calc", "router", "find", "analyze", "check", "prepare", "review", "revalidate", "create", "verify", "end3"]
+	labels = {
+		("router", "find"): "yes",
+		("validate", "read"): "valid",
+		("find", "analyze"): "enough data",
+		("check", "prepare"): "within limits",
+		("review", "revalidate"): "approved",
+		("revalidate", "create"): "pass",
+	}
 	for a, b in zip(spine, spine[1:]):
 		p1 = anchor(a, "bottom")
 		p2 = anchor(b, "top")
@@ -100,6 +110,10 @@ def workflow_svg() -> str:
 	ex, ey = anchor("explain", "right")
 	edge([(rtx + 2, rty), (ex, ey)], "no", ((rtx + ex) / 2, rty - 6))
 	edge([anchor("explain", "bottom"), anchor("end1", "top")])
+	ckx, cky = anchor("check", "left")
+	blx, bly = anchor("blocked", "right")
+	edge([(ckx, cky), (blx, bly)], "above ceiling", ((ckx + blx) / 2, cky - 6))
+	edge([anchor("blocked", "bottom"), anchor("end4", "top")])
 	rvx, rvy = anchor("review", "left")
 	rjx, rjy = anchor("reject", "right")
 	edge([(rvx, rvy), (rjx, rjy)], "rejected", ((rvx + rjx) / 2, rvy - 6))
@@ -109,7 +123,7 @@ def workflow_svg() -> str:
 	edge([(fvx, fvy), (fvx + 30, fvy), (fvx + 30, rvry), (rvrx, rvry)], "fail", (fvx + 42, (fvy + rvry) / 2 + 4))
 
 	# Legend
-	ly = top + 15 * step + 4
+	ly = top + 16 * step + 4
 	lx = 20
 	for kind, name in [("llm", "LLM step"), ("tool", "Tool call (ERPNext)"), ("rule", "Rule (Python code)"), ("router", "Router"), ("human", "Human pause (interrupt)")]:
 		fill, stroke = KIND_STYLE[kind]
@@ -127,13 +141,13 @@ def workflow_svg() -> str:
 def architecture_svg() -> str:
 	layers = [
 		("Agent Studio UI (Frappe Desk pages)", "Models · Agents · Workflows · Tools · Policies · Runs · Approvals", "#eaf1ff", "#3b82f6"),
-		("Agent Configuration API (whitelisted Python)", "Validate · version · publish configurations", "#f1f4f7", "#64748b"),
-		("LangGraph Runtime (background worker)", "State · routing · checkpoints · human interrupts · step & token limits", "#f3edff", "#8b5cf6"),
+		("Agent Studio API (whitelisted, permission-checked Python)", "Page data · start / answer / cancel runs · approval decisions · evaluations", "#f1f4f7", "#64748b"),
+		("LangGraph Runtime (background worker)", "Workflow from registry · MariaDB checkpoints · human interrupts · LLM-call, token & runtime limits", "#f3edff", "#8b5cf6"),
 	]
 	side = [
-		("LLM Gateway", "Providers · secrets · retries · fallback · usage limits", "#fff7db", "#d4a106"),
+		("LLM Gateway", "Azure OpenAI / OpenAI-compatible · encrypted keys · retries · fallback · token usage", "#fff7db", "#d4a106"),
 		("Tool Layer", "Read tools · draft-write tools · reuses decision_intelligence", "#eaf1ff", "#3b82f6"),
-		("Policy Engine", "Limits · approved suppliers · approval rules", "#fff0e5", "#f97316"),
+		("Policy Checks", "Agent Policy rules applied in code: limits · suppliers · approvals", "#fff0e5", "#f97316"),
 	]
 	parts = []
 	y = 10

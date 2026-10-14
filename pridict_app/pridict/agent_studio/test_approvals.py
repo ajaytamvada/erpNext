@@ -140,6 +140,31 @@ class TestAgentApprovals(FrappeTestCase):
 		altered = tools.run_tool("create_draft_rfq", {**arguments, "qty": 9999}, approval=doc)
 		self.assertIn("quantity", altered["error"])
 
+	def test_buyer_sees_only_own_runs_and_can_start(self):
+		from pridict.agent_studio import api
+
+		run, _approval = self.start()
+		other = frappe.get_doc(
+			{
+				"doctype": "Agent Run",
+				"agent": AGENT,
+				"status": "Completed",
+				"requested_by": PM,
+				"request": "someone else's",
+			}
+		)
+		other.flags.ignore_permissions = True
+		other.insert()
+		frappe.set_user(BUYER)
+		data = api.get_runs()
+		self.assertIn(run, [r.name for r in data["runs"]])
+		self.assertEqual({r.requested_by for r in data["runs"]}, {BUYER})  # never another user's run
+		self.assertEqual([a.name for a in data["agents"]], [AGENT])
+		self.assertIsNone(data["evaluation"])
+		self.assertTrue(api.get_run(run)["can_act"])
+		with self.assertRaises(frappe.PermissionError):
+			api.get_run(other.name)
+
 	def test_requester_cannot_approve_own_run(self):
 		_run, approval = self.start()
 		# Give the buyer the approving role too, so only the self-approval rule can refuse them.

@@ -9,7 +9,7 @@ import frappe
 from frappe import _
 from frappe.utils import add_days, now_datetime
 
-from pridict.agent_studio import approvals, registry
+from pridict.agent_studio import approvals, evals, registry
 from pridict.agent_studio.graph import validate_workflow
 
 
@@ -273,7 +273,16 @@ def get_runs(limit: int = 50):
 		order_by="agent_name asc",
 	)
 	can_start = bool({"System Manager", "Purchase Manager", "Purchase User"} & set(frappe.get_roles()))
-	return {"runs": runs, "agents": agents if can_start else []}
+	evaluation = None
+	if frappe.has_permission("Agent Evaluation", "read"):
+		evaluation = evals.latest(registry.PROCUREMENT_AGENT)
+	return {
+		"runs": runs,
+		"agents": agents if can_start else [],
+		"evaluation": evaluation,
+		"scenarios": [{"case": s.title, "expected": s.expected} for s in evals.SCENARIOS],
+		"can_evaluate": "System Manager" in frappe.get_roles(),
+	}
 
 
 @frappe.whitelist()

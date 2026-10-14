@@ -6,18 +6,6 @@ frappe.pages["agent-runs"].on_page_load = async (wrapper) => {
 	const studio = window.pridict.agentStudio;
 	const { t, escape, badge, kindBadge } = studio;
 
-	// Planned scenarios for the evaluation suite; results come from the eval runner.
-	const evaluationScenarios = [
-		["Shortage exists (500 need, 100 stock, 150 on order)", "Shortage 250, RFQ recommended, waits for approval"],
-		["No shortage (stock 600)", "Explains no purchase needed; no approval request"],
-		["Open PO arrives after need-by date", "Open PO ignored; shortage 400"],
-		["No eligible supplier", "Asks buyer; does not invent a supplier"],
-		["Price 25% above average", "Price variance warning shown to approver"],
-		["Missing warehouse in request", "Asks buyer which warehouse"],
-		["Approver rejects", "Run ends; no document created; reason stored"],
-		["Value above ₹25,00,000", "Blocked before a recommendation is prepared; no draft"],
-	];
-
 	const waiting = (status) => ["Awaiting approval", "Waiting for buyer"].includes(status);
 	const finishedStatuses = ["Completed", "Failed", "Rejected", "Cancelled"];
 	const runtime = (method, args) => frappe.xcall(`pridict.agent_studio.runtime.${method}`, args);
@@ -36,6 +24,10 @@ frappe.pages["agent-runs"].on_page_load = async (wrapper) => {
 			this.draft = "";
 			this.answer = "";
 			// Runs progress in a background job; the server announces each step.
+			frappe.realtime.on("agent_eval_update", () => {
+				clearTimeout(this.pending);
+				this.pending = setTimeout(() => document.body.contains(this.root) && this.reload(), 400);
+			});
 			frappe.realtime.on("agent_run_update", () => {
 				clearTimeout(this.pending);
 				this.pending = setTimeout(() => document.body.contains(this.root) && this.reload(), 400);
@@ -60,7 +52,7 @@ frappe.pages["agent-runs"].on_page_load = async (wrapper) => {
 					${studio.metric("Finished cleanly", runs.length ? `${Math.round((finished / runs.length) * 100)}%` : "—", t("Completed or rejected by a human"))}
 					${studio.metric("Waiting on people", runs.filter((r) => waiting(r.status)).length)}
 					${studio.metric("Avg tokens / run", runs.length ? Math.round(tokens / runs.length).toLocaleString() : "—")}
-					${studio.metric("Evaluation", "—", t("Suite not run yet"))}
+					${this.evalMetric()}
 				</div>
 
 				<section class="as-panel">
@@ -153,15 +145,41 @@ frappe.pages["agent-runs"].on_page_load = async (wrapper) => {
 				</section>`;
 		}
 
+		evalMetric() {
+			const e = this.data.evaluation;
+			if (!e) return studio.metric("Evaluation", "—", t("Suite not run yet"));
+			if (["Queued", "Running"].includes(e.status)) return studio.metric("Evaluation", `${e.results.length}/${this.data.scenarios.length}`, t("Running…"));
+			return studio.metric("Evaluation", e.total ? `${e.passed}/${e.total}` : "—", `${t(e.mode)} · ${escape(e.agent_version)}`);
+		}
+
 		renderEvals() {
+			const e = this.data.evaluation;
+			const byCase = Object.fromEntries((e?.results || []).map((r) => [r.case, r]));
+			const running = e && ["Queued", "Running"].includes(e.status);
 			return `
 				<section class="as-panel">
-					<div class="as-panel-head"><h2>${t("Evaluation suite: Procurement Sourcing")}</h2></div>
-					<p class="as-muted">${t("Fixed test scenarios run against seeded test data before each new version is published. A failing case blocks publishing.")}</p>
+					<div class="as-panel-head">
+						<h2>${t("Evaluation suite: Procurement Sourcing")}</h2>
+						${this.data.can_evaluate ? `<div class="as-actions">
+							<button type="button" class="btn btn-default btn-sm as-eval" data-mode="Offline" ${running ? "disabled" : ""}>${t("Run offline check")}</button>
+							<button type="button" class="btn btn-primary btn-sm as-eval" data-mode="Live" ${running ? "disabled" : ""}>${t("Run with live model")}</button>
+						</div>` : ""}
+					</div>
+					<p class="as-muted">${t("Each scenario builds its own temporary items, suppliers, stock and purchase orders, runs the agent end to end, checks the result, and then rolls everything back. Live mode uses the agent's model and is required before an agent version can be activated; offline mode uses a scripted model to check the code paths.")}</p>
+					${e ? `<p class="as-muted">${escape(e.name)} · ${t(e.mode)} · ${t("version")} ${escape(e.agent_version)} · ${badge(e.status)}${e.ended_at ? ` · ${studio.datetime(e.ended_at)}` : ""}${e.total_tokens ? ` · ${Number(e.total_tokens).toLocaleString()} ${t("tokens")}` : ""}</p>` : ""}
+					${e?.error ? `<div class="as-callout" style="border-left-color:#dc2626">${escape(e.error)}</div>` : ""}
 					<div class="as-table-scroll"><table class="as-table">
-						<thead><tr><th>${t("Scenario")}</th><th>${t("Expected behaviour")}</th><th>${t("Result")}</th></tr></thead>
+						<thead><tr><th>${t("Scenario")}</th><th>${t("Expected behaviour")}</th><th>${t("What happened")}</th><th>${t("Result")}</th></tr></thead>
 						<tbody>
-							${evaluationScenarios.map(([name, expected]) => `<tr><td><strong>${t(name)}</strong></td><td>${t(expected)}</td><td>${badge("Not run")}</td></tr>`).join("")}
+							${this.data.scenarios.map((sc) => {
+								const r = byCase[sc.case];
+								return `<tr>
+									<td><strong>${t(sc.case)}</strong></td>
+									<td>${t(sc.expected)}</td>
+									<td>${r ? `${escape(r.outcome || r.run_status || "")}${r.note ? `<div class="as-text-bad">${escape(r.note)}</div>` : ""}<div class="as-muted">${r.llm_calls ?? 0} ${t("LLM calls")} · ${r.seconds}s</div>` : `<span class="as-muted">${running ? t("Waiting…") : "—"}</span>`}</td>
+									<td>${badge(r ? r.result : "Not run")}</td>
+								</tr>`;
+							}).join("")}
 						</tbody>
 					</table></div>
 				</section>`;
@@ -216,6 +234,17 @@ frappe.pages["agent-runs"].on_page_load = async (wrapper) => {
 				frappe.confirm(__("Cancel this run? Any pending approval will expire."), async () => {
 					await runtime("cancel_run", { run: this.selected });
 					this.reload();
+				})
+			);
+			body.querySelectorAll(".as-eval").forEach((button) =>
+				button.addEventListener("click", async () => {
+					button.disabled = true;
+					try {
+						await frappe.xcall("pridict.agent_studio.evals.start_evaluation", { mode: button.dataset.mode });
+						this.notify(`Evaluation started (${button.dataset.mode}). Results appear here as each scenario finishes.`, "blue");
+					} finally {
+						this.reload();
+					}
 				})
 			);
 			body.querySelector(".as-open-approval")?.addEventListener("click", (event) => {

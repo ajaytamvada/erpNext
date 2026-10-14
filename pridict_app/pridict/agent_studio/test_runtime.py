@@ -12,54 +12,13 @@ from erpnext.stock.doctype.stock_entry.stock_entry_utils import make_stock_entry
 from frappe.tests.utils import FrappeTestCase
 from frappe.utils import add_days, nowdate
 
-from pridict.agent_studio import gateway, registry, runtime
+from pridict.agent_studio import registry, runtime
+from pridict.agent_studio.evals import ScriptedLLM
 from pridict.agent_studio.setup import ensure_agent_studio_setup
 
 ITEM = "_Test Agent Runtime Sheet"
 WAREHOUSE = "_Test Warehouse - _TC"
 AGENT = registry.PROCUREMENT_AGENT
-
-
-class ScriptedLLM:
-	"""Stands in for gateway.chat; answers by response schema title."""
-
-	def __init__(self, requirements: list[dict]):
-		self.requirements = list(requirements)
-		self.calls: list[str] = []
-
-	def __call__(self, config, messages, *, response_schema=None, max_tokens=None, **_):
-		title = (response_schema or {}).get("title", "text")
-		self.calls.append(title)
-		if title == "requirement":
-			payload = self.requirements.pop(0) if len(self.requirements) > 1 else self.requirements[0]
-		elif title == "sourcing_analysis":
-			names = response_schema["properties"]["recommended_supplier"]["enum"]
-			payload = {
-				"recommended_supplier": names[0],
-				"supplier_notes": [{"supplier": n, "note": "ok"} for n in names],
-				"rationale": "Best balance.",
-			}
-		elif title == "recommendation":
-			# Deliberately wrong numbers and supplier: the node must overwrite them.
-			payload = {
-				"shortage_qty": 1,
-				"recommended_action": "ask_buyer",
-				"suppliers": [],
-				"recommended_supplier": "Invented Supplier",
-				"estimated_value": 1,
-				"explanation": "Send the RFQ.",
-			}
-		else:
-			payload = None
-		return gateway.LLMResponse(
-			content=json.dumps(payload) if payload is not None else "Stock already covers the need.",
-			tool_calls=[],
-			finish_reason="stop",
-			usage=gateway.Usage(100, 20, 120),
-			model_config=config,
-			model="mock",
-			latency_ms=5,
-		)
 
 
 def requirement(qty=500, warehouse=WAREHOUSE, need_by=None):
@@ -207,6 +166,56 @@ class TestAgentRuntime(FrappeTestCase):
 		self.assertEqual(frappe.db.get_value("Agent Run", run.name, "status"), "Cancelled")
 		self.assertEqual(frappe.db.get_value("Agent Approval", {"run": run.name}, "status"), "Expired")
 		self.assertFalse(frappe.db.exists("Agent Checkpoint", {"thread_id": run.name}))
+
+	def test_finished_run_deletes_its_checkpoints(self):
+		run = self.run_agent(ScriptedLLM([requirement(qty=50)]))
+		self.assertEqual(run.status, "Completed")
+		self.assertFalse(frappe.db.exists("Agent Checkpoint", {"thread_id": run.name}))
+
+	def test_active_run_limit_per_user(self):
+		busy = [
+			frappe.get_doc(
+				{
+					"doctype": "Agent Run",
+					"agent": AGENT,
+					"status": "Running",
+					"requested_by": "Administrator",
+					"request": "busy",
+				}
+			)
+			.insert(ignore_permissions=True)
+			.name
+			for _ in range(runtime.MAX_ACTIVE_RUNS_PER_USER)
+		]
+		# The class shares one transaction, so remove these before other tests run.
+		self.addCleanup(lambda: frappe.db.delete("Agent Run", {"name": ["in", busy]}))
+		with self.assertRaises(frappe.ValidationError):
+			runtime.start_run(AGENT, "One more request please")
+
+	def test_maintenance_expires_stale_and_orphaned_runs(self):
+		from frappe.utils import add_days, now_datetime
+
+		from pridict.agent_studio import maintenance
+
+		waiting = self.run_agent(ScriptedLLM([requirement()]))
+		old = add_days(now_datetime(), -20)
+		frappe.db.set_value("Agent Run", waiting.name, "creation", old, update_modified=False)
+		frappe.db.sql("update `tabAgent Run Step` set started_at=%s where parent=%s", (old, waiting.name))
+		orphan = frappe.get_doc(
+			{
+				"doctype": "Agent Run",
+				"agent": AGENT,
+				"status": "Running",
+				"requested_by": "Administrator",
+				"request": "stuck",
+			}
+		).insert(ignore_permissions=True)
+		frappe.db.set_value("Agent Run", orphan.name, "creation", old, update_modified=False)
+		with patch("frappe.db.commit"):
+			maintenance.hourly()
+		self.assertEqual(frappe.db.get_value("Agent Run", waiting.name, "status"), "Cancelled")
+		self.assertEqual(frappe.db.get_value("Agent Approval", {"run": waiting.name}, "status"), "Expired")
+		self.assertEqual(frappe.db.get_value("Agent Run", orphan.name, "status"), "Failed")
 
 	def test_graph_compiles_for_every_registered_workflow(self):
 		for key in runtime.WORKFLOW_MODULES:

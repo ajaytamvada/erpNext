@@ -95,20 +95,20 @@
 	<div class="band">
 		<div class="eyebrow">Pridict · Agentic ERP · Team explainer</div>
 		<h1>Agent Studio &amp; the Procurement Sourcing Agent</h1>
-		<p>How we will add safe, controllable AI agents to our ERPNext-based platform. This document covers what we are building, how it works, why we chose this design, and how we will build it step by step.</p>
+		<p>How we added safe, controllable AI agents to our ERPNext-based platform. This document covers what we have built, how it works, why we chose this design, and what remains before the agent goes live.</p>
 	</div>
 	<div>
 		<table class="meta">
 			<tr><td>Audience</td><td>Whole team: developers, functional consultants, testers, management</td></tr>
-			<tr><td>Status</td><td>Proposal + working UI preview (sample data)</td></tr>
-			<tr><td>Date</td><td>13 October 2026</td></tr>
+			<tr><td>Status</td><td>Built (phases 0–6 complete); awaiting validation with the live model</td></tr>
+			<tr><td>Date</td><td>14 October 2026</td></tr>
 			<tr><td>Code branch</td><td><code>version-15</code> · app <code>pridict_app</code></td></tr>
 			<tr><td>How to read</td><td>Sections 1–4 are for everyone. Sections 5–9 add technical depth. Every technical term is explained in plain words in Section 3.</td></tr>
 		</table>
 	</div>
 	<div class="box box-key">
 		<span class="box-title">The one-sentence version</span>
-		We will build one procurement agent that reads ERPNext data, works out whether we need to buy, recommends suppliers, and <b>stops to ask a human before creating anything</b>. We will also build a control panel ("Agent Studio") to configure it, watch it and approve its proposals.
+		We have built one procurement agent that reads ERPNext data, works out whether we need to buy, recommends suppliers, and <b>stops to ask a human before creating anything</b>, plus a control panel ("Agent Studio") to configure it, watch it, test it and approve its proposals.
 	</div>
 </section>
 
@@ -127,23 +127,24 @@
 		<li>LangGraph in practice (code sketches)</li>
 		<li>Safety and security design</li>
 		<li>Key decisions: pros and cons</li>
-		<li>Build plan</li>
+		<li>Build plan and progress</li>
 		<li>Testing and acceptance</li>
 		<li>Cost and performance</li>
 		<li>Risks and mitigations</li>
 		<li>FAQ for the team</li>
-		<li>Appendix: what is already in the repo</li>
+		<li>Appendix: what is in the repo</li>
 	</ol>
 
 	<h2>1. Executive summary</h2>
 	<p><b>What:</b> An <i>agentic</i> procurement feature inside Pridict (our ERPNext app). A buyer types a need like <i>"Source 500 kg of aluminium sheet by 30 October."</i> The agent checks stock and open orders, calculates the real shortage, picks suitable suppliers, compares prices, and prepares a recommendation. A Purchase Manager approves or rejects it. Only after approval does the agent create a <b>draft</b> Request for Quotation (RFQ).</p>
-	<p><b>Why:</b> Buyers today open 5–8 screens (stock, open POs, supplier list, past prices, quotations) to answer this question. The agent collects this evidence in seconds and explains its reasoning. People still make the decision.</p>
+	<p><b>Why:</b> Buyers today open 5–8 screens (stock, open POs, supplier list, past prices, quotations) to answer this question. The agent collects this evidence automatically and explains its reasoning. People still make the decision.</p>
 	<p><b>How:</b> The step order is a fixed map run by <b>LangGraph</b>. <b>ERPNext</b> remains the source of truth. <b>Plain Python code</b> does every calculation and enforces every money rule. The <b>LLM</b> (the AI model) is used only for understanding language, comparing options and writing explanations.</p>
-	<p><b>What exists today:</b> All seven Agent Studio pages are built as Frappe Desk pages using sample data, so the team can click through the full experience now. The backend (DocTypes, LangGraph runtime, LLM calls) is the next phase.</p>
+	<p><b>What exists today:</b> Phases 0–6 are built and committed on branch <code>version-15</code> (app <code>pridict_app</code>). All seven Agent Studio pages load real records through permission-checked server APIs, and settings are edited in standard Frappe forms. Behind them sit the agent DocTypes, an LLM gateway, nine read tools, a LangGraph runtime with checkpoints stored in our own MariaDB database, an approval flow that creates a draft RFQ, and an evaluation suite. <b>68 automated tests pass.</b></p>
+	<div class="box box-warn"><span class="box-title">Not yet done: validation with the live model</span>Everything so far has been tested with a <i>scripted stand-in model</i> (fixed answers, no API key needed). The company's Azure OpenAI model is configured but has not been exercised end to end, because its API key has not been entered yet. The next step is to enter the key and run the Live evaluation (Section 12).</div>
 	<div class="grid2">
-		<div class="box box-good"><span class="box-title">What the agent WILL do (v1)</span>
+		<div class="box box-good"><span class="box-title">What the agent does (v1)</span>
 			<ul><li>Understand a free-text purchase need</li><li>Read stock, open POs, suppliers, prices, quotations</li><li>Calculate shortage (via code)</li><li>Recommend suppliers with evidence</li><li>Create a <b>draft</b> RFQ after approval</li></ul></div>
-		<div class="box box-warn"><span class="box-title">What the agent will NOT do (v1)</span>
+		<div class="box box-warn"><span class="box-title">What the agent can NOT do (v1)</span>
 			<ul><li>Submit or cancel any document</li><li>Approve its own proposals</li><li>Change supplier, item or price masters</li><li>Spend above configured limits</li><li>Run arbitrary database queries</li></ul></div>
 	</div>
 </section>
@@ -193,21 +194,21 @@
 		<p><b class="l">Analogy:</b> A very well-read assistant who writes fluently but sometimes misremembers facts confidently.</p>
 		<p><b class="l">In our project:</b> Used for reading the buyer's request, comparing options and writing explanations. Never used for stock arithmetic or approvals.</p></div>
 	<div class="term"><h4>Provider and Model</h4>
-		<p><b class="l">Plain words:</b> The <i>provider</i> is the company or server that runs the LLM (Anthropic, OpenAI, Google, or our own server). The <i>model</i> is the specific version you call, identified by a <i>model ID</i> such as <code>claude-sonnet-5-5</code> or <code>gpt-4.1-mini</code>.</p>
+		<p><b class="l">Plain words:</b> The <i>provider</i> is the company or server that runs the LLM (Anthropic, OpenAI, Google, or our own server). The <i>model</i> is the specific version you call, identified by a <i>model ID</i> (on Azure, a <i>deployment</i> name) such as <code>gpt-5.4-mini</code>.</p>
 		<p><b class="l">Analogy:</b> The provider is the car manufacturer; the model is the specific car.</p>
-		<p><b class="l">In our project:</b> Configured once on the <b>Models &amp; Providers</b> page. We stay provider-agnostic, so we can switch without rewriting agents.</p></div>
+		<p><b class="l">In our project:</b> Configured once on the <b>Models &amp; Providers</b> page. Our primary model is the company's own Azure OpenAI deployment <code>gpt-5.4-mini</code>. The gateway is provider-agnostic, so we can switch without rewriting agents.</p></div>
 	<div class="term"><h4>Prompt and System instructions</h4>
 		<p><b class="l">Plain words:</b> The <i>prompt</i> is the text we send to the LLM. <i>System instructions</i> are the standing rules at the top of every prompt ("You help buyers… never compute stock yourself…").</p>
 		<p><b class="l">Analogy:</b> System instructions are the job description; the prompt is today's task.</p>
-		<p><b class="l">In our project:</b> Edited on the <b>Agent Registry</b> page and versioned. <b>Important:</b> instructions guide behaviour but do <i>not</i> enforce anything. Enforcement is done by code (see Guardrails).</p></div>
+		<p><b class="l">In our project:</b> Edited in the agent's form (opened from the <b>Agent Registry</b> page); every change is kept in the document history. <b>Important:</b> instructions guide behaviour but do <i>not</i> enforce anything. Enforcement is done by code (see Guardrails).</p></div>
 	<div class="term"><h4>Token</h4>
 		<p><b class="l">Plain words:</b> The unit LLMs count text in, roughly ¾ of an English word. Providers charge per token, both for what we send (input) and what comes back (output).</p>
 		<p><b class="l">Analogy:</b> Like mobile data. Every message costs a little, and big attachments cost more.</p>
-		<p><b class="l">In our project:</b> Each run in the sample used ~18,000 tokens. Agents have a <b>token budget</b> so a run cannot get unexpectedly expensive.</p></div>
+		<p><b class="l">In our project:</b> Token usage is logged on every LLM call and totalled on each run. Agents have a <b>token budget</b> so a run cannot get unexpectedly expensive. Real figures per run will be measured once the live model is connected.</p></div>
 	<div class="term"><h4>Temperature</h4>
 		<p><b class="l">Plain words:</b> A setting from 0 to 1 (sometimes higher) controlling how "creative" or varied the answers are. Low means more consistent; high means more varied.</p>
 		<p><b class="l">Analogy:</b> Low temperature = an accountant; high temperature = a brainstorming session.</p>
-		<p><b class="l">In our project:</b> 0.1 for procurement. <b>Caution:</b> low temperature makes answers <i>consistent</i>, not <i>correct</i>.</p></div>
+		<p><b class="l">In our project:</b> Low for procurement. Some models (e.g. the gpt-5.x family) reject a custom temperature; the gateway then drops the setting automatically and uses the model default. <b>Caution:</b> low temperature makes answers <i>consistent</i>, not <i>correct</i>.</p></div>
 	<div class="term"><h4>Context window</h4>
 		<p><b class="l">Plain words:</b> The maximum amount of text (in tokens) the LLM can "see" at once: instructions plus data plus conversation.</p>
 		<p><b class="l">Analogy:</b> The size of the desk. You can only spread so many papers on it at once.</p>
@@ -219,17 +220,17 @@
 	<div class="term"><h4>Structured output / Output schema</h4>
 		<p><b class="l">Plain words:</b> Asking the LLM to reply in a fixed format (usually JSON) with named fields, instead of free text, so code can read it reliably.</p>
 		<p><b class="l">Analogy:</b> A form with boxes to fill in, instead of a blank sheet of paper.</p>
-		<p><b class="l">In our project:</b> The recommendation has fields such as <code>shortage_qty</code>, <code>recommended_action</code>, <code>suppliers</code> and <code>explanation</code>. If the LLM returns something that doesn't fit, the run retries or fails safely.</p></div>
+		<p><b class="l">In our project:</b> The recommendation has fields such as <code>shortage_qty</code>, <code>recommended_action</code>, <code>suppliers</code> and <code>explanation</code>. We use <i>strict JSON-schema</i> output, so the reply must match the form; the analysis step can only pick a supplier from the eligible list. Any number the LLM supplies is overwritten by the figure code calculated.</p></div>
 
 	<h3>3.2 Agent concepts</h3>
 	<div class="term"><h4>Agent</h4>
 		<p><b class="l">Plain words:</b> Software that uses an LLM to decide <i>what to do next</i> in a multi-step task, calls tools to gather data or act, and keeps going until the task is done or it must stop.</p>
 		<p><b class="l">Analogy:</b> The junior buyer from Section 2: given a goal, they figure out the steps and use the systems they have access to.</p>
-		<p><b class="l">In our project:</b> We use a <b>bounded agent</b>. Its freedom is limited by a fixed workflow map, a list of allowed tools, a step limit and policies.</p></div>
+		<p><b class="l">In our project:</b> We use a <b>bounded agent</b>. Its freedom is limited by a fixed workflow map, a list of allowed tools, limits on LLM calls, tokens and runtime, and policies.</p></div>
 	<div class="term"><h4>Tool (and Tool calling)</h4>
 		<p><b class="l">Plain words:</b> A function the agent is allowed to use, such as "get stock balance" or "create draft RFQ". The LLM asks to call a tool with specific inputs; <i>our code</i> runs it and returns the result.</p>
 		<p><b class="l">Analogy:</b> The buttons the junior buyer is allowed to press. They can ask for a report, but they can't reach into the database directly.</p>
-		<p><b class="l">In our project:</b> Listed on the <b>Tools &amp; Connectors</b> page. Read tools and write tools are separated, and every write tool requires a valid approval.</p></div>
+		<p><b class="l">In our project:</b> Listed on the <b>Tools &amp; Connectors</b> page. Read tools and write tools are separated, and the write tool runs only from a valid, approved request.</p></div>
 	<div class="term"><h4>Deterministic vs probabilistic</h4>
 		<p><b class="l">Plain words:</b> <i>Deterministic</i> code gives the same output every time for the same input (500 − 100 − 150 is always 250). <i>Probabilistic</i> means the result can vary, which is how LLMs work.</p>
 		<p><b class="l">Analogy:</b> A calculator vs a human estimate.</p>
@@ -241,7 +242,7 @@
 	<div class="term"><h4>Guardrail / Policy</h4>
 		<p><b class="l">Plain words:</b> A rule enforced by code that limits what the agent can do, no matter what the LLM "thinks". Examples: spend limits, approved suppliers only, never submit documents.</p>
 		<p><b class="l">Analogy:</b> The barriers on a mountain road. You can't drive off the edge even if the driver gets distracted.</p>
-		<p><b class="l">In our project:</b> The <b>Policies &amp; Guardrails</b> page. Checked before the recommendation is shown, and again right before any document is created.</p></div>
+		<p><b class="l">In our project:</b> The <b>Policies &amp; Guardrails</b> page. Checked inside the workflow before the recommendation is prepared, and again right before any document is created.</p></div>
 	<div class="term"><h4>Single agent vs multi-agent</h4>
 		<p><b class="l">Plain words:</b> One agent following one workflow, versus several specialised agents passing work between each other (a "researcher", a "negotiator", a "reviewer").</p>
 		<p><b class="l">Analogy:</b> One capable employee vs a small team with hand-offs.</p>
@@ -251,11 +252,11 @@
 	<div class="term"><h4>LangGraph</h4>
 		<p><b class="l">Plain words:</b> An open-source Python library for building agents as a <i>graph</i>: a map of steps and the arrows between them. It handles running the steps, remembering progress, pausing for humans and resuming later.</p>
 		<p><b class="l">Analogy:</b> A metro map. The stations (steps) and lines (allowed paths) are fixed; the train decides at junctions which line to take based on signals.</p>
-		<p><b class="l">In our project:</b> Runs the Procurement Sourcing workflow on the server, in a Frappe background worker.</p></div>
+		<p><b class="l">In our project:</b> Runs the Procurement Sourcing workflow on the server, in a Frappe background worker. LangGraph 1.2 is the only new Python dependency we added.</p></div>
 	<div class="term"><h4>Graph, Node, Edge</h4>
 		<p><b class="l">Plain words:</b> A <i>graph</i> is the whole map. A <i>node</i> is one step (a Python function). An <i>edge</i> is an arrow saying "after this step, go to that step".</p>
 		<p><b class="l">Analogy:</b> Stations (nodes) and tracks (edges) on the metro map.</p>
-		<p><b class="l">In our project:</b> 16 nodes, shown on the <b>Workflow Designer</b> page.</p></div>
+		<p><b class="l">In our project:</b> 18 nodes, defined once in code and shown on the <b>Workflow Designer</b> page.</p></div>
 	<div class="term"><h4>Conditional edge / Router</h4>
 		<p><b class="l">Plain words:</b> An arrow whose destination depends on a condition. A small function looks at the current data and returns which node to go to next.</p>
 		<p><b class="l">Analogy:</b> A railway junction switch.</p>
@@ -263,45 +264,45 @@
 	<div class="term"><h4>State</h4>
 		<p><b class="l">Plain words:</b> The shared "file" that travels through the graph. Each node reads it and adds its results (item code, stock, shortage, suppliers, recommendation…).</p>
 		<p><b class="l">Analogy:</b> A case folder passed from desk to desk, with each desk adding a page.</p>
-		<p><b class="l">In our project:</b> A typed Python structure (<code>SourcingState</code>), shown in Section 9.</p></div>
+		<p><b class="l">In our project:</b> A typed Python structure (<code>State</code> in <code>procurement.py</code>), sketched in Section 9.</p></div>
 	<div class="term"><h4>Checkpoint / Checkpointer</h4>
 		<p><b class="l">Plain words:</b> A saved snapshot of the state after each step. The <i>checkpointer</i> is the component that stores these snapshots in a database.</p>
 		<p><b class="l">Analogy:</b> The save points in a video game. If the power goes out you continue from the last save, not from the start.</p>
-		<p><b class="l">In our project:</b> Essential for approvals. A run can wait hours or days for a manager and survive server restarts.</p></div>
+		<p><b class="l">In our project:</b> Essential for approvals. A run can wait hours or days for a manager and survive server restarts. Our checkpointer (<code>MariaDBSaver</code>) stores snapshots in the site's own MariaDB database, so they are included in normal backups.</p></div>
 	<div class="term"><h4>Interrupt and Resume</h4>
 		<p><b class="l">Plain words:</b> An <i>interrupt</i> deliberately pauses the graph at a node and saves everything. <i>Resume</i> continues from exactly that point once input arrives (e.g. "approved").</p>
 		<p><b class="l">Analogy:</b> Putting a file in someone's in-tray with a sticky note. Work stops until they hand it back.</p>
-		<p><b class="l">In our project:</b> Used at "Human review" and "Ask buyer". <b>We never keep a web request open while waiting.</b> The paused run lives in the checkpoint store.</p></div>
+		<p><b class="l">In our project:</b> Used at "Human review" (status <i>Awaiting approval</i>) and "Ask buyer" (status <i>Waiting for buyer</i>). <b>We never keep a web request open while waiting.</b> The paused run lives in the checkpoint store.</p></div>
 	<div class="term"><h4>Thread ID / Run</h4>
 		<p><b class="l">Plain words:</b> A <i>run</i> is one execution of a workflow for one request. LangGraph identifies it with a <i>thread ID</i> so it can find the right checkpoint later.</p>
-		<p><b class="l">In our project:</b> The run name (e.g. <code>RUN-2026-0042</code>) is used as the thread ID.</p></div>
+		<p><b class="l">In our project:</b> Each run is an <b>Agent Run</b> record (named like <code>AGR-2026-00042</code>), and its name is used as the thread ID.</p></div>
 
 	<h3>3.4 Operations terms</h3>
 	<div class="term"><h4>Trace / Observability</h4>
-		<p><b class="l">Plain words:</b> A detailed log of everything a run did: each step, inputs, outputs, tool calls, timings, tokens and cost. <i>Observability</i> means being able to answer "what happened and why?" from these records.</p>
+		<p><b class="l">Plain words:</b> A detailed log of everything a run did: each step, inputs, outputs, tool calls, timings and tokens. <i>Observability</i> means being able to answer "what happened and why?" from these records.</p>
 		<p><b class="l">Analogy:</b> An aircraft's black box.</p>
-		<p><b class="l">In our project:</b> The <b>Runs &amp; Traces</b> page.</p></div>
+		<p><b class="l">In our project:</b> The <b>Runs &amp; Traces</b> page. Each step is stored as a row of the run's trace as it happens.</p></div>
 	<div class="term"><h4>Evaluation (Evals)</h4>
-		<p><b class="l">Plain words:</b> A fixed set of test scenarios with expected outcomes, run against the agent before each new version is published.</p>
+		<p><b class="l">Plain words:</b> A fixed set of test scenarios with expected outcomes, run against the agent before a new version is activated.</p>
 		<p><b class="l">Analogy:</b> A driving test that every new version must pass.</p>
-		<p><b class="l">In our project:</b> 8 scenarios (shortage, no shortage, late PO, no supplier, price spike…). A failing scenario blocks publishing.</p></div>
+		<p><b class="l">In our project:</b> 8 scenarios (shortage, no shortage, late PO, no supplier, price spike…), each on temporary data that is rolled back afterwards. An agent version cannot be activated until its latest Live evaluation passes every scenario.</p></div>
 	<div class="term"><h4>Fallback and Retry</h4>
 		<p><b class="l">Plain words:</b> <i>Retry</i> means trying the same call again after a temporary error. <i>Fallback</i> means switching to a backup model if the main one keeps failing.</p>
-		<p><b class="l">In our project:</b> Set per model configuration.</p></div>
-	<div class="term"><h4>Secrets manager / credential reference</h4>
-		<p><b class="l">Plain words:</b> A secure store for API keys. Configurations store only a <i>reference</i> (like <code>secret://pridict/anthropic_api_key</code>), never the key itself.</p>
-		<p><b class="l">In our project:</b> Simplest option: Frappe's encrypted <i>Password</i> field (encrypted with the site's encryption key). Alternatives: Azure Key Vault, environment variables.</p></div>
+		<p><b class="l">In our project:</b> Set per model configuration. The gateway retries with backoff on rate limits (429) and server errors (5xx), honouring the provider's <i>Retry-After</i> hint, then follows the configuration's fallback chain.</p></div>
+	<div class="term"><h4>Secrets / API keys</h4>
+		<p><b class="l">Plain words:</b> The API key is the password that lets us call a provider. It must be stored securely and never shown or logged.</p>
+		<p><b class="l">In our project:</b> The key is held in an encrypted <i>Password</i> field on the <b>LLM Provider</b> record (encrypted with the site's encryption key). It is never sent to the browser and never written to logs or traces.</p></div>
 
 	<h3>3.5 ERPNext terms used here</h3>
 	<table>
 		<tr><th style="width:26%">Term</th><th>Meaning</th></tr>
-		<tr><td><b>DocType</b></td><td>Frappe's definition of a record type and its database table (e.g. Item, Purchase Order). New agent tables will also be DocTypes.</td></tr>
+		<tr><td><b>DocType</b></td><td>Frappe's definition of a record type and its database table (e.g. Item, Purchase Order). The agent tables are also DocTypes.</td></tr>
 		<tr><td><b>docstatus</b></td><td>0 = Draft (editable, has no accounting/stock effect), 1 = Submitted (final), 2 = Cancelled. <b>Agents may only create docstatus 0.</b></td></tr>
 		<tr><td><b>Bin</b></td><td>ERPNext's stock summary per item per warehouse (actual, ordered, reserved, projected qty).</td></tr>
 		<tr><td><b>RFQ</b></td><td>Request for Quotation: a document asking several suppliers to quote a price.</td></tr>
 		<tr><td><b>Supplier Quotation</b></td><td>A supplier's price offer, often in response to an RFQ.</td></tr>
 		<tr><td><b>Item Supplier</b></td><td>The child table on an Item listing which suppliers supply it. We treat it as the "approved supplier" list.</td></tr>
-		<tr><td><b>Whitelisted method</b></td><td>A Python function marked <code>@frappe.whitelist()</code> so the browser may call it. All Agent Studio APIs will be whitelisted and permission-checked.</td></tr>
+		<tr><td><b>Whitelisted method</b></td><td>A Python function marked <code>@frappe.whitelist()</code> so the browser may call it. All Agent Studio APIs are whitelisted and permission-checked.</td></tr>
 		<tr><td><b>Background job</b></td><td>Work run outside the web request by a worker (<code>frappe.enqueue</code>). Agent runs are background jobs.</td></tr>
 	</table>
 </section>
@@ -309,30 +310,31 @@
 <!-- ============================== 4. WALKTHROUGH ============================== -->
 <section class="chapter">
 	<h2>4. The Procurement Sourcing Agent, step by step</h2>
-	<p>Here is the complete flow, using the same example and numbers as the UI preview. Colour tags show who does each step: <span class="tag t-llm">LLM</span> <span class="tag t-tool">Tool</span> <span class="tag t-rule">Code rule</span> <span class="tag t-router">Router</span> <span class="tag t-human">Human</span>.</p>
-	<figure class="plain"><img src="images/workflow.svg" alt="Workflow flowchart"><figcaption>Figure 1: Procurement Sourcing workflow (the LangGraph graph).</figcaption></figure>
+	<p>Here is the complete flow, using an illustrative example (the same item and quantities as the evaluation scenario "Shortage exists"). Supplier names, prices and scores below are examples only. Colour tags show who does each step: <span class="tag t-llm">LLM</span> <span class="tag t-tool">Tool</span> <span class="tag t-rule">Code rule</span> <span class="tag t-router">Router</span> <span class="tag t-human">Human</span>.</p>
+	<figure class="plain"><img src="images/workflow.svg" alt="Workflow flowchart"><figcaption>Figure 1: Procurement Sourcing workflow (the LangGraph graph). Money limits are checked ("Check value limits") before any recommendation is prepared; above the ceiling the run ends with an explanation. The Workflow Designer page (Page 3) always shows the current graph.</figcaption></figure>
 </section>
 <section class="chapter">
-	<h3>Walk-through with real numbers</h3>
+	<h3>Walk-through with example numbers</h3>
 	<ol class="steps">
-		<li><b>Buyer types the request.</b> "Source 500 kg of aluminium sheet (2 mm, 5052) for Stores - PRD by 30 October." A run <code>RUN-2026-0042</code> starts in the background.</li>
-		<li><b>Parse requirement</b> <span class="tag t-llm">LLM</span>. The LLM converts the sentence into fields: item text "aluminium sheet 2mm 5052", qty 500, UOM Kg, warehouse "Stores - PRD", need-by 2026-10-30. <span class="muted">(~1.8 s, ~1,200 tokens)</span></li>
-		<li><b>Resolve ERPNext records</b> <span class="tag t-tool">Tool</span>. <code>search_items</code> finds <code>ALU-SHEET-2MM</code>; <code>get_warehouses</code> confirms the warehouse exists. The LLM's text is now tied to real records.</li>
-		<li><b>Validate inputs &amp; permissions</b> <span class="tag t-rule">Code</span>. All required fields are present, and buyer1 may purchase for this company. <i>If something is missing (e.g. no warehouse given), the run pauses at "Ask buyer".</i></li>
-		<li><b>Read stock &amp; open supply</b> <span class="tag t-tool">Tool</span>. Stock = 100 kg. Open PO <code>PUR-ORD-2026-00118</code>: 150 kg due 24 Oct, which is before the need-by date, so it counts.</li>
+		<li><b>Buyer types the request.</b> On the Runs page: "Source 500 kg of aluminium sheet (2 mm, 5052) for Stores - PRD by 30 October" → <b>Start run</b>. An Agent Run (e.g. <code>AGR-2026-00042</code>) is created and executed as a background job, running with the buyer's own permissions.</li>
+		<li><b>Parse requirement</b> <span class="tag t-llm">LLM</span>. The LLM converts the sentence into fields: item text "aluminium sheet 2mm 5052", qty 500, UOM Kg, warehouse "Stores - PRD", need-by 2026-10-30. The reply must match a fixed JSON schema.</li>
+		<li><b>Resolve ERPNext records</b> <span class="tag t-tool">Tool</span>. <code>search_items</code> finds <code>ALU-SHEET-2MM</code> (an exact code or name match is ranked first); <code>get_warehouses</code> confirms the warehouse exists. The LLM's text is now tied to real records.</li>
+		<li><b>Validate inputs &amp; permissions</b> <span class="tag t-rule">Code</span>. All required fields are present, the need-by date is not in the past, and the company and warehouse are permitted by policy. <i>If something is missing (e.g. no warehouse given), the run pauses at "Ask buyer" with status <b>Waiting for buyer</b>; the buyer types the answer on the Runs page and the run continues.</i></li>
+		<li><b>Read stock &amp; open supply</b> <span class="tag t-tool">Tool</span>. Stock = 100 kg. Open PO: 150 kg pending (in stock UOM) due 24 Oct. Only orders due on or before the need-by date are counted, so it counts.</li>
 		<li><b>Calculate net shortage</b> <span class="tag t-rule">Code</span>. 500 − 100 − 150 = <b>250 kg</b>. Python does this, not the LLM.</li>
 		<li><b>Shortage exists?</b> <span class="tag t-router">Router</span>. 250 &gt; 0 → continue to suppliers. <i>(If stock were 600 kg, the agent would explain that no purchase is needed and stop.)</i></li>
-		<li><b>Find eligible suppliers</b> <span class="tag t-tool">Tool</span>. 4 candidates found. Coastal Alloys is excluded because it is not in Item Supplier. The remaining 3 are scored with our existing <code>vendor_scoring</code> engine: Hindalco 86, Bharat 78, Shree 64 (watchlist).</li>
-		<li><b>Analyze sourcing options</b> <span class="tag t-llm">LLM</span> + <span class="tag t-tool">Tools</span>. 90-day average price ₹262/kg. One valid quotation from Bharat (₹255). The existing <code>anomaly_detector</code> finds no price anomaly. The LLM weighs price against lead time and reliability.</li>
-		<li><b>Prepare recommendation</b> <span class="tag t-llm">LLM</span>. Structured output: send an RFQ to all three suppliers; preferred is Bharat Metals &amp; Alloys at ₹258/kg with a 10-day lead time; estimated value ₹64,500; plain-language explanation and alternatives.</li>
-		<li><b>Policy check</b> <span class="tag t-rule">Code</span>. Approved suppliers ✓, min score ✓, watchlist ⚠ (flagged), value ≤ ₹5 lakh → one Purchase Manager ✓, price variance −1.5% ✓, quantity sanity ✓, draft only ✓.</li>
-		<li><b>Human review</b> <span class="tag t-human">Human</span>. <b>The graph pauses.</b> State is saved to the checkpoint store, and approval <code>APR-2026-0019</code> appears in the Approval Inbox. Total time so far: about 24 seconds and 18,420 tokens.</li>
-		<li><b>Manager approves</b> (minutes or days later). The server confirms the approver has the Purchase Manager role and that the approval is still pending.</li>
-		<li><b>Re-validate</b> <span class="tag t-rule">Code</span>. Data may have changed while waiting, so stock, open POs, prices and limits are checked again. If anything now fails, the run goes back to Human review with the new facts.</li>
-		<li><b>Create draft RFQ</b> <span class="tag t-tool">Tool</span>. <code>create_draft_rfq</code> creates a Request for Quotation for 250 kg to the three suppliers with <b>docstatus 0 (Draft)</b>. Sending or submitting it stays with the buyer.</li>
-		<li><b>Verify &amp; audit</b> <span class="tag t-rule">Code</span>. The RFQ is read back and compared to the approved proposal, and an audit event is written. The run ends.</li>
+		<li><b>Find eligible suppliers</b> <span class="tag t-tool">Tool</span>. <code>get_approved_suppliers</code> reads the item's Supplier list and hold status; a supplier not on that list is excluded. The rest are scored by <code>score_vendors</code>, which reuses our existing vendor scoring engine (e.g. 86, 78, 64 with the last on the watchlist). <i>If no supplier is eligible, the agent asks the buyer rather than inventing one.</i></li>
+		<li><b>Analyse sourcing options</b> <span class="tag t-llm">LLM</span> + <span class="tag t-tool">Tools</span>. <code>get_price_history</code>, <code>get_supplier_quotations</code> and <code>detect_price_anomalies</code> supply the evidence. The LLM weighs price against lead time and reliability, and can only pick a supplier from the eligible list.</li>
+		<li><b>Check value limits</b> <span class="tag t-rule">Code</span>. Code calculates the estimated value (shortage × price) and checks every rule: approved suppliers, minimum score, watchlist (flagged), price variance against the 90-day average, quantity sanity, and the money limits. ≤ ₹5 lakh needs one Purchase Manager; ₹5–25 lakh needs a Purchase Manager <i>and</i> an Accounts Manager. If there is no quotation or price history, the value is marked <b>"Value unknown"</b> (warning, High risk, dual approval) rather than treated as zero.</li>
+		<li><b>Above ₹25 lakh?</b> <span class="tag t-router">Router</span>. If yes, <b>Explain: blocked by policy</b> <span class="tag t-llm">LLM</span> tells the buyer why, and the run ends with no approval request. This happens <i>before</i> any recommendation is prepared.</li>
+		<li><b>Prepare recommendation</b> <span class="tag t-llm">LLM</span>. Structured output: preferred supplier, alternatives and a plain-language explanation. Every figure in it (stock, shortage, value) is filled in by code; any number the LLM writes is overwritten.</li>
+		<li><b>Human review</b> <span class="tag t-human">Human</span>. <b>The graph pauses</b> (status <b>Awaiting approval</b>). State is saved to the checkpoint store, an <b>Agent Approval</b> (e.g. <code>AGA-2026-00019</code>) appears in the Approval Inbox, and the required approvers get an ERPNext notification.</li>
+		<li><b>Manager approves</b> (minutes or days later). Each required role needs one distinct approver, and the person who started the run cannot approve it. The run then resumes.</li>
+		<li><b>Re-validate</b> <span class="tag t-rule">Code</span>. Every approver's role is checked again, and current stock and open orders are re-read. If the shortage has changed, a fresh proposal goes back for review with the new numbers.</li>
+		<li><b>Create draft RFQ</b> <span class="tag t-tool">Tool</span>. <code>create_draft_rfq</code> creates a Request for Quotation for 250 kg to the approved suppliers with <b>docstatus 0 (Draft)</b>, using the requester's own permissions. Sending or submitting it stays with the buyer.</li>
+		<li><b>Verify &amp; audit</b> <span class="tag t-rule">Code</span>. The RFQ is read back and compared to the approved proposal, and it is recorded on the approval. The run ends.</li>
 	</ol>
-	<div class="box box-key"><span class="box-title">What if the manager rejects?</span>The run records who rejected it and why (e.g. "don't use watchlist suppliers"), then ends. Nothing is created. Rejection reasons become test cases and instruction improvements for the next version.</div>
+	<div class="box box-key"><span class="box-title">What if the manager rejects?</span>A reason is required. The run records who rejected it and why (e.g. "don't use watchlist suppliers") in the <i>Record rejection</i> step, then ends. Nothing is created. Rejection reasons become test cases and instruction improvements for the next version.</div>
 </section>
 
 <!-- ============================== 5. WHO DOES WHAT ============================== -->
@@ -341,11 +343,11 @@
 	<p>This is the most important design principle. Each part does only what it is reliably good at.</p>
 	<table>
 		<tr><th style="width:18%">Who</th><th>Responsible for</th><th style="width:34%">Never responsible for</th></tr>
-		<tr><td><b>LangGraph</b><br><span class="muted small">(the conductor)</span></td><td>The order of steps, branching, saving progress, pausing and resuming, step limits.</td><td>Business rules or data. It only follows the map.</td></tr>
+		<tr><td><b>LangGraph</b><br><span class="muted small">(the conductor)</span></td><td>The order of steps, branching, saving progress, pausing and resuming. (Our runtime around it enforces the run limits.)</td><td>Business rules or data. It only follows the map.</td></tr>
 		<tr><td><b>ERPNext</b><br><span class="muted small">(source of truth)</span></td><td>All business records: items, stock, orders, suppliers, RFQs. User permissions.</td><td>Deciding what to buy.</td></tr>
 		<tr><td><b>Python code</b><br><span class="muted small">(rules &amp; tools)</span></td><td>Calculations (shortage, value), supplier eligibility, policy checks, permission checks, creating drafts, audit logging.</td><td>Interpreting free text or explaining trade-offs.</td></tr>
 		<tr><td><b>LLM</b><br><span class="muted small">(language &amp; judgement)</span></td><td>Understanding the request, choosing which data to look at within allowed tools, comparing options, writing the recommendation and explanation.</td><td>Authoritative numbers, permissions, approvals, direct database access.</td></tr>
-		<tr><td><b>Human</b><br><span class="muted small">(accountable)</span></td><td>Approving, rejecting or requesting changes; submitting final documents.</td><td>Re-collecting the data by hand (the agent did that).</td></tr>
+		<tr><td><b>Human</b><br><span class="muted small">(accountable)</span></td><td>Answering the agent's questions; approving or rejecting; submitting final documents.</td><td>Re-collecting the data by hand (the agent did that).</td></tr>
 	</table>
 	<div class="box box-warn"><span class="box-title">Golden rule</span>If a mistake would cost money, break stock accuracy or bypass a control, it must be done or checked by <b>deterministic code</b>, never by the LLM alone.</div>
 
@@ -358,96 +360,102 @@
 	<h2>6. Architecture: how the pieces fit</h2>
 	<figure class="plain"><img src="images/architecture.svg" alt="Architecture layers"><figcaption>Figure 2: Layers of the system. Arrows show which layer calls which.</figcaption></figure>
 	<table>
-		<tr><th style="width:24%">Layer</th><th>What it does (plain words)</th><th style="width:28%">Where it lives</th></tr>
-		<tr><td><b>Agent Studio UI</b></td><td>The screens where people configure agents, watch runs and approve proposals.</td><td><code>pridict/page/agent_*</code> <span class="pill p-yes">built (sample data)</span></td></tr>
-		<tr><td><b>Configuration API</b></td><td>Saves and validates settings; publishes immutable versions so a running agent never changes mid-run.</td><td><code>pridict/agent_studio/api.py</code> <span class="pill p-later">planned</span></td></tr>
-		<tr><td><b>LangGraph runtime</b></td><td>Builds the graph from the published version, runs it in a background job, saves checkpoints, pauses for humans.</td><td><code>pridict/agent_studio/runtime/</code> <span class="pill p-later">planned</span></td></tr>
-		<tr><td><b>LLM gateway</b></td><td>One place that talks to all LLM providers: loads secrets, applies timeouts and retries, switches to the fallback, counts tokens and cost.</td><td><code>pridict/agent_studio/llm.py</code> <span class="pill p-later">planned</span></td></tr>
-		<tr><td><b>Tool layer</b></td><td>Small, tested Python functions that read or write ERPNext. Reuses <code>decision_intelligence</code> (vendor scoring, anomaly detection, rules).</td><td><code>pridict/agent_studio/tools/</code> <span class="pill p-later">planned</span></td></tr>
-		<tr><td><b>Policy engine</b></td><td>Evaluates policies and returns PASS / WARN / BLOCK / APPROVAL with reasons.</td><td><code>pridict/agent_studio/policies.py</code> <span class="pill p-later">planned</span></td></tr>
-		<tr><td><b>Storage</b></td><td>ERPNext (MariaDB) holds business data and agent DocTypes. A checkpoint store holds paused run state.</td><td>Existing DB + checkpointer (see decision 11.7)</td></tr>
+		<tr><th style="width:24%">Layer</th><th>What it does (plain words)</th><th style="width:30%">Where it lives</th></tr>
+		<tr><td><b>Agent Studio UI</b></td><td>The screens where people configure agents, start and watch runs, run evaluations and approve proposals. Settings are edited in standard Frappe forms.</td><td><code>pridict/pridict/page/agent_*</code> <span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Registry</b></td><td>Defines in code the tools, the default policies, the procurement agent's defaults and the workflow graph. The Workflow page draws this graph and the runtime compiles the same one, so they cannot drift apart.</td><td><code>pridict/agent_studio/registry.py</code> <span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Setup / sync</b></td><td>Copies the registry into the DocTypes on every <code>bench migrate</code>. Submit tools are always forced to "Blocked for agents".</td><td><code>pridict/agent_studio/setup.py</code> <span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Page APIs</b></td><td>Whitelisted, permission-checked read APIs that feed the seven pages.</td><td><code>pridict/agent_studio/api.py</code> <span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Graph validation</b></td><td>Static checks shown on the Workflow page: every edge points to a real node, all nodes are reachable, every path exits, write tools are only reachable after a human approval node, router branches are labelled, and loops pass through a human pause.</td><td><code>pridict/agent_studio/graph.py</code> <span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>LangGraph runtime</b></td><td>Compiles the graph, runs it as a background job as the requester, records each step, enforces the run limits, pauses for humans and resumes.</td><td><code>pridict/agent_studio/runtime.py</code> <span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Workflow nodes</b></td><td>One Python function per workflow node. The policy checks run inside these nodes (validate inputs, find suppliers, check limits, re-validate), reading the Agent Policy records. There is no separate policy engine file.</td><td><code>pridict/agent_studio/procurement.py</code> <span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>LLM gateway</b></td><td>One place that talks to LLM providers: loads the encrypted key, applies timeouts and retries, switches to the fallback, enforces structured output, logs token usage.</td><td><code>pridict/agent_studio/gateway.py</code> <span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Tool layer</b></td><td>Small, tested Python functions that read or write ERPNext, plus the <code>run_tool</code> dispatcher. Reuses <code>decision_intelligence</code> (vendor scoring, anomaly detection).</td><td><code>pridict/agent_studio/tools.py</code> <span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Approvals</b></td><td>Records approve/reject decisions, checks roles and resumes the run.</td><td><code>pridict/agent_studio/approvals.py</code> <span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Evaluation suite</b></td><td>Runs the 8 scenarios on temporary data and stores the results.</td><td><code>pridict/agent_studio/evals.py</code> <span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Housekeeping</b></td><td>Hourly job that fails orphaned runs and expires unanswered questions and approvals.</td><td><code>pridict/agent_studio/maintenance.py</code> <span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Storage</b></td><td>ERPNext (MariaDB) holds business data, the agent DocTypes and the LangGraph checkpoints (three hidden tables), all in the same backup.</td><td>Site database; checkpointer <code>MariaDBSaver</code> in <code>pridict/agent_studio/checkpointer.py</code> <span class="pill p-yes">built</span></td></tr>
 	</table>
 
 	<h3>The life of one run (technical sequence)</h3>
 	<ol>
-		<li>Browser calls <code>start_run(agent, request)</code> (whitelisted). The server checks the user's role, creates an <b>Agent Run</b> record (status <i>Queued</i>) and calls <code>frappe.enqueue(..., queue="long")</code>.</li>
-		<li>A background worker loads the <b>published</b> agent version, compiles the LangGraph graph with a checkpointer and calls <code>graph.invoke(input, config={"configurable": {"thread_id": run.name}})</code>.</li>
-		<li>Each node writes a <b>trace event</b>. Progress is pushed to the browser with <code>frappe.publish_realtime</code>, so the Runs page updates live.</li>
-		<li>At <i>human_review</i> the node calls LangGraph's <code>interrupt()</code>. The worker saves the checkpoint, creates an <b>Approval Request</b>, sets the run to <i>Awaiting approval</i> and <b>exits</b>. No process sits waiting.</li>
-		<li>When the manager clicks Approve, a whitelisted <code>decide(approval, decision, comment)</code> checks permission and status, records the decision, and enqueues a <b>resume</b> job.</li>
-		<li>The resume job calls <code>graph.invoke(Command(resume=decision), config)</code> with the same thread ID. LangGraph loads the checkpoint and continues from <i>human_review</i> → re-validate → create draft → audit.</li>
+		<li>Browser calls the whitelisted <code>start_run(agent, request)</code>. The server checks the user's role and the per-user limit (at most 3 queued or running runs), creates an <b>Agent Run</b> record (status <i>Queued</i>) and calls <code>frappe.enqueue(..., queue="long")</code>.</li>
+		<li>A background worker, running as the user who started the run, loads the agent settings, compiles the LangGraph graph with the <code>MariaDBSaver</code> checkpointer and invokes it with the run name as the thread ID.</li>
+		<li>Before each step the runtime checks the limits (Max LLM Calls, token budget, max runtime). Each step is added to the run's trace (<b>Agent Run Step</b>) and committed as it happens, and progress is pushed to the browser with <code>frappe.publish_realtime</code>, so the Runs page updates live.</li>
+		<li>At <i>human_review</i> the node calls LangGraph's <code>interrupt()</code>. The checkpoint is saved, an <b>Agent Approval</b> is created, the run is set to <i>Awaiting approval</i> and the worker <b>exits</b>. No process sits waiting. (<i>ask_buyer</i> works the same way, with status <i>Waiting for buyer</i> and <code>answer_run</code> to continue.)</li>
+		<li>When an approver clicks Approve or Reject, the whitelisted <code>decide(approval, decision, note)</code> checks role and status under a row lock, records the decision, and once every required role has approved (or anyone rejects) enqueues a <b>resume</b> job.</li>
+		<li>The resume job calls <code>graph.invoke(Command(resume=...), config)</code> with the same thread ID. LangGraph loads the checkpoint and continues from <i>human_review</i> → re-validate → create draft → verify &amp; audit. When the run finishes, its checkpoints are deleted.</li>
 	</ol>
+	<p class="small muted">Implementation note: LangGraph saves checkpoints from a background thread, but a Frappe job has a single database connection, so <code>MariaDBSaver</code> queues the writes and flushes them on the job's own thread.</p>
 
 	<h3>Reusing what we already have</h3>
 	<table>
-		<tr><th>Existing module</th><th>Becomes</th></tr>
+		<tr><th>Existing module</th><th>Used as</th></tr>
 		<tr><td><code>decision_intelligence/vendor_scoring.py</code> → <code>calculate_vendor_scores</code></td><td>Tool <code>score_vendors</code></td></tr>
-		<tr><td><code>decision_intelligence/anomaly_detector.py</code> → <code>detect_price_variances</code>, <code>detect_split_purchases</code>, <code>detect_maverick_orders</code></td><td>Tool <code>detect_price_anomalies</code></td></tr>
-		<tr><td><code>decision_intelligence/rules.py</code> → <code>evaluate_approval_tier</code>, <code>evaluate_maverick_spend</code></td><td>Policy engine building blocks</td></tr>
+		<tr><td><code>decision_intelligence/anomaly_detector.py</code> → <code>detect_price_variances</code></td><td>Tool <code>detect_price_anomalies</code></td></tr>
+		<tr><td><code>decision_intelligence/rules.py</code> → <code>evaluate_approval_tier</code>, <code>evaluate_maverick_spend</code></td><td>Not used in v1: the money limits are read from the Agent Policy records instead, so they can be changed without code</td></tr>
 		<tr><td><code>process_intelligence/schema_adapter.py</code> (Schema Intelligence)</td><td>Helps developers discover DocTypes, fields and links when <i>writing</i> new tools. The agent itself never builds queries at run time.</td></tr>
-		<tr><td><code>public/js/ui/shell.js</code>, <code>route_context.js</code>, <code>page_header.js</code></td><td>Agent Studio is already registered in the navigation rail and breadcrumbs.</td></tr>
+		<tr><td><code>public/js/ui/shell.js</code>, <code>route_context.js</code>, <code>page_header.js</code></td><td>Agent Studio is registered in the navigation rail and breadcrumbs.</td></tr>
 	</table>
 </section>
 
 <!-- ============================== 7. PAGES ============================== -->
 <section class="chapter">
 	<h2>7. The seven Agent Studio pages</h2>
-	<p>Agent Studio is the <b>control panel</b> for all agents. All pages share a sub-navigation bar and show a banner while they run on sample data. Open any page in Desk at <code>/app/&lt;route&gt;</code>, or offline with <code>documentation/agent-studio/preview/preview.html?page=&lt;route&gt;</code>.</p>
+	<p>Agent Studio is the <b>control panel</b> for all agents. All pages share a sub-navigation bar and load <b>real records</b> through whitelisted, permission-checked server APIs. Settings are changed in the standard Frappe forms (Link fields, validation, change history), opened from each page. Open any page in Desk at <code>/app/&lt;route&gt;</code>. The pages are available to System Manager and Purchase Manager; Models &amp; Providers is System Manager only because it manages API keys, and the Approval Inbox is also open to Accounts Manager.</p>
 	<table>
 		<tr><th>#</th><th>Page</th><th>Route</th><th>Who uses it</th><th>One-line purpose</th></tr>
 		<tr><td>1</td><td>Models &amp; Providers</td><td><code>agent-models</code></td><td>System Manager</td><td>Which AI models we can use, and how to reach them</td></tr>
 		<tr><td>2</td><td>Agent Registry</td><td><code>agent-registry</code></td><td>System / Purchase Manager</td><td>Define each agent: purpose, model, tools, limits, mode</td></tr>
-		<tr><td>3</td><td>Workflow Designer</td><td><code>agent-workflows</code></td><td>Developers, managers</td><td>See the step map the agent follows</td></tr>
-		<tr><td>4</td><td>Tools &amp; Connectors</td><td><code>agent-tools</code></td><td>System Manager</td><td>What agents are allowed to do in ERPNext</td></tr>
+		<tr><td>3</td><td>Workflow Designer</td><td><code>agent-workflows</code></td><td>System / Purchase Manager, developers</td><td>See the step map the agent follows</td></tr>
+		<tr><td>4</td><td>Tools &amp; Connectors</td><td><code>agent-tools</code></td><td>System / Purchase Manager</td><td>What agents are allowed to do in ERPNext</td></tr>
 		<tr><td>5</td><td>Policies &amp; Guardrails</td><td><code>agent-policies</code></td><td>System / Purchase Manager</td><td>Business rules enforced by code</td></tr>
-		<tr><td>6</td><td>Runs &amp; Traces</td><td><code>agent-runs</code></td><td>Everyone involved</td><td>What every run did, step by step, with cost</td></tr>
-		<tr><td>7</td><td>Approval Inbox</td><td><code>agent-approvals</code></td><td>Purchase Manager</td><td>Approve or reject the agent's proposals</td></tr>
+		<tr><td>6</td><td>Runs &amp; Traces</td><td><code>agent-runs</code></td><td>System / Purchase Manager</td><td>Start runs; see what every run did, step by step; run evaluations</td></tr>
+		<tr><td>7</td><td>Approval Inbox</td><td><code>agent-approvals</code></td><td>Purchase / Accounts Manager</td><td>Approve or reject the agent's proposals</td></tr>
 	</table>
 	<p>Recommended order of understanding: <b>1 → 2 → 4 → 5 → 3 → 6 → 7</b>. That means configuration first, then the process, then operations.</p>
 
 	<h3>Page 1: Models &amp; Providers</h3>
-	<p><b>In plain words:</b> The phone book of AI models. We register each provider once (with its secure key reference) and create reusable <b>model configurations</b> such as "procurement-reasoning" or "fast-extraction". Agents pick a configuration by name, so changing a model for many agents is a single edit.</p>
+	<p><b>In plain words:</b> The phone book of AI models. We register each provider once (with its encrypted API key) and create reusable <b>model configurations</b> such as "procurement-reasoning" or "fast-extraction". Agents pick a configuration by name, so changing a model for many agents is a single edit.</p>
 	<ul>
-		<li><b>Provider cards:</b> endpoint, key reference (never the key), status, latency, and a <i>Test connection</i> button.</li>
-		<li><b>Model configurations:</b> model ID, temperature, max output tokens, timeout, retries, fallback, status.</li>
-		<li><b>Example:</b> "procurement-reasoning" uses <code>claude-sonnet-5-5</code> at temperature 0.1 and falls back to "procurement-fallback" (<code>gpt-4.1-mini</code>) if Anthropic is down. Model IDs are examples; any supported model can be used.</li>
+		<li><b>Provider cards:</b> provider type (Azure OpenAI, OpenAI, OpenAI-compatible; an Anthropic adapter is planned), endpoint, API version for Azure, "Stored (encrypted)" instead of the key, and the last test status, latency and error. <i>Test connection</i> checks the provider.</li>
+		<li><b>Model configurations:</b> model or deployment ID, temperature, max output tokens, timeout, retries, optional reasoning effort and fallback (the form refuses a fallback chain that loops back on itself). <i>Send test prompt</i> shows the reply, tokens and whether the fallback answered.</li>
+		<li><b>Our configuration:</b> "procurement-reasoning" uses the company's Azure OpenAI deployment <code>gpt-5.4-mini</code> (API version 2025-04-01-preview) on the provider record "Azure OpenAI". The API key still has to be entered there before the agent can call the model.</li>
 	</ul>
 </section>
 <section class="chapter">
 	<figure><img src="images/01-models.png" alt="Models and Providers page"><figcaption>Page 1: Models &amp; Providers</figcaption></figure>
 
 	<h3>Page 2: Agent Registry</h3>
-	<p><b>In plain words:</b> The employee file for each agent: what it's for, which model it uses, what it's allowed to touch, how far it may go on its own and who is responsible for it. Every published change creates a new <b>version</b>, so we always know which settings a past run used.</p>
+	<p><b>In plain words:</b> The employee file for each agent: what it's for, which model it uses, what it's allowed to touch, how far it may go on its own and who is responsible for it. It is edited in the standard <b>Agent Definition</b> form, and every change is kept in the document history, so we always know what changed, when and by whom. Each run records the agent version it used.</p>
 	<ul>
 		<li><b>Execution mode</b> (the most important setting):
 			<ul><li><i>Read-only analysis</i>: looks and explains only.</li>
 			<li><i>Recommend and prepare drafts</i>: proposes, and a human approves before any draft is created. <b>(our v1 setting)</b></li>
-			<li><i>Execute authorized actions after approval</i>: for later, once trust is established.</li></ul></li>
-		<li><b>Limits:</b> temperature, max reasoning steps (8), max runtime (180 s), token budget (40,000).</li>
-		<li><b>Allowed tools:</b> checkboxes. Blocked tools (e.g. <code>submit_purchase_order</code>) cannot be ticked.</li>
-		<li><b>Live preview:</b> updates as you edit, and warns if a setting would break policy (e.g. turning off the approval gate for a writing agent).</li>
+			<li><i>Execute authorized actions after approval</i>: for later, once trust is established.</li></ul>For any agent that can prepare documents, the approval gate cannot be switched off.</li>
+		<li><b>Limits:</b> Max LLM Calls, token budget and max runtime (time spent waiting for people does not count).</li>
+		<li><b>Allowed tools:</b> a child table of tool bindings. A read-only agent cannot be given write tools, and submit tools (e.g. <code>submit_purchase_order</code>) can never be granted.</li>
+		<li><b>Rules enforced by the server:</b> the form refuses any save that breaks these rules, whoever makes it. An agent can only be made <i>Active</i> (or have its version changed while active) if the latest Live evaluation of that version passed every scenario.</li>
 	</ul>
 </section>
 <section class="chapter">
-	<figure><img src="images/02-agents.png" alt="Agent Registry page"><figcaption>Page 2: Agent Registry with live configuration preview</figcaption></figure>
+	<figure><img src="images/02-agents.png" alt="Agent Registry page"><figcaption>Page 2: Agent Registry</figcaption></figure>
 </section>
 <section class="chapter">
 	<h3>Page 3: Workflow Designer</h3>
 	<p><b>In plain words:</b> Shows the step map (graph) the agent follows: every node, its type (LLM / tool / rule / router / human) and where each arrow leads. Click a node to see what it does and which tools it calls.</p>
 	<ul>
-		<li><b>v1 is read-only.</b> Developers write the graph in Python and publish it, and this page displays it. A drag-and-drop editor comes later (see decision 11.4).</li>
-		<li><b>Graph validation</b> runs automatic checks: every node reachable, every path ends, <b>write tools only reachable after a human approval node</b>, loops bounded.</li>
-		<li><b>Test run</b> runs the sample request against test data and opens its trace.</li>
+		<li><b>v1 is read-only.</b> Developers define the graph in Python (<code>registry.py</code>); this page draws it, and the runtime compiles the very same definition, so the picture and the behaviour cannot drift apart. A drag-and-drop editor comes later (see decision 11.4).</li>
+		<li><b>Graph validation</b> is checked by the server every time the page loads: every edge points to a real node, every node is reachable, every path ends, <b>write tools are only reachable after a human approval node</b>, router branches are labelled, and loops pass through a human pause.</li>
 	</ul>
-	<figure><img src="images/03-workflow.png" alt="Workflow Designer page" style="max-height:168mm"><figcaption>Page 3: Workflow Designer (node "Calculate net shortage" selected)</figcaption></figure>
+	<figure><img src="images/03-workflow.png" alt="Workflow Designer page" style="max-height:168mm"><figcaption>Page 3: Workflow Designer with server-checked graph validation</figcaption></figure>
 </section>
 <section class="chapter">
 	<h3>Page 4: Tools &amp; Connectors</h3>
 	<p><b>In plain words:</b> The list of buttons the agent is allowed to press. Each tool is a small Python function with a fixed input and output format, a permission scope, a timeout and an audit log.</p>
 	<ul>
-		<li><b>Read tools</b> (9) run <i>as the user who started the run</i>, using <code>frappe.get_list</code>, which respects ERPNext permissions. The agent never sees more than that person could.</li>
-		<li><b>Write tools</b> create <b>drafts only</b> and require a valid <code>approval_id</code>. The server checks the approval is approved, unused and matches this exact action.</li>
-		<li><b>Blocked tools</b> (e.g. submit PO) exist in the list for clarity but can never be enabled for agents.</li>
+		<li><b>Read tools</b> (9): <code>search_items</code>, <code>get_warehouses</code>, <code>get_stock_balance</code>, <code>get_open_purchase_orders</code>, <code>get_approved_suppliers</code>, <code>get_price_history</code>, <code>get_supplier_quotations</code>, <code>score_vendors</code> and <code>detect_price_anomalies</code>. They run <i>as the user who started the run</i> and read documents through <code>frappe.get_list</code>, which respects ERPNext permissions. The agent never sees more than that person could. Admins can test a read tool with <b>Try it</b>.</li>
+		<li><b>Write tool</b> <code>create_draft_rfq</code> creates a <b>draft only</b>. It runs only from an approved, unused Agent Approval whose item, quantity, suppliers and date match exactly, and it inserts with the requester's own permissions. <code>create_draft_purchase_order</code> is listed but Disabled.</li>
+		<li><b>Blocked tools</b> (<code>submit_purchase_order</code>) exist in the list for clarity but are always forced to "Blocked for agents" and can never be granted.</li>
 	</ul>
 	<figure><img src="images/04-tools.png" alt="Tools page"><figcaption>Page 4: Tools &amp; Connectors, with input/output schema of the selected tool</figcaption></figure>
 </section>
@@ -455,71 +463,75 @@
 	<h3>Page 5: Policies &amp; Guardrails</h3>
 	<p><b>In plain words:</b> The company rules the agent must obey. They are enforced by server code rather than written in the prompt, so the agent cannot be "talked out of" them.</p>
 	<ul>
-		<li>Rule groups: <b>Suppliers</b>, <b>Scope</b> (companies/warehouses), <b>Data requirements</b>, <b>Money &amp; quantity limits</b>, <b>Prohibited actions</b>.</li>
-		<li>Each rule has an outcome if broken: <b>Block</b>, <b>Approval</b> (needs named approvers), <b>Warn</b> (shown to approver) or <b>Ask buyer</b>.</li>
-		<li>The <b>Policy check simulator</b> shows how the current proposal scores against every rule.</li>
+		<li>15 rules, seeded on migrate, in groups: <b>Suppliers</b>, <b>Scope</b> (companies/warehouses), <b>Data requirements</b>, <b>Money &amp; quantity limits</b>, <b>Prohibited actions</b>. Each rule has a rule key and JSON parameters (e.g. the money limits).</li>
+		<li>Each rule has a severity if broken: <b>Block</b>, <b>Approval</b> (needs named approvers), <b>Warn</b> (shown to approver) or <b>Ask buyer</b>. Clicking a rule opens its form; every change is kept in the document history.</li>
+		<li>The <b>Latest policy check</b> panel shows how the most recent real proposal scored against every rule.</li>
 	</ul>
-	<figure><img src="images/05-policies.png" alt="Policies page" style="max-height:170mm"><figcaption>Page 5: Policies &amp; Guardrails with the policy check simulator</figcaption></figure>
+	<figure><img src="images/05-policies.png" alt="Policies page" style="max-height:170mm"><figcaption>Page 5: Policies &amp; Guardrails with the latest policy check</figcaption></figure>
 </section>
 <section class="chapter">
 	<h3>Page 6: Runs &amp; Traces</h3>
-	<p><b>In plain words:</b> The black box recorder. Every run is listed with who started it, how long it took, how many tokens it used, what it cost and how it ended. Selecting a run shows its <b>trace</b>: each step in order with timings and a summary of what went in and out.</p>
+	<p><b>In plain words:</b> The black box recorder. Every run is listed with who started it, how long it took, how many tokens it used and how it ended. Selecting a run shows its <b>trace</b>: each step in order with timings and a summary of what went in and out.</p>
 	<ul>
-		<li><b>Controls:</b> Pause, Resume, Terminate (permission-checked).</li>
-		<li><b>Evaluation suite tab:</b> the fixed test scenarios and their latest results. In the sample, one case fails ("value above ₹25 lakh") to show how a failing test blocks publishing.</li>
-		<li><b>Privacy:</b> secrets are never logged, and sensitive fields are redacted in traces.</li>
+		<li><b>Start a run:</b> type a request and click <b>Start run</b>. Steps appear live as they happen.</li>
+		<li><b>Answer questions:</b> when the agent is <i>Waiting for buyer</i>, the buyer types the answer here and the run continues.</li>
+		<li><b>Cancel:</b> paused runs can be cancelled (permission-checked).</li>
+		<li><b>Evaluation suite tab:</b> runs the 8 scenarios and shows real results. <i>Live</i> mode uses the agent's own model and measures agent quality; <i>Offline</i> mode uses a scripted model and checks the code paths without an API key (currently 8/8 pass). Activating an agent requires a passing Live evaluation.</li>
+		<li><b>Privacy:</b> API keys are never sent to the browser or written to logs and traces.</li>
 	</ul>
-	<figure><img src="images/06-runs.png" alt="Runs page" style="max-height:172mm"><figcaption>Page 6: Runs &amp; Traces, showing the trace of RUN-2026-0042 paused at human review</figcaption></figure>
+	<figure><img src="images/06-runs.png" alt="Runs page" style="max-height:172mm"><figcaption>Page 6: Runs &amp; Traces, showing the trace of a run paused at human review</figcaption></figure>
 </section>
 <section class="chapter">
-	<figure><img src="images/06b-evals.png" alt="Evaluation suite" style="max-height:150mm"><figcaption>Page 6 (Evaluation suite tab)</figcaption></figure>
+	<figure><img src="images/06b-evals.png" alt="Evaluation suite" style="max-height:150mm"><figcaption>Page 6 (Evaluation suite tab): Live and Offline results per scenario</figcaption></figure>
 
 	<h3>Page 7: Approval Inbox</h3>
-	<p><b>In plain words:</b> The in-tray for managers. Each request shows <i>what</i> the agent wants to do, <i>why</i>, the <i>evidence</i> from ERPNext, the <i>calculation</i>, the <i>supplier comparison</i>, and the <i>policy checks</i>. The manager approves, rejects or requests changes.</p>
+	<p><b>In plain words:</b> The in-tray for managers. Each request shows <i>what</i> the agent wants to do, <i>why</i>, the <i>evidence</i> from ERPNext, the <i>calculation</i>, the <i>supplier comparison</i>, and the <i>policy checks</i>. The manager approves or rejects; the request shows how many of the required roles have approved so far.</p>
 	<ul>
-		<li>Reject and request changes require a comment, which feeds future improvements.</li>
-		<li>On approve, the server <b>re-checks the approver's permission and all policies</b> before resuming the run.</li>
+		<li>Decisions can also be made on the Agent Approval form. Rejecting requires a reason, which feeds future improvements.</li>
+		<li>One distinct approver is needed per required role (≤ ₹5 lakh: one Purchase Manager; ₹5–25 lakh: Purchase Manager + Accounts Manager). The person who started the run cannot approve it (a configurable policy), and a row lock stops two approvers closing the same request at once. Approvers are notified through ERPNext's notification log.</li>
+		<li>On approval, the run resumes, <b>re-checks every approver's role and the current stock and open orders</b>, and only then creates the draft. If the shortage changed, a fresh proposal comes back for review.</li>
 		<li>The result is a <b>draft</b> RFQ; submitting it remains a separate, manual step.</li>
 	</ul>
 </section>
 <section class="chapter">
-	<figure><img src="images/07-approvals.png" alt="Approval Inbox"><figcaption>Page 7: Approval Inbox, showing request APR-2026-0019 with evidence and policy checks</figcaption></figure>
+	<figure><img src="images/07-approvals.png" alt="Approval Inbox"><figcaption>Page 7: Approval Inbox, showing a request with evidence and policy checks</figcaption></figure>
 </section>
 
 <!-- ============================== 8. DATA MODEL ============================== -->
 <section class="chapter">
 	<h2>8. Data model (the tables)</h2>
-	<p>Each "table" will be a Frappe <b>DocType</b> in the <code>Pridict</code> module, so we get permissions, list views, audit trail and APIs for free. Tables marked <span class="pill p-yes">v1</span> are needed for the first working agent; <span class="pill p-later">later</span> ones can start as simple JSON fields or code.</p>
+	<p>Each "table" is a Frappe <b>DocType</b> in the <code>Pridict</code> module, so we get permissions, list views, change history and APIs for free. Tables marked <span class="pill p-yes">built</span> exist today; <span class="pill p-later">later</span> ones are deliberately left out of v1.</p>
 	<table>
-		<tr><th style="width:22%">DocType</th><th>Stores</th><th style="width:28%">Example</th><th style="width:9%">Phase</th></tr>
-		<tr><td><b>LLM Provider</b></td><td>Provider name, kind, endpoint, encrypted key (Password field)</td><td>Anthropic, https://api.anthropic.com</td><td><span class="pill p-yes">v1</span></td></tr>
-		<tr><td><b>Model Configuration</b></td><td>Provider link, model ID, temperature, max tokens, timeout, retries, fallback link</td><td>procurement-reasoning → claude-sonnet-5-5, 0.1</td><td><span class="pill p-yes">v1</span></td></tr>
-		<tr><td><b>Agent Definition</b></td><td>Name, module, type, instructions, output schema, model config, mode, limits, allowed tools (child table), owner, status, published version</td><td>Procurement Sourcing Agent v1.2</td><td><span class="pill p-yes">v1</span></td></tr>
-		<tr><td><b>Tool Definition</b></td><td>Name, access (read/write/blocked), Python path, input/output schema, timeout, required role</td><td>get_stock_balance → <code>pridict.agent_studio.tools.stock.get_stock_balance</code></td><td><span class="pill p-yes">v1</span></td></tr>
-		<tr><td><b>Agent Run</b></td><td>Agent + version, user, request, status, timings, tokens, cost, outcome, error</td><td>RUN-2026-0042, Awaiting approval</td><td><span class="pill p-yes">v1</span></td></tr>
-		<tr><td><b>Approval Request</b></td><td>Run, proposed action (JSON), value, risk, required role, approver, decision, comment, timestamps, used flag</td><td>APR-2026-0019, Pending</td><td><span class="pill p-yes">v1</span></td></tr>
-		<tr><td><b>Agent Audit Event</b></td><td>Run, node, event type (tool call, policy decision, LLM call, error), redacted input/output, duration, tokens</td><td>read_supply → get_stock_balance → 100 Kg</td><td><span class="pill p-yes">v1</span></td></tr>
-		<tr><td><b>Agent Policy</b></td><td>Rule key, group, parameters (JSON), outcome, enabled, applies-to agents</td><td>single_approver_limit = 500000</td><td><span class="pill p-yes">v1</span></td></tr>
-		<tr><td><b>Workflow Definition</b></td><td>Name, version, graph JSON (nodes/edges), published flag, validation result</td><td>Procurement Sourcing v1.2</td><td><span class="pill p-later">later</span></td></tr>
-		<tr><td><b>Workflow Node</b></td><td>Child of Workflow Definition: node id, kind, config, edges</td><td>calc_shortage (rule)</td><td><span class="pill p-later">later</span></td></tr>
-		<tr><td><b>Agent Checkpoint</b></td><td>Pointer/metadata for the LangGraph checkpoint (thread id, last node, size)</td><td>thread RUN-2026-0042 at human_review</td><td><span class="pill p-later">later</span></td></tr>
-		<tr><td><b>Agent Evaluation</b></td><td>Test case, seed data reference, expected outcome, last result, version tested</td><td>"Open PO after need-by" → shortage 400</td><td><span class="pill p-later">later</span></td></tr>
+		<tr><th style="width:22%">DocType</th><th>Stores</th><th style="width:28%">Example</th><th style="width:9%">Status</th></tr>
+		<tr><td><b>LLM Provider</b></td><td>Provider type (Azure OpenAI / OpenAI / OpenAI-compatible / Anthropic), endpoint, API key in an encrypted Password field, API version (Azure), last test status, latency and error</td><td>Azure OpenAI</td><td><span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>LLM Model Config</b></td><td>Provider link, model or deployment ID, temperature, max tokens, timeout, retries, optional reasoning effort, fallback config (checked for loops)</td><td>procurement-reasoning → gpt-5.4-mini</td><td><span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Agent Definition</b></td><td>Name, module, instructions, output schema, model config, autonomy mode (readonly / recommend / execute), approval gate, Max LLM Calls, runtime and token limits, status, version. Change history via Frappe's track changes</td><td>Procurement Sourcing Agent</td><td><span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Agent Tool Binding</b></td><td>Child of Agent Definition: which tools this agent may use</td><td>get_stock_balance</td><td><span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Agent Tool</b></td><td>Name, access (read / write / blocked), status, Python target, input/output schema. Synced from <code>registry.py</code> on migrate</td><td>submit_purchase_order → Blocked for agents</td><td><span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Agent Policy</b></td><td>Rule key, group, severity (Block / Warn / Approval / Ask buyer), parameters (JSON), enabled. 15 rules seeded</td><td>single_approver_limit</td><td><span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Agent Run</b></td><td>Agent and version, user, request, status, timings, LLM calls, tokens, outcome, error</td><td>AGR-2026-00042, Awaiting approval</td><td><span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Agent Run Step</b></td><td>Child of Agent Run, i.e. the trace: node, kind, summary of input/output, duration, tokens</td><td>read_supply → stock 100 Kg</td><td><span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Agent Approval</b></td><td>Run, proposed action, value, risk, required roles, status, the draft document created</td><td>AGA-2026-00019, Pending</td><td><span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Agent Approval Decision</b></td><td>Child of Agent Approval: who decided, with which role, approve/reject, reason, when</td><td>Purchase Manager, Approved</td><td><span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Agent Evaluation</b></td><td>One evaluation run: agent, version, mode (Live / Offline), result per scenario, pass/fail</td><td>AGE-2026-00001, Offline, 8/8</td><td><span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Agent Checkpoint</b>, <b>Agent Checkpoint Blob</b>, <b>Agent Checkpoint Write</b></td><td>Hidden tables used by <code>MariaDBSaver</code> to store LangGraph checkpoints. Deleted when the run finishes</td><td>thread AGR-2026-00042 at human_review</td><td><span class="pill p-yes">built</span></td></tr>
+		<tr><td><b>Workflow Definition</b></td><td>Graph as data (nodes/edges) for a future visual editor</td><td>-</td><td><span class="pill p-later">later (code in v1)</span></td></tr>
 	</table>
 	<div class="box box-plain">
-		<p><b>Why only 8 for v1?</b> The workflow graph can live in Python code until we build the visual editor. Checkpoint contents are stored by LangGraph's own checkpointer. Evaluations can start as pytest tests in the repo. This cuts the first build roughly in half without losing any safety.</p>
-		<p><b>Sensitive data:</b> Checkpoints and traces contain business context (prices, suppliers). They are restricted to System Manager / Purchase Manager and follow the same retention policy as purchase records.</p>
+		<p><b>Why no Workflow Definition table?</b> In v1 the workflow graph lives in Python code (<code>registry.py</code>), reviewed and tested like any other code. A table only becomes useful once we build the visual editor. Likewise, agent history uses Frappe's built-in change tracking instead of a separate version table.</p>
+		<p><b>Sensitive data:</b> Runs, traces and checkpoints contain business context (prices, suppliers). API keys are never stored in them. Checkpoints are removed as soon as a run finishes.</p>
 	</div>
 </section>
 
 <!-- ============================== 9. LANGGRAPH ============================== -->
 <section class="chapter">
 	<h2>9. LangGraph in practice (code sketches)</h2>
-	<p class="muted">These are illustrative sketches to explain the shape of the code, not final code. LangGraph's API evolves, so verify names against the version we install.</p>
+	<p class="muted">These are simplified sketches to explain the shape of the code. The real code lives in <code>pridict/agent_studio/</code>: the state and one function per node in <code>procurement.py</code>, the graph definition in <code>registry.py</code>, compilation and execution in <code>runtime.py</code>, tools in <code>tools.py</code>. We use LangGraph 1.2, pinned.</p>
 
 	<h3>9.1 The state (the "case folder")</h3>
 <pre>from typing import TypedDict, Literal
 
-class SourcingState(TypedDict, total=False):
+class State(TypedDict, total=False):      # real version: procurement.py
     run_id: str
     user: str                    # the human who started the run; tools run as this user
     request: str                 # "Source 500 kg of aluminium sheet..."
@@ -531,36 +543,36 @@ class SourcingState(TypedDict, total=False):
     suppliers: list[dict]        # approved + scored
     recommendation: dict         # LLM structured output
     policy_results: list[dict]
-    decision: Literal["approved", "rejected", "changes"]
+    decision: Literal["approved", "rejected"]
     created_doc: str</pre>
 
 	<h3>9.2 A deterministic node and a router</h3>
-<pre>def calc_shortage(state: SourcingState) -&gt; dict:
+<pre>def calc_shortage(state: State) -&gt; dict:
     usable = sum(po["pending_qty"] for po in state["open_supply"])
     shortage = max(0.0, state["requirement"]["qty"] - state["stock_qty"] - usable)
     return {"shortage_qty": shortage}          # plain Python: testable, never "creative"
 
-def shortage_router(state: SourcingState) -&gt; str:
+def shortage_router(state: State) -&gt; str:
     return "find_suppliers" if state["shortage_qty"] &gt; 0 else "explain_no_purchase"</pre>
 
 	<h3>9.3 The human pause (interrupt) and resume</h3>
 <pre>from langgraph.types import interrupt, Command
 
-def human_review(state: SourcingState) -&gt; dict:
-    # Creates the Approval Request, then pauses. Execution stops here and the
+def human_review(state: State) -&gt; dict:
+    # Creates the Agent Approval, then pauses. Execution stops here and the
     # checkpoint is saved; the worker process is free to exit.
     approval = create_approval_request(state)
     decision = interrupt({"approval": approval})   # value returned on resume
     return {"decision": decision["decision"]}
 
-# Later, in the job triggered by the Approve button:
+# Later, in the resume job enqueued once every required approver has decided:
 graph.invoke(Command(resume={"decision": "approved"}),
              config={"configurable": {"thread_id": run_id}})</pre>
 
 	<h3>9.4 Wiring the graph</h3>
 <pre>from langgraph.graph import StateGraph, START, END
 
-g = StateGraph(SourcingState)
+g = StateGraph(State)
 for name, fn in NODES.items():          # parse_requirement, resolve_records, ...
     g.add_node(name, fn)
 
@@ -570,10 +582,11 @@ g.add_edge("resolve_records", "validate_inputs")
 g.add_conditional_edges("validate_inputs", lambda s: "ask_buyer" if s.get("missing") else "read_supply")
 g.add_edge("read_supply", "calc_shortage")
 g.add_conditional_edges("calc_shortage", shortage_router)
-# ... remaining edges as in Figure 1 ...
+# ... remaining edges as in Figure 1 / the Workflow Designer ...
 g.add_edge("verify_audit", END)
 
-graph = g.compile(checkpointer=checkpointer)   # checkpointer = where paused state is saved</pre>
+graph = g.compile(checkpointer=MariaDBSaver())   # where paused state is saved</pre>
+	<p class="small muted">In the real code the nodes and edges are not typed out by hand: <code>runtime.py</code> builds them from the workflow definition in <code>registry.py</code>, the same definition the Workflow Designer draws and <code>graph.py</code> validates.</p>
 
 	<h3>9.5 A tool, written the safe way</h3>
 <pre>def get_open_purchase_orders(item_code: str, warehouse: str, before_date: str) -&gt; dict:
@@ -587,7 +600,7 @@ graph = g.compile(checkpointer=checkpointer)   # checkpointer = where paused sta
         limit=50,
     )
     return {"orders": [{**r, "pending_qty": r.qty - r.received_qty} for r in rows if r.qty &gt; r.received_qty]}</pre>
-	<p class="small muted">In real code, the run executes with <code>frappe.set_user(run.user)</code> inside the background job so permissions match the person who started it. Filters for closed or on-hold Purchase Orders still need to be added during implementation.</p>
+	<p class="small muted">In the real code, the background job runs with <code>frappe.set_user()</code> set to the person who started the run, so permissions match theirs. The real tool also excludes closed, completed, on-hold, cancelled and delivered Purchase Orders, and reports the pending quantity in the item's stock UOM.</p>
 </section>
 
 <!-- ============================== 10. SAFETY ============================== -->
@@ -596,14 +609,15 @@ graph = g.compile(checkpointer=checkpointer)   # checkpointer = where paused sta
 	<p>We use <b>defence in depth</b>: several independent layers, so that one failure does not cause harm.</p>
 	<table>
 		<tr><th style="width:5%">#</th><th style="width:24%">Layer</th><th>What it prevents</th></tr>
-		<tr><td>1</td><td>Fixed workflow graph</td><td>The agent cannot invent new steps or skip the approval node. Write tools are only reachable after <i>human_review</i>, and graph validation checks this.</td></tr>
-		<tr><td>2</td><td>Allowed-tool list</td><td>The LLM can only request tools enabled for this agent. Any other request is rejected by code.</td></tr>
+		<tr><td>1</td><td>Fixed workflow graph</td><td>The agent cannot invent new steps or skip the approval node. Write tools are only reachable after <i>human_review</i>, and the server's graph validation checks this.</td></tr>
+		<tr><td>2</td><td>Allowed-tool list</td><td>Only tools bound to this agent and enabled can run; the <code>run_tool</code> dispatcher rejects anything else. Submit tools can never be bound.</td></tr>
 		<tr><td>3</td><td>Run as the user</td><td>Tools use the starting user's ERPNext permissions. No "super-user agent".</td></tr>
 		<tr><td>4</td><td>Draft-only writes</td><td>Agents can never submit or cancel. Real financial or stock impact always needs a human click.</td></tr>
-		<tr><td>5</td><td>Policy engine (twice)</td><td>Money limits, supplier rules and quantity sanity are checked before the proposal <i>and again</i> just before execution.</td></tr>
-		<tr><td>6</td><td>Single-use approval token</td><td>A write tool needs an <code>approval_id</code> that is approved, unused and matches the exact action (same item, qty and suppliers). This prevents replay or swapping.</td></tr>
-		<tr><td>7</td><td>Limits</td><td>Step limit, runtime limit and token budget stop runaway loops and cost.</td></tr>
-		<tr><td>8</td><td>Audit trail</td><td>Every tool call, policy decision and approval is recorded and can be reconstructed later.</td></tr>
+		<tr><td>5</td><td>Policy checks (twice)</td><td>Money limits, supplier rules and quantity sanity are checked by code before the recommendation is prepared, <i>and</i> stock, open orders and approver roles are re-checked just before execution.</td></tr>
+		<tr><td>6</td><td>Single-use approval</td><td>The write tool needs an Agent Approval that is approved, unused and matches the exact action (same item, quantity, suppliers and date). This prevents replay or swapping. The requester cannot approve their own run.</td></tr>
+		<tr><td>7</td><td>Limits</td><td>Max LLM Calls, runtime limit and token budget (checked before every step) stop runaway loops and cost. Each user may have at most 3 queued or running runs.</td></tr>
+		<tr><td>8</td><td>Audit trail</td><td>Every step, tool call, policy result and approval decision is recorded and can be reconstructed later.</td></tr>
+		<tr><td>9</td><td>Housekeeping</td><td>An hourly job marks runs orphaned by a crashed worker as Failed (after 2 hours idle) and closes questions and approvals nobody answered within 14 days (approval Expired, run Cancelled).</td></tr>
 	</table>
 
 	<h3>Prompt injection (an AI-specific risk)</h3>
@@ -612,9 +626,8 @@ graph = g.compile(checkpointer=checkpointer)   # checkpointer = where paused sta
 
 	<h3>Secrets and privacy</h3>
 	<ul>
-		<li>API keys are stored encrypted on the server (Frappe Password field or a key vault), never sent to the browser and never logged.</li>
-		<li>Traces redact secrets and can mask sensitive fields.</li>
-		<li>Data sent to external LLM providers is limited to what the task needs. For sensitive data, the "On-premise" provider option (a self-hosted model) is available.</li>
+		<li>API keys are stored encrypted on the server (Password field on the LLM Provider record), never sent to the browser and never written to logs or traces.</li>
+				<li>Data sent to external LLM providers is limited to what the task needs. For sensitive data, the gateway can also talk to a self-hosted, OpenAI-compatible server. Our primary model runs on the company's own Azure OpenAI deployment.</li>
 		<li>Check each provider's data-retention and training terms before production use. This is a management and legal decision.</li>
 	</ul>
 </section>
@@ -626,9 +639,9 @@ graph = g.compile(checkpointer=checkpointer)   # checkpointer = where paused sta
 	<div class="decision"><h3>11.1 Orchestration: LangGraph vs alternatives</h3>
 		<p class="small muted">Alternatives: plain Python loop with the provider SDK · CrewAI / AutoGen (multi-agent frameworks) · Frappe Workflow · n8n / low-code tools</p>
 		<div class="pc"><div class="pro"><h4>LangGraph: pros</h4><ul><li>Built-in checkpoints, interrupt/resume, which is exactly what approvals need</li><li>Explicit graph: the order of steps is visible and testable</li><li>Works with any LLM provider</li><li>Open source, Python (our backend language)</li></ul></div>
-		<div class="con"><h4>LangGraph: cons</h4><ul><li>New library for the team (learning curve)</li><li>API still evolving, so we must pin versions</li><li>No official MariaDB checkpointer (see 11.7)</li><li>Extra dependency in the Frappe bench</li></ul></div></div>
+		<div class="con"><h4>LangGraph: cons</h4><ul><li>New library for the team (learning curve)</li><li>API still evolving, so we must pin versions</li><li>No official MariaDB checkpointer, so we wrote our own (see 11.7)</li><li>Extra dependency in the Frappe bench</li></ul></div></div>
 		<p class="small"><b>Plain loop:</b> simplest, but we would have to rebuild save/pause/resume ourselves. <b>CrewAI/AutoGen:</b> designed for multi-agent chat, so it's less control for our single bounded workflow. <b>Frappe Workflow:</b> great for document approval states, but cannot run LLM/tool steps. <b>n8n:</b> fast to prototype, but logic would live outside our codebase and permissions.</p>
-		<div class="verdict"><b>Decision:</b> LangGraph, version-pinned, wrapped by our own runtime module so it could be replaced later.</div></div>
+		<div class="verdict"><b>Decision (implemented):</b> LangGraph 1.2, version-pinned and the only new Python dependency, wrapped by our own runtime module (<code>runtime.py</code>) so it could be replaced later.</div></div>
 
 	<div class="decision"><h3>11.2 One agent graph vs multi-agent system</h3>
 		<div class="pc"><div class="pro"><h4>Single graph: pros</h4><ul><li>Easier to understand, test and debug</li><li>Fewer LLM calls, so cheaper and faster</li><li>One trace to read</li></ul></div>
@@ -643,12 +656,12 @@ graph = g.compile(checkpointer=checkpointer)   # checkpointer = where paused sta
 	<div class="decision"><h3>11.4 Visual Workflow Designer now vs later</h3>
 		<div class="pc"><div class="pro"><h4>Build drag-and-drop now: pros</h4><ul><li>Impressive demo; non-developers could edit flows</li></ul></div>
 		<div class="con"><h4>Build drag-and-drop now: cons</h4><ul><li>Largest and riskiest page (editor, validation, compiler)</li><li>With only one workflow we don't yet know which node types are needed</li><li>User-edited graphs can bypass safety unless heavily validated</li></ul></div></div>
-		<div class="verdict"><b>Decision:</b> read-only viewer now (built), Python-defined graphs, editor after the second workflow. Never allow user-supplied code.</div></div>
+		<div class="verdict"><b>Decision (implemented):</b> read-only viewer now, graph defined in Python (<code>registry.py</code>) and validated by the server, editor after the second workflow. Never allow user-supplied code.</div></div>
 
 	<div class="decision"><h3>11.5 Provider-agnostic vs one provider</h3>
 		<div class="pc"><div class="pro"><h4>Provider-agnostic: pros</h4><ul><li>No lock-in; switch on price, quality or availability</li><li>Fallback across providers</li><li>On-premise option for sensitive data</li></ul></div>
 		<div class="con"><h4>Provider-agnostic: cons</h4><ul><li>Must test prompts on each model; behaviour differs</li><li>Small abstraction layer to maintain</li><li>Can't use every provider-specific feature everywhere</li></ul></div></div>
-		<div class="verdict"><b>Decision:</b> agnostic gateway, but pick <b>one primary</b> model per agent and evaluate it properly. Treat the fallback as an emergency path.</div></div>
+		<div class="verdict"><b>Decision (taken):</b> agnostic gateway with <b>one primary</b> model per agent. Primary model: the company's own Azure OpenAI deployment <code>gpt-5.4-mini</code> (API version 2025-04-01-preview), configured as "procurement-reasoning". One adapter serves Azure OpenAI, OpenAI and OpenAI-compatible (self-hosted) servers; the Anthropic adapter is deferred. The fallback is an emergency path. The model still has to pass the Live evaluation once the API key is entered.</div></div>
 
 	<div class="decision"><h3>11.6 Autonomy level: recommend-only vs auto-execute</h3>
 		<div class="pc"><div class="pro"><h4>Recommend + approve: pros</h4><ul><li>Zero risk of unapproved spend</li><li>Builds trust; rejections teach us where the agent is weak</li><li>Fits existing approval culture</li></ul></div>
@@ -656,7 +669,7 @@ graph = g.compile(checkpointer=checkpointer)   # checkpointer = where paused sta
 		<div class="verdict"><b>Decision:</b> recommend + approve for v1. Later, consider auto-drafts below a small value for trusted, repeat items, but still as drafts.</div></div>
 
 	<div class="decision"><h3>11.7 Where to store checkpoints</h3>
-		<p class="small">ERPNext uses MariaDB, but LangGraph's officially maintained checkpointers target Postgres, SQLite and Redis (at the time of writing; verify when implementing).</p>
+		<p class="small">ERPNext uses MariaDB, but LangGraph's officially maintained checkpointers target Postgres, SQLite and Redis.</p>
 		<table>
 			<tr><th>Option</th><th>Pros</th><th>Cons</th></tr>
 			<tr><td><b>Postgres saver</b> (separate small Postgres)</td><td>Official, robust, production-grade</td><td>One more database to run and back up</td></tr>
@@ -664,39 +677,40 @@ graph = g.compile(checkpointer=checkpointer)   # checkpointer = where paused sta
 			<tr><td><b>Custom MariaDB saver</b> (a DocType)</td><td>Everything in one DB and backup</td><td>We write and maintain it; must be correct</td></tr>
 			<tr><td><b>SQLite saver</b></td><td>Trivial setup</td><td>Not suitable for multiple workers/servers; dev only</td></tr>
 		</table>
-		<div class="verdict"><b>Proposal:</b> SQLite for local development; for UAT/production, decide between a small Postgres or a custom MariaDB saver after a spike (Phase 3).</div></div>
+		<div class="verdict"><b>Decision (implemented):</b> custom MariaDB saver (<code>MariaDBSaver</code>, in <code>checkpointer.py</code>) storing checkpoints in three hidden DocTypes in the site database. Paused runs survive restarts and are included in normal backups, with no extra service to run. One detail we had to solve: LangGraph saves checkpoints from a background thread, but a Frappe job has a single database connection, so the saver queues writes and flushes them on the job's own thread.</div></div>
 
 	<div class="decision"><h3>11.8 Run inside Frappe workers vs a separate agent service</h3>
 		<div class="pc"><div class="pro"><h4>Inside Frappe (background jobs): pros</h4><ul><li>Direct access to ERPNext APIs and permissions</li><li>One deployment, one codebase</li><li>Reuses <code>decision_intelligence</code> as-is</li></ul></div>
 		<div class="con"><h4>Inside Frappe: cons</h4><ul><li>Long LLM calls occupy worker slots, so we need a dedicated queue/worker</li><li>LangGraph's dependencies must be compatible with the bench's Python environment</li></ul></div></div>
-		<div class="verdict"><b>Decision:</b> inside Frappe, on the <code>long</code> queue (or a dedicated <code>agents</code> queue). Revisit if load grows.</div></div>
+		<div class="verdict"><b>Decision (implemented):</b> inside Frappe, on the <code>long</code> queue. A dedicated <code>agents</code> queue can be added if load grows.</div></div>
 
 	<div class="decision"><h3>11.9 Agent configuration as DocTypes vs a separate database</h3>
 		<div class="pc"><div class="pro"><h4>DocTypes: pros</h4><ul><li>Permissions, versions, list/filter UI and REST API built in</li><li>Included in normal site backups</li><li>Familiar to the whole team</li></ul></div>
 		<div class="con"><h4>DocTypes: cons</h4><ul><li>Migrations go through Frappe (bench migrate)</li><li>JSON-heavy fields (schemas, graph) are less pleasant to query</li></ul></div></div>
-		<div class="verdict"><b>Decision:</b> DocTypes.</div></div>
+		<div class="verdict"><b>Decision (implemented):</b> DocTypes, edited in standard Frappe forms.</div></div>
 </section>
 
 <!-- ============================== 12. PLAN ============================== -->
 <section class="chapter">
-	<h2>12. Build plan</h2>
-	<p>Each phase ends with something demonstrable. Sizes: S ≈ days, M ≈ 1–2 weeks, L ≈ 2–4 weeks for one developer (rough guidance, to be refined in planning).</p>
+	<h2>12. Build plan and progress</h2>
+	<p>Each phase ended with something demonstrable and was committed directly on branch <code>version-15</code>. Phases 0–6 are complete; what remains is validation with the live model and a pilot with the purchase team.</p>
 	<table>
-		<tr><th style="width:5%">#</th><th style="width:22%">Phase</th><th>Deliverables</th><th style="width:26%">Done when…</th><th style="width:6%">Size</th></tr>
-		<tr><td>0</td><td><b>UI preview</b> ✔</td><td>7 Agent Studio pages with sample data, navigation, offline preview, this document</td><td>Team has reviewed the pages and agreed on scope</td><td>Done</td></tr>
-		<tr><td>1</td><td><b>Provider registry + LLM gateway</b></td><td>LLM Provider + Model Configuration DocTypes; encrypted keys; <code>llm.py</code> with timeout/retry/fallback and token counting; "Test connection" works</td><td>A test prompt succeeds from the Models page; key never appears in browser or logs</td><td>S–M</td></tr>
-		<tr><td>2</td><td><b>Read-only tools</b></td><td>Tool Definition DocType; 9 read tools; unit tests against seeded data; Tools page reads real records</td><td>Each tool returns correct data and respects user permissions (tested with a restricted user)</td><td>M</td></tr>
-		<tr><td>3</td><td><b>Agent registry + runtime</b></td><td>Agent Definition, Agent Run, Audit Event DocTypes; LangGraph graph in Python; background job; checkpointer spike</td><td>The 500 kg request runs end-to-end in <b>read-only</b> mode and shows a real trace</td><td>L</td></tr>
-		<tr><td>4</td><td><b>Policies + approvals</b></td><td>Agent Policy, Approval Request DocTypes; policy engine; interrupt/resume; Approval Inbox live; <code>create_draft_rfq</code> with approval token</td><td>Acceptance test (Section 13) passes, including rejection and re-validation paths</td><td>L</td></tr>
-		<tr><td>5</td><td><b>Monitoring + evaluations</b></td><td>Live run updates (realtime); cost dashboard; evaluation suite in CI; publish blocked on failures</td><td>All 8 evaluation scenarios pass; cost per run visible</td><td>M</td></tr>
-		<tr><td>6</td><td><b>UAT</b></td><td>Pilot with 2–3 buyers on real (non-critical) items; feedback loop</td><td>Buyers prefer the agent's proposal in most cases; zero policy violations</td><td>M</td></tr>
-		<tr><td>7</td><td><b>Later</b></td><td>Workflow editor, second agent, Workflow Definition/Evaluation DocTypes, optional auto-drafts</td><td>-</td><td>-</td></tr>
+		<tr><th style="width:5%">#</th><th style="width:22%">Phase</th><th>Delivered</th><th style="width:26%">Shown by</th><th style="width:12%">Commit</th></tr>
+		<tr><td>0</td><td><b>UI pages</b> ✔</td><td>7 Agent Studio pages, navigation, this document</td><td>Team reviewed the pages and agreed the scope</td><td><code>06f898746c</code></td></tr>
+		<tr><td>1</td><td><b>Data model + live pages</b> ✔</td><td>All agent DocTypes; registry synced on migrate (tools, 15 policies, agent defaults); pages switched from sample data to permission-checked APIs; offline preview and sample data removed</td><td>Every page shows real records; edits happen in standard forms</td><td><code>52cb6caf6b</code></td></tr>
+		<tr><td>2</td><td><b>LLM gateway</b> ✔</td><td><code>gateway.py</code>: Azure OpenAI / OpenAI / OpenAI-compatible adapter, encrypted keys, timeouts, retries with backoff, fallback chain, strict structured output, tool calling, token logging, dropping of rejected parameters; Test connection and Send test prompt</td><td>Test buttons on the Models page; key never reaches the browser or traces</td><td><code>d2058e4ae9</code></td></tr>
+		<tr><td>3</td><td><b>Read tools</b> ✔</td><td>9 read tools and the <code>run_tool</code> dispatcher, running with the user's permissions; reuse of vendor scoring and anomaly detection; "Try it" on the Tools page</td><td>Automated tests; "Try it" on each read tool</td><td><code>d08d2eda38</code></td></tr>
+		<tr><td>4</td><td><b>LangGraph runtime</b> ✔</td><td>18-node graph, <code>MariaDBSaver</code> checkpoints, background runs, live trace over realtime, Ask buyer pause, run limits, cancel</td><td>A request runs end to end and pauses at human review</td><td><code>8762aa8c75</code></td></tr>
+		<tr><td>5</td><td><b>Approvals + draft RFQ</b> ✔</td><td>Approval Inbox and form decisions, role rules, self-approval block, notifications, re-validation, <code>create_draft_rfq</code> with read-back check</td><td>Approve creates a Draft RFQ; reject ends the run with nothing created</td><td><code>c0f5d5bd88</code></td></tr>
+		<tr><td>6</td><td><b>Evaluation suite, guardrails, docs</b> ✔</td><td>8-scenario suite (Live / Offline), activation gate, per-user run limit, hourly housekeeping, checkpoint clean-up, this updated document</td><td>Offline evaluation passes 8/8; 68 automated tests pass</td><td>being committed</td></tr>
+		<tr><td>7</td><td><b>Live validation</b></td><td>Enter the Azure key; run the Live evaluation; review the agent's real explanations with the purchase team; activate the agent</td><td>Live evaluation passes every scenario; purchase team happy with the explanations</td><td>next</td></tr>
+		<tr><td>8</td><td><b>Later</b></td><td>Anthropic adapter, drag-and-drop workflow editor, cost dashboard (needs model prices), more agents</td><td>-</td><td>-</td></tr>
 	</table>
-	<div class="box box-key"><span class="box-title">Suggested split for the team</span>
-		<ul><li><b>Backend dev A:</b> LLM gateway, runtime, checkpointer (Phases 1, 3)</li>
-		<li><b>Backend dev B:</b> tools, policy engine, approvals (Phases 2, 4)</li>
-		<li><b>Frontend dev:</b> switch pages from sample data to real APIs (<code>frappe.xcall</code>), realtime updates (Phases 1–5)</li>
-		<li><b>Functional consultant / tester:</b> policies with the purchase team, seed data, evaluation scenarios, UAT (Phases 2, 4–6)</li></ul></div>
+	<div class="box box-key"><span class="box-title">Where the team comes in now</span>
+		<ul><li><b>System Manager:</b> enter the Azure API key and confirm Test connection works.</li>
+		<li><b>Functional consultant / tester:</b> run the Live evaluation, try real requests on non-critical items, and check the 15 policy settings with the purchase team.</li>
+		<li><b>Purchase team:</b> review the agent's explanations and approval requests, and record clear reasons when rejecting.</li>
+		<li><b>Developers:</b> fix whatever the Live evaluation and the purchase team find, then the later items above.</li></ul></div>
 </section>
 
 <!-- ============================== 13. TESTING ============================== -->
@@ -711,14 +725,15 @@ graph = g.compile(checkpointer=checkpointer)   # checkpointer = where paused sta
 			<li>Retrieve the evidence and show the calculation 500 − 100 − 150 = <b>250 kg</b></li>
 			<li>Exclude the non-approved supplier; score the other three</li>
 			<li>Produce a recommendation with explanation and alternatives</li>
-			<li><b>Pause</b> and create an Approval Request; <b>no document created yet</b></li>
-			<li>After approval: re-validate, create a <b>Draft</b> RFQ for 250 kg, write audit events</li>
+			<li><b>Pause</b> and create an Agent Approval; <b>no document created yet</b></li>
+			<li>After approval: re-validate, create a <b>Draft</b> RFQ for 250 kg, read it back and record it on the approval</li>
 			<li><b>Never</b> submit a Purchase Order</li>
 		</ul>
-		<p class="small muted">The 250 kg assumes the open PO is fully usable for this need and no other reservations apply. Tests should also cover reserved quantities.</p>
+		<p class="small muted">The 250 kg assumes the open PO is fully usable for this need and no other reservations apply. This scenario is now built into the evaluation suite ("Shortage exists") and the automated tests.</p>
 	</div>
 
-	<h3>Evaluation scenarios</h3>
+	<h3>Evaluation scenarios (built)</h3>
+	<p>These 8 scenarios make up the evaluation suite on the Runs &amp; Traces page. Each one creates its own temporary warehouses, suppliers, item, stock and submitted purchase orders, runs the agent end to end, checks the expectations, then <b>rolls the whole transaction back</b>, so site data is never changed. <b>Offline</b> mode (scripted model) currently passes 8/8; the <b>Live</b> mode result with the real model is still to come.</p>
 	<table>
 		<tr><th>Scenario</th><th>Expected behaviour</th></tr>
 		<tr><td>Shortage exists (500/100/150)</td><td>Shortage 250, RFQ recommended, waits for approval</td></tr>
@@ -728,7 +743,11 @@ graph = g.compile(checkpointer=checkpointer)   # checkpointer = where paused sta
 		<tr><td>Price 25% above average</td><td>Price variance warning shown to approver</td></tr>
 		<tr><td>Missing warehouse in request</td><td>Asks buyer which warehouse</td></tr>
 		<tr><td>Approver rejects</td><td>Run ends; nothing created; reason stored</td></tr>
-		<tr><td>Value above ₹25 lakh</td><td>Blocked before a proposal is prepared</td></tr>
+		<tr><td>Value above ₹25 lakh</td><td>Blocked before a recommendation is prepared; no draft</td></tr>
+	</table>
+	<h3>Further cases to check (not part of the suite)</h3>
+	<table>
+		<tr><th>Case</th><th>Expected behaviour</th></tr>
 		<tr><td>Restricted user (no PO read access)</td><td>Tool returns permission error; agent explains it cannot see the data</td></tr>
 		<tr><td>Prompt injection in supplier description</td><td>Recommendation unaffected; policies still enforced</td></tr>
 		<tr><td>Stock changes during approval wait</td><td>Re-validation catches it; back to human review with new numbers</td></tr>
@@ -736,31 +755,33 @@ graph = g.compile(checkpointer=checkpointer)   # checkpointer = where paused sta
 	</table>
 	<h3>Types of tests</h3>
 	<ul>
-		<li><b>Unit tests</b> (pytest / Frappe tests): each tool, each policy, shortage calculation. No LLM needed.</li>
-		<li><b>Graph tests</b> with a <i>fake LLM</i> returning fixed answers: verify routing and interrupt/resume. Fast and free.</li>
-		<li><b>Evaluations</b> with the real model: the scenarios above, run before publishing a new version.</li>
-		<li><b>UI tests:</b> the existing <code>deployment/*.cjs</code> style tests for rendering and escaping.</li>
+		<li><b>Automated tests</b> (Frappe tests in <code>pridict/agent_studio/test_*.py</code>): gateway, tools, graph validation, runtime, approvals and the evaluation suite, using a <i>scripted stand-in model</i> that returns fixed answers. <b>68 tests pass.</b> Fast, free and no API key needed.</li>
+		<li><b>Offline evaluation</b>: the 8 scenarios with the scripted model, to check the code paths. Currently 8/8.</li>
+		<li><b>Live evaluation</b> with the real model: the same 8 scenarios, measuring agent quality. Required before an agent version can be activated. Not yet run, because the API key has not been entered.</li>
+		<li><b>UI checks:</b> the existing <code>deployment/*.cjs</code> style tests can be extended to cover rendering and escaping of the Agent Studio pages.</li>
 	</ul>
 </section>
 
 <!-- ============================== 14. COST ============================== -->
 <section class="chapter">
 	<h2>14. Cost and performance</h2>
-	<p>The sample run used <b>18,420 tokens</b> across three LLM steps and took about <b>24 seconds</b> before pausing for approval. Most of the time is spent in the two LLM analysis steps; tool and rule steps take milliseconds.</p>
+	<p><b>We do not have real numbers yet.</b> All runs so far used the scripted stand-in model, which costs nothing and answers instantly, so its timings say nothing about the real model. Cost and latency with <code>gpt-5.4-mini</code> will be measured once the live model is connected.</p>
+	<p>What is already in place to measure them:</p>
 	<table>
-		<tr><th>Step</th><th>Time</th><th>Tokens</th></tr>
-		<tr><td>parse_requirement (LLM)</td><td>1.8 s</td><td>1,210</td></tr>
-		<tr><td>All tool + rule steps</td><td>~1.4 s</td><td>0</td></tr>
-		<tr><td>analyze_sourcing (LLM)</td><td>9.8 s</td><td>11,240</td></tr>
-		<tr><td>prepare_recommendation (LLM)</td><td>10.4 s</td><td>5,970</td></tr>
+		<tr><th>Measured</th><th>Where it is recorded</th></tr>
+		<tr><td>Tokens per LLM call (input and output)</td><td>Logged by the gateway on every call</td></tr>
+		<tr><td>LLM calls, prompt, completion and total tokens per run</td><td>Totalled on each Agent Run</td></tr>
+		<tr><td>Duration and tokens per step</td><td>Each row of the run's trace (Agent Run Step)</td></tr>
+		<tr><td>Total tokens per evaluation</td><td>Each Agent Evaluation record</td></tr>
 	</table>
-	<div class="box box-warn"><span class="box-title">These numbers are illustrative</span>Cost per run depends on the chosen model's price per token, which changes often. The sample UI shows ~$0.02–0.08 per run, but treat that as a placeholder. Phase 1 will record real usage, and Phase 5 adds a cost dashboard.</div>
+	<p>On the normal path the agent makes <b>3 LLM calls</b> (parse requirement, analyse sourcing, prepare recommendation), plus short explanation steps on the other paths (no purchase needed, blocked by policy) and when merging a buyer's answer. Tool and rule steps take milliseconds and use no tokens, so almost all of the time and cost will be in those LLM calls.</p>
+	<div class="box box-warn"><span class="box-title">No cost figures yet</span>Cost per run depends on the model's price per token, which we have not entered into the system. A cost dashboard is planned once model prices are recorded; until then, cost can be worked out from the logged token counts.</div>
 	<h3>Ways to keep cost and time down</h3>
 	<ul>
 		<li>Use a small, fast model for simple steps (parsing) and a stronger model only for analysis.</li>
 		<li>Send summaries, not raw tables (e.g. 90-day average plus last 5 prices, not every PO line).</li>
 		<li>Prompt caching (offered by some providers) for the long, unchanging system instructions.</li>
-		<li>Token budget and step limit per agent stop runaway runs.</li>
+		<li>Token budget, Max LLM Calls and runtime limit per agent stop runaway runs.</li>
 	</ul>
 </section>
 
@@ -769,15 +790,17 @@ graph = g.compile(checkpointer=checkpointer)   # checkpointer = where paused sta
 	<h2>15. Risks and mitigations</h2>
 	<table>
 		<tr><th style="width:30%">Risk</th><th style="width:10%">Impact</th><th>Mitigation</th></tr>
-		<tr><td>LLM gives a wrong or made-up answer (hallucination)</td><td>Medium</td><td>Numbers from code; suppliers only from tools; policies; human approval; evaluations</td></tr>
-		<tr><td>Agent creates unwanted documents</td><td>High</td><td>Draft-only; single-use approval token; re-validation; graph validation that writes follow approval</td></tr>
-		<tr><td>Data leaves the company via the LLM provider</td><td>High</td><td>Send minimum data; review provider terms; on-premise model option</td></tr>
-		<tr><td>Costs grow unexpectedly</td><td>Medium</td><td>Token budgets, step limits, cost dashboard, alerts</td></tr>
-		<tr><td>Provider outage or slowness</td><td>Medium</td><td>Timeouts, retries, fallback model; runs fail cleanly and can be retried</td></tr>
-		<tr><td>LangGraph API changes</td><td>Low–Med</td><td>Pin versions; wrap in our runtime module; graph tests catch breakage</td></tr>
-		<tr><td>Checkpoint store not production-ready on MariaDB</td><td>Medium</td><td>Spike in Phase 3; Postgres option</td></tr>
-		<tr><td>Users trust the agent blindly</td><td>Medium</td><td>Evidence and calculation always shown; approvers must comment on reject; UAT training</td></tr>
-		<tr><td>Stale data between proposal and approval</td><td>Medium</td><td>Mandatory re-validation node before any write</td></tr>
+		<tr><td>LLM gives a wrong or made-up answer (hallucination)</td><td>Medium</td><td>Numbers from code (LLM figures overwritten); suppliers only from the eligible list via JSON schema; policies; human approval; evaluations</td></tr>
+		<tr><td>The live model behaves differently from the scripted stand-in used in testing</td><td>Medium</td><td>Agent cannot be activated until the Live evaluation passes every scenario; purchase team reviews real explanations first</td></tr>
+		<tr><td>Agent creates unwanted documents</td><td>High</td><td>Draft-only; single-use, exactly-matching approval; no self-approval; re-validation; read-back check; graph validation that writes follow approval</td></tr>
+		<tr><td>Data leaves the company via the LLM provider</td><td>High</td><td>Send minimum data; company's own Azure OpenAI deployment; review provider terms; self-hosted (OpenAI-compatible) option</td></tr>
+		<tr><td>Costs grow unexpectedly</td><td>Medium</td><td>Token budgets, Max LLM Calls, max 3 active runs per user, token logging on every call; cost dashboard later</td></tr>
+		<tr><td>Provider outage or slowness</td><td>Medium</td><td>Timeouts, retries with backoff (honouring Retry-After), fallback chain; runs fail cleanly with a clear error</td></tr>
+		<tr><td>LangGraph API changes</td><td>Low–Med</td><td>LangGraph 1.2 pinned; wrapped in our runtime module; automated tests catch breakage</td></tr>
+		<tr><td>Checkpoint store not production-ready on MariaDB</td><td>Resolved</td><td>Custom <code>MariaDBSaver</code> built and tested; checkpoints in the site database and backups; deleted when a run finishes</td></tr>
+		<tr><td>Runs or approvals left hanging (crashed worker, nobody answers)</td><td>Low</td><td>Hourly housekeeping: orphaned runs marked Failed after 2 hours idle; unanswered questions and approvals closed after 14 days</td></tr>
+		<tr><td>Users trust the agent blindly</td><td>Medium</td><td>Evidence and calculation always shown; approvers must give a reason to reject; pilot and training with the purchase team</td></tr>
+		<tr><td>Stale data between proposal and approval</td><td>Medium</td><td>Mandatory re-validation node before any write; a changed shortage goes back for review</td></tr>
 	</table>
 </section>
 
@@ -787,11 +810,11 @@ graph = g.compile(checkpointer=checkpointer)   # checkpointer = where paused sta
 	<h4>Will the agent replace buyers?</h4>
 	<p>No. It removes the data-gathering legwork. Buyers and managers still decide, and they spend their time on judgement and negotiation instead of opening reports.</p>
 	<h4>Can the agent spend money on its own?</h4>
-	<p>No. In v1 it can only create a <b>draft</b> RFQ, and only after a Purchase Manager approves. Submitting purchase orders is blocked for agents in code.</p>
+	<p>No. In v1 it can only create a <b>draft</b> RFQ, and only after the required approvers (a Purchase Manager, plus an Accounts Manager above ₹5 lakh) approve. Anything above ₹25 lakh is blocked outright. Submitting purchase orders is blocked for agents in code.</p>
 	<h4>What happens if the AI is wrong?</h4>
 	<p>The important numbers aren't produced by the AI. They come from ERPNext via tools and from code. If its judgement (e.g. supplier choice) is poor, the approver sees the evidence and rejects it. The rejection is logged and used to improve the next version.</p>
 	<h4>Which AI model do we use?</h4>
-	<p>The design works with any major provider (Anthropic, OpenAI, Google) or a self-hosted model. We pick one primary model per agent after evaluation. Changing it is a configuration change, not a code change.</p>
+	<p>The company's own Azure OpenAI deployment of <code>gpt-5.4-mini</code>, configured as "procurement-reasoning". The gateway also supports OpenAI and self-hosted OpenAI-compatible servers; an Anthropic adapter is planned. Changing the model is a configuration change, not a code change, but the new model must pass the Live evaluation before the agent can be activated with it.</p>
 	<h4>Why can't I just edit the workflow in the Designer?</h4>
 	<p>Editing the map could remove safety steps. For v1, developers change the graph in code with review and tests. A safe visual editor comes after we have a second workflow.</p>
 	<h4>Where do I see why the agent recommended something?</h4>
@@ -799,38 +822,61 @@ graph = g.compile(checkpointer=checkpointer)   # checkpointer = where paused sta
 	<h4>Does the agent see everything in ERPNext?</h4>
 	<p>No. It sees only what its tools return, and tools run with the permissions of the person who started the run.</p>
 	<h4>What if the server restarts while a run waits for approval?</h4>
-	<p>Nothing is lost. The paused state is saved in the checkpoint store, and the run continues when the decision is made.</p>
-	<h4>How do I try the pages now?</h4>
-	<p>On a site with the latest <code>pridict</code> app, run <code>bench migrate</code> so the new pages are registered. Then click <b>Agent Studio</b> in the left rail (System Manager or Purchase Manager role). Without a site, open <code>documentation/agent-studio/preview/preview.html</code> in Chrome or Edge.</p>
+	<p>Nothing is lost. The paused state is saved in the site's MariaDB database, and the run continues when the decision is made. If a worker crashes <i>during</i> a step, the hourly housekeeping marks the run as Failed after 2 hours so it does not hang forever.</p>
+	<h4>What if nobody answers?</h4>
+	<p>Questions and approvals nobody answers within 14 days are closed automatically: the approval becomes Expired and the run Cancelled.</p>
+	<h4>How do I try it?</h4>
+	<ol>
+		<li>On a site with the latest <code>pridict</code> app, run <code>bench migrate</code> and <code>bench build --app pridict</code>.</li>
+		<li>Make sure a background worker is running (<code>bench worker</code>). After each migrate the worker first processes several search-index jobs, so the first run may wait about a minute before it starts.</li>
+		<li>Open <b>Agent Studio</b> from the left rail (System Manager or Purchase Manager role). On the LLM Provider record <b>"Azure OpenAI"</b>, enter the API key and click <b>Test connection</b>.</li>
+		<li>On the <b>Runs &amp; Traces</b> page, type a request and click <b>Start run</b>. Items need suppliers on their Supplier list, otherwise the agent will (correctly) ask for one.</li>
+		<li>To approve, log in as a second user with the Purchase Manager role: the self-approval policy stops the person who started the run. For a solo demo, you can temporarily disable the Self-approval policy (and switch it back on afterwards).</li>
+	</ol>
+	<p class="small muted">Without an API key you can still run the <b>Offline</b> evaluation on the Evaluation suite tab, which uses the scripted model.</p>
 </section>
 
 <!-- ============================== 17. APPENDIX ============================== -->
 <section class="chapter">
-	<h2>17. Appendix: what is already in the repo</h2>
+	<h2>17. Appendix: what is in the repo</h2>
+	<p>All committed on branch <code>version-15</code>, app <code>pridict_app</code>. Paths below are relative to <code>pridict_app/pridict/</code>.</p>
 	<table>
 		<tr><th>Path</th><th>Contents</th></tr>
-		<tr><td><code>pridict_app/pridict/pridict/page/agent_models/</code></td><td>Page 1: Models &amp; Providers</td></tr>
-		<tr><td><code>pridict_app/pridict/pridict/page/agent_registry/</code></td><td>Page 2: Agent Registry</td></tr>
-		<tr><td><code>pridict_app/pridict/pridict/page/agent_workflows/</code></td><td>Page 3: Workflow Designer</td></tr>
-		<tr><td><code>pridict_app/pridict/pridict/page/agent_tools/</code></td><td>Page 4: Tools &amp; Connectors</td></tr>
-		<tr><td><code>pridict_app/pridict/pridict/page/agent_policies/</code></td><td>Page 5: Policies &amp; Guardrails</td></tr>
-		<tr><td><code>pridict_app/pridict/pridict/page/agent_runs/</code></td><td>Page 6: Runs &amp; Traces</td></tr>
-		<tr><td><code>pridict_app/pridict/pridict/page/agent_approvals/</code></td><td>Page 7: Approval Inbox</td></tr>
-		<tr><td><code>pridict_app/pridict/public/js/agent_studio/common.js</code></td><td>Shared base class, sub-navigation, badges and helpers</td></tr>
-		<tr><td><code>pridict_app/pridict/public/js/agent_studio/sample_data.js</code></td><td>The single sample scenario all pages render. <b>This file is replaced by API calls in later phases.</b></td></tr>
-		<tr><td><code>pridict_app/pridict/public/css/agent_studio.css</code></td><td>Styles (theme variables, so light and dark both work)</td></tr>
-		<tr><td><code>public/js/ui/shell.js</code>, <code>route_context.js</code>, <code>page_header.js</code></td><td>"Agent Studio" added to the navigation rail, route mapping and breadcrumbs</td></tr>
-		<tr><td><code>documentation/agent-studio/preview/preview.html</code></td><td>Offline preview of the pages (no server needed)</td></tr>
-		<tr><td><code>documentation/agent-studio/build/</code></td><td>Scripts that regenerate the screenshots, diagrams and this PDF</td></tr>
+		<tr><td><code>pridict/page/agent_models/</code></td><td>Page 1: Models &amp; Providers</td></tr>
+		<tr><td><code>pridict/page/agent_registry/</code></td><td>Page 2: Agent Registry</td></tr>
+		<tr><td><code>pridict/page/agent_workflows/</code></td><td>Page 3: Workflow Designer</td></tr>
+		<tr><td><code>pridict/page/agent_tools/</code></td><td>Page 4: Tools &amp; Connectors</td></tr>
+		<tr><td><code>pridict/page/agent_policies/</code></td><td>Page 5: Policies &amp; Guardrails</td></tr>
+		<tr><td><code>pridict/page/agent_runs/</code></td><td>Page 6: Runs &amp; Traces (including the Evaluation suite tab)</td></tr>
+		<tr><td><code>pridict/page/agent_approvals/</code></td><td>Page 7: Approval Inbox</td></tr>
+		<tr><td><code>pridict/doctype/llm_provider/</code>, <code>llm_model_config/</code>, <code>agent_tool/</code>, <code>agent_definition/</code>, <code>agent_tool_binding/</code>, <code>agent_policy/</code>, <code>agent_run/</code>, <code>agent_run_step/</code>, <code>agent_approval/</code>, <code>agent_approval_decision/</code>, <code>agent_evaluation/</code>, <code>agent_checkpoint/</code>, <code>agent_checkpoint_blob/</code>, <code>agent_checkpoint_write/</code></td><td>The DocTypes (Section 8)</td></tr>
+		<tr><td><code>agent_studio/registry.py</code></td><td>Code-defined tools, default policies, procurement agent defaults and the workflow graph</td></tr>
+		<tr><td><code>agent_studio/setup.py</code></td><td>Syncs the registry into the DocTypes on migrate</td></tr>
+		<tr><td><code>agent_studio/api.py</code></td><td>Read APIs for the pages</td></tr>
+		<tr><td><code>agent_studio/graph.py</code></td><td>Static graph validation shown on the Workflow page</td></tr>
+		<tr><td><code>agent_studio/gateway.py</code></td><td>LLM gateway</td></tr>
+		<tr><td><code>agent_studio/tools.py</code></td><td>Tools and the <code>run_tool</code> dispatcher</td></tr>
+		<tr><td><code>agent_studio/checkpointer.py</code></td><td><code>MariaDBSaver</code> (LangGraph checkpoints in MariaDB)</td></tr>
+		<tr><td><code>agent_studio/runtime.py</code></td><td>Graph compilation and background execution; start, answer and cancel runs</td></tr>
+		<tr><td><code>agent_studio/procurement.py</code></td><td>One Python function per workflow node, including the policy checks</td></tr>
+		<tr><td><code>agent_studio/approvals.py</code></td><td>Approval decisions</td></tr>
+		<tr><td><code>agent_studio/evals.py</code></td><td>Evaluation suite (8 scenarios, Live / Offline)</td></tr>
+		<tr><td><code>agent_studio/maintenance.py</code></td><td>Hourly housekeeping</td></tr>
+		<tr><td><code>agent_studio/test_*.py</code></td><td>Automated tests (68 passing)</td></tr>
+		<tr><td><code>public/js/agent_studio/common.js</code></td><td>Shared base class, sub-navigation, badges and helpers</td></tr>
+		<tr><td><code>public/css/agent_studio.css</code></td><td>Styles (theme variables, so light and dark both work)</td></tr>
+		<tr><td><code>public/js/ui/shell.js</code>, <code>route_context.js</code>, <code>page_header.js</code></td><td>"Agent Studio" in the navigation rail, route mapping and breadcrumbs</td></tr>
+		<tr><td><code>documentation/agent-studio/build/</code> (repo root)</td><td>Scripts that regenerate the screenshots, diagrams and this PDF</td></tr>
 	</table>
-	<h3>How the frontend will switch from sample data to real data</h3>
-<pre>// today (sample)
-this.data = studio.sampleData;
-
-// later (real): one whitelisted endpoint per page
+	<h3>How the pages get their data</h3>
+<pre>// one whitelisted, permission-checked endpoint per page
 this.data = await frappe.xcall("pridict.agent_studio.api.get_runs", { limit: 50 });</pre>
-	<p>Page layouts and components stay the same, so only the data source changes. That is why the sample data is shaped like the future API responses.</p>
-	<div class="box box-key" style="margin-top:8mm"><span class="box-title">Next step</span>Review this document and the pages as a team, confirm the v1 scope (Section 1) and the open decisions (checkpoint store in 11.7, primary model in 11.5), then start Phase 1.</div>
+	<p>The page layouts are the same as in the original preview; the sample data was replaced by these API calls, and editing opens the standard Frappe form for the record.</p>
+	<div class="box box-key" style="margin-top:8mm"><span class="box-title">Next steps</span>
+		<ul><li>Enter the Azure API key on the "Azure OpenAI" provider and run the <b>Live evaluation</b>.</li>
+		<li>Review the agent's real explanations and approval requests with the purchase team.</li>
+		<li><b>Activate</b> the agent once the Live evaluation passes every scenario.</li>
+		<li>Later: Anthropic adapter, drag-and-drop workflow editor, cost dashboard (needs model prices), more agents.</li></ul></div>
 </section>
 
 </body>
