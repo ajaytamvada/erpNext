@@ -1,0 +1,18 @@
+{
+ "doctype": "Page",
+ "name": "agent-approvals",
+ "page_name": "agent-approvals",
+ "title": "Approval Inbox",
+ "icon": "intelligence",
+ "module": "Pridict",
+ "standard": "Yes",
+ "system_page": 0,
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Purchase Manager"
+  }
+ ]
+}

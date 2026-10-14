@@ -19,6 +19,7 @@
 		{ key: "governance", label: "Schema Intelligence", route: "schema-intelligence", icon: "branch", roles: ["Schema Reviewer", "System Manager"] },
 		{ key: "process-intelligence", label: "Process Intelligence", route: "process-intelligence", icon: "branch", roles: ["Process Analyst", "System Manager"] },
 		{ key: "decision-intelligence", label: "Decision Intelligence", route: "decision-intelligence", icon: "intelligence", roles: ["Purchase Manager", "Process Analyst", "System Manager"] },
+		{ key: "agent-studio", label: "Agent Studio", route: "agent-registry", icon: "intelligence", roles: ["Purchase Manager", "System Manager"] },
 		{ key: "administration", label: "Administration", route: "pridict-administration", icon: "setting-gear", roles: ["System Manager"] },
 	];
 

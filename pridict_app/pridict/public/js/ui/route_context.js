@@ -170,6 +170,13 @@
 		["purchasing-analysis", "process-intelligence"],
 		["decision-intelligence", "decision-intelligence"],
 		["schema-intelligence", "governance"],
+		["agent-models", "agent-studio"],
+		["agent-registry", "agent-studio"],
+		["agent-workflows", "agent-studio"],
+		["agent-tools", "agent-studio"],
+		["agent-policies", "agent-studio"],
+		["agent-runs", "agent-studio"],
+		["agent-approvals", "agent-studio"],
 	]);
 
 	function getRouteParts() {

@@ -1,0 +1,18 @@
+{
+ "doctype": "Page",
+ "name": "agent-runs",
+ "page_name": "agent-runs",
+ "title": "Runs & Traces",
+ "icon": "intelligence",
+ "module": "Pridict",
+ "standard": "Yes",
+ "system_page": 0,
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Purchase Manager"
+  }
+ ]
+}

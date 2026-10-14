@@ -1,0 +1,15 @@
+{
+ "doctype": "Page",
+ "name": "agent-models",
+ "page_name": "agent-models",
+ "title": "Models & Providers",
+ "icon": "intelligence",
+ "module": "Pridict",
+ "standard": "Yes",
+ "system_page": 0,
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ]
+}

@@ -1,0 +1,15 @@
+{
+ "doctype": "Page",
+ "name": "agent-tools",
+ "page_name": "agent-tools",
+ "title": "Tools & Connectors",
+ "icon": "intelligence",
+ "module": "Pridict",
+ "standard": "Yes",
+ "system_page": 0,
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ]
+}

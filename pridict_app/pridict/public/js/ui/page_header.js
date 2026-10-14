@@ -20,6 +20,7 @@
 		governance: ["Schema Intelligence", "schema-intelligence"],
 		"process-intelligence": ["Process Intelligence", "process-intelligence"],
 		"decision-intelligence": ["Decision Intelligence", "decision-intelligence"],
+		"agent-studio": ["Agent Studio", "agent-registry"],
 		administration: ["Administration", "pridict-administration"],
 	};
 

@@ -1,0 +1,18 @@
+{
+ "doctype": "Page",
+ "name": "agent-workflows",
+ "page_name": "agent-workflows",
+ "title": "Workflow Designer",
+ "icon": "intelligence",
+ "module": "Pridict",
+ "standard": "Yes",
+ "system_page": 0,
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Purchase Manager"
+  }
+ ]
+}
