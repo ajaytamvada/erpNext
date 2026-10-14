@@ -53,6 +53,11 @@ class TestAgentTools(FrappeTestCase):
 		items = self.run_ok("search_items", query="Agent Aluminium")["items"]
 		self.assertEqual(items[0]["item_code"], ITEM)
 
+	def test_exact_item_code_ranks_first(self):
+		# Many items contain "_Test Item"; the exact code must still be returned first.
+		items = self.run_ok("search_items", query="_Test Item", limit=3)["items"]
+		self.assertEqual(items[0]["item_code"], "_Test Item")
+
 	def test_stock_balance(self):
 		self.assertEqual(
 			self.run_ok("get_stock_balance", item_code=ITEM, warehouse=WAREHOUSE)["actual_qty"], 100

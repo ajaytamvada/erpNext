@@ -85,20 +85,32 @@ def validate_arguments(schema: dict, value: Any, path: str = "arguments") -> Non
 
 
 def search_items(query: str, limit: int = 5) -> dict:
-	phrase = f"%{query.strip()}%"
-	items = frappe.get_list(
+	query = query.strip()
+	limit = min(int(limit or 5), 10)
+	fields = ["item_code", "item_name", "stock_uom", "item_group"]
+	base = {"disabled": 0, "has_variants": 0}
+	# Exact code or name matches first, so a precise request is never crowded out.
+	exact = frappe.get_list(
 		"Item",
-		filters={"disabled": 0, "has_variants": 0},
+		filters=base,
+		or_filters={"item_code": query, "item_name": query},
+		fields=fields,
+		limit_page_length=limit,
+	)
+	phrase = f"%{query}%"
+	partial = frappe.get_list(
+		"Item",
+		filters={**base, "name": ["not in", [i.item_code for i in exact] or [""]]},
 		or_filters={
 			"item_code": ["like", phrase],
 			"item_name": ["like", phrase],
 			"description": ["like", phrase],
 		},
-		fields=["item_code", "item_name", "stock_uom", "item_group"],
+		fields=fields,
 		order_by="modified desc",
-		limit_page_length=min(int(limit or 5), 10),
+		limit_page_length=max(limit - len(exact), 0),
 	)
-	return {"items": items}
+	return {"items": (exact + partial)[:limit]}
 
 
 def get_warehouses(company: str) -> dict:
@@ -387,8 +399,70 @@ READ_TOOLS = {
 	"detect_price_anomalies": detect_price_anomalies,
 }
 
-# Write tools are registered by the approval flow; they receive the approval document.
-WRITE_TOOLS: dict[str, Any] = {}
+# ---------------------------------------------------------------------------
+# Write tools. They receive the approved Agent Approval and may only do exactly what
+# it approved. They never submit: documents stay in Draft for a person to send.
+
+
+def create_draft_rfq(
+	approval, item_code: str, qty: float, schedule_date: str, suppliers: list[str], approval_id: str
+) -> dict:
+	if approval.name != approval_id:
+		raise ToolError(_("approval_id does not match the approval being executed."))
+	if approval.created_docname:
+		raise ToolError(
+			_("Approval {0} was already used to create {1}.").format(approval.name, approval.created_docname)
+		)
+	proposal = json.loads(approval.proposal_json or "{}")
+	mismatches = []
+	if item_code != proposal.get("item_code"):
+		mismatches.append(_("item"))
+	if abs(flt(qty) - flt(proposal.get("shortage_qty"))) > 1e-6:
+		mismatches.append(_("quantity"))
+	if sorted(suppliers) != sorted(proposal.get("rfq_suppliers") or []):
+		mismatches.append(_("suppliers"))
+	if str(getdate(schedule_date)) != str(proposal.get("need_by")):
+		mismatches.append(_("date"))
+	if mismatches:
+		raise ToolError(_("The request differs from what was approved ({0}).").format(", ".join(mismatches)))
+
+	stock_uom = frappe.db.get_value("Item", item_code, "stock_uom")
+	rfq = frappe.get_doc(
+		{
+			"doctype": "Request for Quotation",
+			"company": proposal["company"],
+			"transaction_date": nowdate(),
+			"message_for_supplier": _(
+				"Please send your best price and delivery date for the item below, required by {0}."
+			).format(schedule_date),
+			"suppliers": [{"supplier": supplier} for supplier in suppliers],
+			"items": [
+				{
+					"item_code": item_code,
+					"qty": flt(qty),
+					"uom": stock_uom,
+					"stock_uom": stock_uom,
+					"conversion_factor": 1,
+					"warehouse": proposal["warehouse"],
+					"schedule_date": schedule_date,
+				}
+			],
+		}
+	)
+	# Normal insert: the requester's own ERPNext permissions decide whether this is allowed.
+	rfq.insert()
+	rfq.add_comment(
+		"Comment",
+		_("Prepared by Agent Studio run {0}; approved in {1} by {2}.").format(
+			approval.run,
+			approval.name,
+			", ".join(row.approver for row in approval.decisions if row.decision == "Approved"),
+		),
+	)
+	return {"rfq": rfq.name}
+
+
+WRITE_TOOLS: dict[str, Any] = {"create_draft_rfq": create_draft_rfq}
 
 
 # ---------------------------------------------------------------------------

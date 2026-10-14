@@ -646,6 +646,20 @@ def check_limits(state: State, ctx: RunContext) -> dict:
 			"BLOCK",
 			_("Estimated {0} is above {1}").format(money(estimate), money(ceiling_value)),
 		)
+	elif not rate:
+		# No quotation and no purchase history: the value is unknown, not zero. Use the
+		# strictest approval short of blocking, and say so.
+		if dual:
+			required, roles = 2, dual.parameters.get("roles") or roles
+		results.append(
+			{
+				"rule": _("Value unknown"),
+				"result": "WARN",
+				"detail": _("No quotation or purchase history to price this item; needs {0}").format(
+					" + ".join(roles)
+				),
+			}
+		)
 	else:
 		if dual and estimate > flt(dual.parameters.get("min_value")):
 			required, roles = 2, dual.parameters.get("roles") or roles
@@ -666,7 +680,9 @@ def check_limits(state: State, ctx: RunContext) -> dict:
 	add("no_submit", "PASS", _("Proposed action creates a Draft RFQ only"))
 
 	warnings = sum(r["result"] == "WARN" for r in results)
-	risk = "High" if blocked or warnings >= 2 or required > 1 else ("Medium" if warnings else "Low")
+	risk = (
+		"High" if blocked or not rate or warnings >= 2 or required > 1 else ("Medium" if warnings else "Low")
+	)
 	ctx.note(
 		_("Estimated {0} ({1} × {2}); risk {3}").format(
 			money(estimate), _num(state["shortage_qty"]), money(rate), risk
@@ -837,10 +853,14 @@ def human_review(state: State, ctx: RunContext) -> dict:
 				),
 				"proposal_json": json.dumps(_proposal(state), default=str, indent=1),
 				"policy_results_json": json.dumps(state["policy_results"], default=str, indent=1),
+				"required_roles": json.dumps(state.get("approval_roles") or ["Purchase Manager"]),
 			}
 		)
 		doc.insert(ignore_permissions=True)
 		approval = doc.name
+		from pridict.agent_studio.approvals import notify_approvers
+
+		notify_approvers(doc)
 	ctx.note(_("Waiting for approval {0}").format(approval))
 	decision = interrupt(
 		{
@@ -886,19 +906,18 @@ def revalidate(state: State, ctx: RunContext) -> dict:
 	approval = frappe.get_doc("Agent Approval", state["approval"])
 	problems = []
 
-	if ctx.policy("no_self_approval") and approval.decided_by == ctx.requested_by:
-		problems.append(_("The requester cannot approve their own run."))
-	roles = set(state.get("approval_roles") or [])
-	if (
-		roles
-		and not roles & set(frappe.get_roles(approval.decided_by))
-		and approval.decided_by != "Administrator"
-	):
+	if approval.status != "Approved":
 		problems.append(
-			_("{0} does not hold an approving role ({1}).").format(
-				approval.decided_by, ", ".join(sorted(roles))
-			)
+			_("Approval {0} is {1}, not approved.").format(approval.name, _(approval.status).lower())
 		)
+	# Re-check every recorded approver: roles can be removed while a run waits.
+	for row in approval.decisions:
+		if row.decision != "Approved":
+			continue
+		if ctx.policy("no_self_approval") and row.approver == ctx.requested_by:
+			problems.append(_("The requester cannot approve their own run."))
+		if row.approver_role and row.approver_role not in frappe.get_roles(row.approver):
+			problems.append(_("{0} no longer holds the {1} role.").format(row.approver, row.approver_role))
 
 	stock = ctx.tool("get_stock_balance", item_code=record["item_code"], warehouse=record["warehouse"])
 	orders = ctx.tool(

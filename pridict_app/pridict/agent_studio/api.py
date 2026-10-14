@@ -9,7 +9,7 @@ import frappe
 from frappe import _
 from frappe.utils import add_days, now_datetime
 
-from pridict.agent_studio import registry
+from pridict.agent_studio import approvals, registry
 from pridict.agent_studio.graph import validate_workflow
 
 
@@ -366,4 +366,20 @@ def get_approval(name: str):
 		},
 		"proposal": _loads(doc.proposal_json, {}),
 		"policy_results": _loads(doc.policy_results_json, []),
+		"required_roles": approvals.required_roles(doc),
+		"covered": approvals.coverage(doc),
+		"decisions": [
+			{
+				"approver": d.approver,
+				"role": d.approver_role,
+				"decision": d.decision,
+				"at": d.decided_at,
+				"note": d.note,
+			}
+			for d in doc.decisions
+		],
+		# Why the current user cannot decide (empty when they can).
+		"blockers": approvals.blockers(doc, frappe.session.user)
+		if frappe.has_permission("Agent Approval", "write", doc)
+		else [_("You can view this proposal but not decide on it.")],
 	}

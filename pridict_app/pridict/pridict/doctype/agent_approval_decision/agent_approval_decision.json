@@ -1,0 +1,66 @@
+{
+ "actions": [],
+ "creation": "2026-10-14 03:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "istable": 1,
+ "field_order": [
+  "approver",
+  "approver_role",
+  "decision",
+  "decided_at",
+  "note"
+ ],
+ "fields": [
+  {
+   "fieldname": "approver",
+   "fieldtype": "Link",
+   "label": "Approver",
+   "options": "User",
+   "in_list_view": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "approver_role",
+   "fieldtype": "Data",
+   "label": "As Role",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "decision",
+   "fieldtype": "Select",
+   "label": "Decision",
+   "options": "Approved\nRejected",
+   "in_list_view": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "decided_at",
+   "fieldtype": "Datetime",
+   "label": "At",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Small Text",
+   "label": "Note",
+   "in_list_view": 1,
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-14 03:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pridict",
+ "name": "Agent Approval Decision",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

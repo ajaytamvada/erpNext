@@ -184,6 +184,15 @@ class TestAgentRuntime(FrappeTestCase):
 		self.assertNotIn("recommendation", llm.calls)
 		self.assertFalse(frappe.db.exists("Agent Approval", {"run": run.name}))
 
+	def test_unknown_price_is_not_treated_as_zero(self):
+		with patch("pridict.agent_studio.tools._stock_rates", return_value=[]):
+			run = self.run_agent(ScriptedLLM([requirement()]))
+		approval = frappe.get_doc("Agent Approval", {"run": run.name})
+		self.assertEqual(approval.risk, "High")
+		self.assertEqual(approval.required_approvals, 2)
+		results = {r["rule"]: r["result"] for r in json.loads(approval.policy_results_json)}
+		self.assertEqual(results["Value unknown"], "WARN")
+
 	def test_llm_call_limit_stops_the_run(self):
 		frappe.db.set_value("Agent Definition", AGENT, "max_steps", 1)
 		frappe.clear_document_cache("Agent Definition", AGENT)

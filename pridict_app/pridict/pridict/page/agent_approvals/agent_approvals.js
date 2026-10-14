@@ -13,6 +13,9 @@ frappe.pages["agent-approvals"].on_page_load = async (wrapper) => {
 	//   suppliers: [{ supplier, score, tier, last_price, lead_time_days, quotation, note }],
 	//   excluded: [{ supplier, reason }] }
 
+	// Zero means the agent found no price at all; never show that as a free order.
+	const value = (amount) => (Number(amount) ? inr(amount) : __("value unknown"));
+
 	class AgentApprovalsPage extends studio.StudioPage {
 		constructor(wrapper) {
 			super(wrapper, {
@@ -23,6 +26,10 @@ frappe.pages["agent-approvals"].on_page_load = async (wrapper) => {
 			});
 			this.selected = null;
 			this.details = {};
+			frappe.realtime.on("agent_run_update", () => {
+				clearTimeout(this.pending);
+				this.pending = setTimeout(() => document.body.contains(this.root) && this.reload(), 400);
+			});
 			this.reload();
 		}
 
@@ -46,7 +53,7 @@ frappe.pages["agent-approvals"].on_page_load = async (wrapper) => {
 							<tbody>
 								${approvals.map((a) => `
 									<tr class="is-selectable ${a.name === this.selected ? "is-selected" : ""}" data-name="${escape(a.name)}">
-										<td><strong>${escape(a.name)}</strong><div class="as-muted">${escape(a.action || "")} · ${inr(a.estimated_value)}</div><div class="as-muted">${escape(a.requested_by || "")} · ${studio.datetime(a.creation)}</div></td>
+										<td><strong>${escape(a.name)}</strong><div class="as-muted">${escape(a.action || "")} · ${value(a.estimated_value)}</div><div class="as-muted">${escape(a.requested_by || "")} · ${studio.datetime(a.creation)}</div></td>
 										<td>${badge(a.status)}</td>
 									</tr>`).join("")}
 							</tbody>
@@ -110,16 +117,24 @@ frappe.pages["agent-approvals"].on_page_load = async (wrapper) => {
 
 					<h3 style="margin-top:14px">${t("Decision")}</h3>
 					<div class="as-decision">
-						<p class="as-muted" style="margin:0">${t("Estimated value")} ${inr(a.estimated_value)} · ${t("Risk")}: ${a.risk ? badge(a.risk) : "—"} · ${t("Approvals required")}: ${escape(a.required_approvals || 1)}</p>
-						${a.status === "Pending" ? `
-							<textarea class="form-control as-comment" placeholder="${t("Comment (required for reject)")}" disabled></textarea>
-							<div class="as-actions">
-								<button type="button" class="btn btn-primary btn-sm" disabled>${t("Approve")}</button>
-								<button type="button" class="btn btn-danger btn-sm" disabled>${t("Reject")}</button>
-							</div>
-							<p class="as-muted" style="margin:0">${t("Decisions are enabled together with the run resume step. On approval, the server re-checks your permission, current stock and all policies, then the agent creates the RFQ as a Draft. Submitting it stays a separate, manual step.")}</p>`
-						: `<p style="margin:0">${badge(a.status)} ${t("by")} ${escape(a.decided_by || "—")} · ${studio.datetime(a.decided_at)}${a.decision_note ? `<br><span class="as-muted">${escape(a.decision_note)}</span>` : ""}</p>
-							${a.created_docname ? `<p style="margin:0">${t("Created")}: <a href="/app/${frappe.router.slug(a.created_doctype)}/${encodeURIComponent(a.created_docname)}">${escape(a.created_docname)}</a></p>` : ""}`}
+						<p class="as-muted" style="margin:0">${t("Estimated value")} ${value(a.estimated_value)} · ${t("Risk")}: ${a.risk ? badge(a.risk) : "—"}</p>
+						<div class="as-table-scroll"><table class="as-table"><tbody>
+							${a.required_roles.map((role) => {
+								const by = a.covered[role];
+								return `<tr><td style="width:40%">${escape(role)}</td><td>${by ? `${badge("Approved")} ${escape(by)}` : a.status === "Pending" ? badge("Pending") : "—"}</td></tr>`;
+							}).join("")}
+						</tbody></table></div>
+						${a.decisions.length ? `<ul class="as-muted" style="padding-left:18px;margin:0">${a.decisions.map((d) => `<li>${escape(d.decision)} · ${escape(d.approver)}${d.role ? ` (${escape(d.role)})` : ""} · ${studio.datetime(d.at)}${d.note ? ` · ${escape(d.note)}` : ""}</li>`).join("")}</ul>` : ""}
+						${a.status === "Pending" ? (a.blockers.length
+							? `<p class="as-muted" style="margin:0"><i class="fa fa-lock" aria-hidden="true"></i> ${escape(a.blockers.join(" "))}</p>`
+							: `<textarea class="form-control as-comment" placeholder="${t("Comment (required to reject)")}"></textarea>
+								<div class="as-actions">
+									<button type="button" class="btn btn-primary btn-sm as-decide" data-decision="approve">${t("Approve")}</button>
+									<button type="button" class="btn btn-danger btn-sm as-decide" data-decision="reject">${t("Reject")}</button>
+								</div>
+								<p class="as-muted" style="margin:0">${t("On approval, the server re-checks the approvers, current stock and open orders, then the agent creates the RFQ as a Draft. Sending it to suppliers stays a separate, manual step.")}</p>`)
+						: `<p style="margin:0">${badge(a.status)} ${a.decided_by ? `${t("by")} ${escape(a.decided_by)} · ${studio.datetime(a.decided_at)}` : ""}${a.decision_note ? `<br><span class="as-muted">${escape(a.decision_note)}</span>` : ""}</p>
+							${a.created_docname ? `<p style="margin:0">${t("Created")}: <a href="/app/${frappe.router.slug(a.created_doctype)}/${encodeURIComponent(a.created_docname)}">${escape(a.created_docname)}</a> (${t("Draft")})</p>` : ""}`}
 					</div>
 				</section>`;
 		}
@@ -136,6 +151,26 @@ frappe.pages["agent-approvals"].on_page_load = async (wrapper) => {
 				row.addEventListener("click", () => {
 					this.selected = row.dataset.name;
 					this.refresh();
+				})
+			);
+			body.querySelectorAll(".as-decide").forEach((button) =>
+				button.addEventListener("click", async () => {
+					const decision = button.dataset.decision;
+					const note = body.querySelector(".as-comment").value.trim();
+					if (decision === "reject" && !note) {
+						this.notify("Please add a comment explaining why you are rejecting.", "red");
+						return;
+					}
+					body.querySelectorAll(".as-decide").forEach((b) => (b.disabled = true));
+					try {
+						const r = await frappe.xcall("pridict.agent_studio.approvals.decide", { approval: this.selected, decision, note });
+						this.notify(
+							r.status === "Pending" ? `Recorded. Still waiting for: ${r.remaining.join(", ")}` : `${r.status}. The agent is resuming the run.`,
+							r.status === "Rejected" ? "orange" : "green"
+						);
+					} finally {
+						this.reload();
+					}
 				})
 			);
 			body.querySelector(".as-open-run")?.addEventListener("click", (event) => {
