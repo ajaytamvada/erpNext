@@ -1,19 +1,10 @@
 frappe.pages["agent-workflows"].on_page_load = async (wrapper) => {
 	await frappe.require([
 		"/assets/pridict/css/agent_studio.css",
-		"/assets/pridict/js/agent_studio/sample_data.js",
 		"/assets/pridict/js/agent_studio/common.js",
 	]);
 	const studio = window.pridict.agentStudio;
 	const { t, escape, badge, kindBadge } = studio;
-
-	const checks = [
-		["Every node is reachable from the entry point", "PASS"],
-		["Every path ends at END or a human pause", "PASS"],
-		["Write tools are only reachable after a human approval node", "PASS"],
-		["Router edges cover every possible outcome", "PASS"],
-		["Loops are bounded by the agent's step limit (8)", "PASS"],
-	];
 
 	class AgentWorkflowsPage extends studio.StudioPage {
 		constructor(wrapper) {
@@ -24,7 +15,11 @@ frappe.pages["agent-workflows"].on_page_load = async (wrapper) => {
 				intro: "A workflow is a map of steps (nodes) and arrows (edges). LangGraph follows this map at run time, so the order of work is decided by the map and the rules, not by the LLM.",
 			});
 			this.selected = "calc_shortage";
-			this.refresh();
+			this.reload();
+		}
+
+		fetch() {
+			return studio.call("get_workflow");
 		}
 
 		label(id) {
@@ -34,7 +29,8 @@ frappe.pages["agent-workflows"].on_page_load = async (wrapper) => {
 
 		render() {
 			const wf = this.data.workflow;
-			const node = wf.nodes.find((n) => n.id === this.selected);
+			const node = wf.nodes.find((n) => n.id === this.selected) || wf.nodes[0];
+			const usedBy = this.data.agents.map((a) => `${escape(a.name)} (${escape(a.version)})`).join(", ") || t("no agent yet");
 			return `
 				<div class="as-callout">
 					<strong>${t("Version 1 is read-only.")}</strong>
@@ -44,9 +40,9 @@ frappe.pages["agent-workflows"].on_page_load = async (wrapper) => {
 					<section class="as-panel">
 						<div class="as-panel-head">
 							<h2>${escape(wf.name)}</h2>
-							${badge("Active")}
+							${badge(this.data.validation.some((c) => c.result === "FAIL") ? "Fail" : "Pass")}
 						</div>
-						<p class="as-muted">${escape(wf.version)} · ${wf.nodes.length} ${t("nodes")}</p>
+						<p class="as-muted">${escape(wf.version)} · ${wf.nodes.length} ${t("nodes")} · ${t("used by")} ${usedBy}</p>
 						<div class="as-legend">${Object.keys(studio.kindLabels).filter((k) => k !== "end").map(kindBadge).join("")}</div>
 						<div class="as-flow">
 							<div class="as-node" style="cursor:default"><span class="as-node-num">▶</span><span class="as-node-title">${t("START: buyer request")}</span><span></span></div>
@@ -82,10 +78,10 @@ frappe.pages["agent-workflows"].on_page_load = async (wrapper) => {
 						<section class="as-panel">
 							<div class="as-panel-head">
 								<h2>${t("Graph validation")}</h2>
-								<button type="button" class="btn btn-default btn-sm as-test-run">${t("Test run with sample request")}</button>
 							</div>
+							<p class="as-muted">${t("Checked by the server every time this page loads.")}</p>
 							<div class="as-table-scroll"><table class="as-table"><tbody>
-								${checks.map(([name, result]) => `<tr><td>${t(name)}</td><td>${badge(result)}</td></tr>`).join("")}
+								${this.data.validation.map((c) => `<tr><td>${t(c.check)}<div class="as-muted">${escape(c.detail)}</div></td><td>${badge(c.result)}</td></tr>`).join("")}
 							</tbody></table></div>
 						</section>
 					</div>
@@ -99,7 +95,6 @@ frappe.pages["agent-workflows"].on_page_load = async (wrapper) => {
 					this.refresh();
 				})
 			);
-			body.querySelector(".as-test-run").addEventListener("click", () => frappe.set_route("agent-runs"));
 		}
 	}
 

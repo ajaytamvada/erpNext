@@ -1,0 +1,102 @@
+{
+ "actions": [],
+ "creation": "2026-10-14 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "node_id",
+  "node_kind",
+  "status",
+  "started_at",
+  "duration_ms",
+  "tokens",
+  "tool_calls",
+  "summary",
+  "input_json",
+  "output_json"
+ ],
+ "fields": [
+  {
+   "fieldname": "node_id",
+   "fieldtype": "Data",
+   "label": "Node",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "node_kind",
+   "fieldtype": "Select",
+   "label": "Kind",
+   "options": "llm\ntool\nrule\nrouter\nhuman\nend",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Completed\nFailed\nInterrupted\nSkipped",
+   "default": "Completed",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "started_at",
+   "fieldtype": "Datetime",
+   "label": "Started At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "duration_ms",
+   "fieldtype": "Int",
+   "label": "Duration (ms)",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "tokens",
+   "fieldtype": "Int",
+   "label": "Tokens",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tool_calls",
+   "fieldtype": "Data",
+   "label": "Tool Calls",
+   "read_only": 1
+  },
+  {
+   "fieldname": "summary",
+   "fieldtype": "Small Text",
+   "label": "Summary",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "input_json",
+   "fieldtype": "Code",
+   "label": "Input",
+   "options": "JSON",
+   "read_only": 1
+  },
+  {
+   "fieldname": "output_json",
+   "fieldtype": "Code",
+   "label": "Output",
+   "options": "JSON",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-14 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pridict",
+ "name": "Agent Run Step",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1
+}

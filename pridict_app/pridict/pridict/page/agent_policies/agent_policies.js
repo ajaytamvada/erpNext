@@ -1,7 +1,6 @@
 frappe.pages["agent-policies"].on_page_load = async (wrapper) => {
 	await frappe.require([
 		"/assets/pridict/css/agent_studio.css",
-		"/assets/pridict/js/agent_studio/sample_data.js",
 		"/assets/pridict/js/agent_studio/common.js",
 	]);
 	const studio = window.pridict.agentStudio;
@@ -15,11 +14,15 @@ frappe.pages["agent-policies"].on_page_load = async (wrapper) => {
 				eyebrow: "Agent Studio · Step 5",
 				intro: "Business rules the agent cannot talk its way around. They run as server-side Python before and after every risky step, independent of the LLM and its prompt.",
 			});
-			this.refresh();
+			this.reload();
+		}
+
+		fetch() {
+			return studio.call("get_policies");
 		}
 
 		render() {
-			const s = this.data.scenario;
+			const latest = this.data.latestCheck;
 			return `
 				<div class="as-callout">
 					<strong>${t("Why not just put these rules in the prompt?")}</strong>
@@ -33,23 +36,26 @@ frappe.pages["agent-policies"].on_page_load = async (wrapper) => {
 								<div class="as-table-scroll"><table class="as-table">
 									<thead><tr><th>${t("Rule")}</th><th>${t("Setting")}</th><th>${t("If broken")}</th></tr></thead>
 									<tbody>
-										${group.rules.map((r) => `<tr><td><strong>${t(r.name)}</strong></td><td>${escape(r.value)}</td><td>${badge(r.severity)}</td></tr>`).join("")}
+										${group.rules.map((r) => `
+											<tr class="is-selectable ${r.enabled ? "" : "as-muted"}" data-open-doctype="Agent Policy" data-open-name="${escape(r.name)}">
+												<td><strong>${t(r.name)}</strong>${r.enabled ? "" : ` ${badge("Disabled")}`}${r.agent ? `<div class="as-muted">${t("Only")}: ${escape(r.agent)}</div>` : ""}</td>
+												<td>${escape(r.description)}</td>
+												<td>${badge(r.severity)}</td>
+											</tr>`).join("")}
 									</tbody>
 								</table></div>
 							</section>`).join("")}
+						<p class="as-muted">${t("Click a rule to change its setting. Every change is kept in the document history.")}</p>
 					</div>
 
 					<aside class="as-panel as-preview">
-						<h2>${t("Policy check simulator")}</h2>
-						<p class="as-muted">${t("Result of checking the current proposal:")} ${escape(s.net_shortage)} ${escape(s.uom)} ${escape(s.item_name)}, ${t("RFQ to 3 suppliers, estimated")} ${studio.inr(s.net_shortage * 258)}</p>
-						<div class="as-table-scroll"><table class="as-table">
-							<tbody>
-								${this.data.policyCheck.map((c) => `<tr><td>${badge(c.result)}</td><td><strong>${t(c.rule)}</strong><div class="as-muted">${escape(c.detail)}</div></td></tr>`).join("")}
-							</tbody>
-						</table></div>
-						<div class="as-callout" style="margin-top:14px">
-							<strong>${t("Outcome")}:</strong> ${t("Allowed with one Purchase Manager approval. The watchlist warning is shown to the approver.")}
-						</div>
+						<h2>${t("Latest policy check")}</h2>
+						${latest ? `
+							<p class="as-muted">${escape(latest.name)} · ${escape(latest.action || "")} · ${studio.inr(latest.estimated_value)} · ${badge(latest.status)}</p>
+							<div class="as-table-scroll"><table class="as-table"><tbody>
+								${latest.results.map((c) => `<tr><td>${badge(c.result)}</td><td><strong>${t(c.rule)}</strong><div class="as-muted">${escape(c.detail)}</div></td></tr>`).join("")}
+							</tbody></table></div>`
+						: studio.empty("No checks yet.", "The result of checking each agent proposal against these rules will appear here.")}
 						<h3>${t("Legend")}</h3>
 						<ul class="as-muted" style="padding-left:18px;margin:0">
 							<li>${badge("Block")} ${t("The action cannot happen.")}</li>

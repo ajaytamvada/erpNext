@@ -57,13 +57,28 @@
 
 	studio.json = (obj) => `<pre class="as-code">${studio.escape(JSON.stringify(obj, null, 2))}</pre>`;
 
-	// Base class: builds the Frappe page, the Agent Studio sub-navigation, and the
-	// "sample data" banner. Subclasses set their state, call refresh(), and implement
-	// render() (returns HTML) plus an optional bind(body) for event handlers.
+	studio.call = (method, args = {}) => frappe.xcall(`pridict.agent_studio.api.${method}`, args);
+
+	studio.empty = (title, detail = "") => `
+		<div class="as-empty">
+			<strong>${studio.t(title)}</strong>
+			${detail ? `<p>${studio.t(detail)}</p>` : ""}
+		</div>`;
+
+	studio.datetime = (value) => (value ? frappe.datetime.str_to_user(value) : "—");
+
+	// Elements with data-open-doctype (and optional data-open-name) open the standard
+	// Desk form; without a name they start a new document.
+	studio.formLink = (label, doctype, name = "", cls = "btn btn-default btn-sm") =>
+		`<button type="button" class="${cls}" data-open-doctype="${studio.escape(doctype)}" data-open-name="${studio.escape(name)}">${studio.t(label)}</button>`;
+
+	// Base class: builds the Frappe page and the Agent Studio sub-navigation, then loads
+	// data from the server. Subclasses implement fetch() (returns the page data),
+	// render() (returns HTML) and an optional bind(body) for event handlers.
 	studio.StudioPage = class StudioPage {
 		constructor(wrapper, { route, title, eyebrow, intro }) {
 			this.route = route;
-			this.data = studio.sampleData;
+			this.data = null;
 			this.page = frappe.ui.make_app_page({ parent: wrapper, title: __(title), single_column: true });
 			const main = this.page.main.get ? this.page.main.get(0) : this.page.main;
 			main.innerHTML = "";
@@ -83,15 +98,30 @@
 						<button type="button" class="as-subnav-link ${p.route === route ? "is-active" : ""}" data-route="${p.route}" ${p.route === route ? 'aria-current="page"' : ""}>
 							<i class="fa ${p.icon}" aria-hidden="true"></i> ${studio.t(p.label)}
 						</button>`).join("")}
-				</nav>
-				<div class="as-sample-banner" role="note">
-					<i class="fa fa-flask" aria-hidden="true"></i>
-					${studio.t("Preview with sample data. Settings are not saved and no LLM is called until the Agent Studio backend is built.")}
-				</div>`;
+				</nav>`;
 			this.root.addEventListener("click", (event) => {
 				const link = event.target.closest(".as-subnav-link[data-route]");
 				if (link) frappe.set_route(link.dataset.route);
+				const open = event.target.closest("[data-open-doctype]");
+				if (open) {
+					const { openDoctype, openName } = open.dataset;
+					openName ? frappe.set_route("Form", openDoctype, openName) : frappe.new_doc(openDoctype);
+				}
 			});
+			// Data changes while the user edits a form, so reload when they come back.
+			$(wrapper).on("show", () => this.data && this.reload());
+		}
+
+		async reload() {
+			if (!this.data) this.root.innerHTML = this.header + `<div class="as-body">${studio.empty("Loading…")}</div>`;
+			try {
+				this.data = await this.fetch();
+			} catch (error) {
+				console.error(error);
+				this.root.innerHTML = this.header + `<div class="as-body">${studio.empty("Could not load this page.", "Check that you have access to Agent Studio, then reload.")}</div>`;
+				return;
+			}
+			this.refresh();
 		}
 
 		refresh() {

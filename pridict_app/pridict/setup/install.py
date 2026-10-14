@@ -4,7 +4,6 @@ from pathlib import Path
 
 import frappe
 
-
 APP_NAME = "Pridict"
 APP_LOGO = "/assets/pridict/images/pridict-wordmark.svg"
 APP_ICON = "/assets/pridict/images/pridict-icon.svg"
@@ -79,11 +78,13 @@ def apply_branding():
 
 def apply_pridict_setup():
 	apply_branding()
-	from pridict.setup.schema_intelligence import ensure_governance_setup
+	from pridict.agent_studio.setup import ensure_agent_studio_setup
 	from pridict.setup.process_intelligence import ensure_process_intelligence_setup
+	from pridict.setup.schema_intelligence import ensure_governance_setup
 
 	ensure_governance_setup()
 	ensure_process_intelligence_setup()
+	ensure_agent_studio_setup()
 
 
 def _apply_website_footer():

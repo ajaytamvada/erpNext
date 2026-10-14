@@ -1,0 +1,130 @@
+{
+ "actions": [],
+ "creation": "2026-10-14 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "tool_name",
+  "access",
+  "status",
+  "column_break_meta",
+  "target",
+  "scope",
+  "timeout_s",
+  "python_method",
+  "section_desc",
+  "description",
+  "input_schema",
+  "output_schema"
+ ],
+ "fields": [
+  {
+   "fieldname": "tool_name",
+   "fieldtype": "Data",
+   "label": "Tool Name",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "access",
+   "fieldtype": "Select",
+   "label": "Access",
+   "options": "Read\nWrite (draft)\nWrite (submit)",
+   "default": "Read",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Enabled\nApproval required\nDisabled\nBlocked for agents",
+   "default": "Enabled",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_meta",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "target",
+   "fieldtype": "Data",
+   "label": "Target",
+   "description": "DocType(s) or Python module the tool touches"
+  },
+  {
+   "fieldname": "scope",
+   "fieldtype": "Data",
+   "label": "Permission Scope"
+  },
+  {
+   "fieldname": "timeout_s",
+   "fieldtype": "Int",
+   "label": "Timeout (seconds)",
+   "default": "10"
+  },
+  {
+   "fieldname": "python_method",
+   "fieldtype": "Data",
+   "label": "Python Method",
+   "read_only": 1,
+   "description": "Dotted path of the implementation (set by code)."
+  },
+  {
+   "fieldname": "section_desc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "input_schema",
+   "fieldtype": "Code",
+   "label": "Input Schema",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "output_schema",
+   "fieldtype": "Code",
+   "label": "Output Schema",
+   "options": "JSON"
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-14 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pridict",
+ "name": "Agent Tool",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Purchase Manager",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "field:tool_name",
+ "naming_rule": "By fieldname",
+ "title_field": "tool_name",
+ "track_changes": 1
+}

@@ -1,0 +1,198 @@
+{
+ "actions": [],
+ "creation": "2026-10-14 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "agent_name",
+  "agent_module",
+  "agent_type",
+  "status",
+  "column_break_owner",
+  "version",
+  "owner_user",
+  "workflow_key",
+  "section_model",
+  "model_config",
+  "mode",
+  "approval_required",
+  "column_break_limits",
+  "max_steps",
+  "max_runtime_s",
+  "token_budget",
+  "section_tools",
+  "tools",
+  "section_prompt",
+  "instructions",
+  "output_schema",
+  "change_note"
+ ],
+ "fields": [
+  {
+   "fieldname": "agent_name",
+   "fieldtype": "Data",
+   "label": "Agent Name",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "agent_module",
+   "fieldtype": "Data",
+   "label": "Business Module",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "agent_type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "Bounded agent\nAssistant",
+   "default": "Bounded agent"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nActive\nDisabled\nPlanned",
+   "default": "Draft",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_owner",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "version",
+   "fieldtype": "Data",
+   "label": "Version",
+   "default": "v0.1"
+  },
+  {
+   "fieldname": "owner_user",
+   "fieldtype": "Link",
+   "label": "Business Owner",
+   "options": "User"
+  },
+  {
+   "fieldname": "workflow_key",
+   "fieldtype": "Data",
+   "label": "Workflow Key",
+   "description": "Code-defined graph this agent runs, e.g. procurement_sourcing"
+  },
+  {
+   "fieldname": "section_model",
+   "fieldtype": "Section Break",
+   "label": "Model & Autonomy"
+  },
+  {
+   "fieldname": "model_config",
+   "fieldtype": "Link",
+   "label": "Model Configuration",
+   "options": "LLM Model Config"
+  },
+  {
+   "fieldname": "mode",
+   "fieldtype": "Select",
+   "label": "Autonomy Mode",
+   "options": "readonly\nrecommend\nexecute",
+   "default": "readonly",
+   "description": "readonly: explain only. recommend: propose, a human approves drafts. execute: create permitted drafts after approval."
+  },
+  {
+   "fieldname": "approval_required",
+   "fieldtype": "Check",
+   "label": "Human Approval Required",
+   "default": "1"
+  },
+  {
+   "fieldname": "column_break_limits",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "max_steps",
+   "fieldtype": "Int",
+   "label": "Max Steps",
+   "default": "8"
+  },
+  {
+   "fieldname": "max_runtime_s",
+   "fieldtype": "Int",
+   "label": "Max Runtime (seconds)",
+   "default": "180"
+  },
+  {
+   "fieldname": "token_budget",
+   "fieldtype": "Int",
+   "label": "Token Budget per Run",
+   "default": "40000"
+  },
+  {
+   "fieldname": "section_tools",
+   "fieldtype": "Section Break",
+   "label": "Tools"
+  },
+  {
+   "fieldname": "tools",
+   "fieldtype": "Table",
+   "label": "Allowed Tools",
+   "options": "Agent Tool Binding"
+  },
+  {
+   "fieldname": "section_prompt",
+   "fieldtype": "Section Break",
+   "label": "Instructions & Output"
+  },
+  {
+   "fieldname": "instructions",
+   "fieldtype": "Code",
+   "label": "Instructions",
+   "options": "Markdown"
+  },
+  {
+   "fieldname": "output_schema",
+   "fieldtype": "Code",
+   "label": "Output Schema",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "change_note",
+   "fieldtype": "Small Text",
+   "label": "Change Note",
+   "description": "What changed in this version (kept in the document history)."
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-14 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pridict",
+ "name": "Agent Definition",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Purchase Manager",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "field:agent_name",
+ "naming_rule": "By fieldname",
+ "title_field": "agent_name",
+ "track_changes": 1
+}

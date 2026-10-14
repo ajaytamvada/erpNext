@@ -1,0 +1,132 @@
+{
+ "actions": [],
+ "creation": "2026-10-14 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "provider_name",
+  "provider_type",
+  "enabled",
+  "column_break_conn",
+  "status",
+  "last_tested_at",
+  "last_latency_ms",
+  "section_connection",
+  "endpoint",
+  "api_version",
+  "api_key",
+  "last_error"
+ ],
+ "fields": [
+  {
+   "fieldname": "provider_name",
+   "fieldtype": "Data",
+   "label": "Provider Name",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "provider_type",
+   "fieldtype": "Select",
+   "label": "Provider Type",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "options": "Azure OpenAI\nOpenAI\nOpenAI-compatible\nAnthropic",
+   "default": "Azure OpenAI"
+  },
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled",
+   "default": "1",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_conn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Not tested\nConnected\nFailed",
+   "default": "Not tested",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "last_tested_at",
+   "fieldtype": "Datetime",
+   "label": "Last Tested At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_latency_ms",
+   "fieldtype": "Int",
+   "label": "Last Latency (ms)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_connection",
+   "fieldtype": "Section Break",
+   "label": "Connection"
+  },
+  {
+   "fieldname": "endpoint",
+   "fieldtype": "Data",
+   "label": "Endpoint",
+   "reqd": 1,
+   "description": "Base URL, e.g. https://my-resource.cognitiveservices.azure.com/"
+  },
+  {
+   "fieldname": "api_version",
+   "fieldtype": "Data",
+   "label": "API Version",
+   "depends_on": "eval:doc.provider_type=='Azure OpenAI'",
+   "mandatory_depends_on": "eval:doc.provider_type=='Azure OpenAI'",
+   "description": "Azure only, e.g. 2025-04-01-preview"
+  },
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "API Key",
+   "length": 512,
+   "description": "Stored encrypted. Never sent to the browser or written to traces."
+  },
+  {
+   "fieldname": "last_error",
+   "fieldtype": "Small Text",
+   "label": "Last Error",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-14 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pridict",
+ "name": "LLM Provider",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "field:provider_name",
+ "naming_rule": "By fieldname",
+ "title_field": "provider_name",
+ "track_changes": 1
+}

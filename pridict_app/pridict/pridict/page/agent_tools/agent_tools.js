@@ -1,7 +1,6 @@
 frappe.pages["agent-tools"].on_page_load = async (wrapper) => {
 	await frappe.require([
 		"/assets/pridict/css/agent_studio.css",
-		"/assets/pridict/js/agent_studio/sample_data.js",
 		"/assets/pridict/js/agent_studio/common.js",
 	]);
 	const studio = window.pridict.agentStudio;
@@ -17,21 +16,27 @@ frappe.pages["agent-tools"].on_page_load = async (wrapper) => {
 			});
 			this.selected = "get_open_purchase_orders";
 			this.filter = "all";
-			this.refresh();
+			this.reload();
+		}
+
+		fetch() {
+			return studio.call("get_tools");
 		}
 
 		render() {
 			const tools = this.data.tools.filter((tool) =>
 				this.filter === "all" ? true : this.filter === "read" ? tool.access === "Read" : tool.access !== "Read"
 			);
-			const tool = this.data.tools.find((x) => x.name === this.selected);
+			const tool = this.data.tools.find((x) => x.name === this.selected) || this.data.tools[0];
 			const reads = this.data.tools.filter((x) => x.access === "Read").length;
+			const calls = this.data.tools.reduce((s, x) => s + x.calls_7d, 0);
+			const errors = this.data.tools.reduce((s, x) => s + x.errors_7d, 0);
 			return `
 				<div class="as-metrics">
 					${studio.metric("Read tools", reads, t("Safe: only look at data"))}
 					${studio.metric("Write tools", this.data.tools.length - reads, t("Create drafts; need approval"))}
-					${studio.metric("Calls (7 days)", this.data.tools.reduce((s, x) => s + x.calls_7d, 0))}
-					${studio.metric("Error rate", "0.3%", t("1 timeout, retried"))}
+					${studio.metric("Calls (7 days)", calls)}
+					${studio.metric("Error rate", calls ? `${((100 * errors) / calls).toFixed(1)}%` : "—", calls ? `${errors} ${t("failed call(s)")}` : t("No calls yet"))}
 					${studio.metric("Blocked", this.data.tools.filter((x) => x.status === "Blocked for agents").length, t("Never callable by agents"))}
 				</div>
 				<div class="as-split">
@@ -64,12 +69,14 @@ frappe.pages["agent-tools"].on_page_load = async (wrapper) => {
 							<h2><code>${escape(tool.name)}</code></h2>
 							${badge(tool.status)}
 						</div>
+						<p>${escape(tool.description || "")}</p>
 						<div class="as-table-scroll"><table class="as-table"><tbody>
 							<tr><td class="as-muted">${t("Access")}</td><td>${escape(tool.access)}</td></tr>
 							<tr><td class="as-muted">${t("Target")}</td><td>${escape(tool.target)}</td></tr>
 							<tr><td class="as-muted">${t("Permission scope")}</td><td>${escape(tool.scope)}</td></tr>
 							<tr><td class="as-muted">${t("Timeout")}</td><td>${tool.timeout_s}s</td></tr>
-							<tr><td class="as-muted">${t("Error rate (7d)")}</td><td>${tool.error_pct}%</td></tr>
+							<tr><td class="as-muted">${t("Error rate (7d)")}</td><td>${tool.calls_7d ? `${tool.error_pct}%` : "—"}</td></tr>
+							<tr><td class="as-muted">${t("Implementation")}</td><td><code>${escape(tool.python_method || "")}</code></td></tr>
 						</tbody></table></div>
 						<h3 style="margin-top:14px">${t("Input schema")}</h3>
 						${studio.json(tool.input)}
@@ -79,6 +86,9 @@ frappe.pages["agent-tools"].on_page_load = async (wrapper) => {
 							${tool.access === "Read"
 								? t("Runs as the user who started the run, so ERPNext permissions still apply. The agent never gets more access than the person using it.")
 								: t("Write tools need an approval_id. The server checks the approval is valid, unused and matches this exact action before running.")}
+						</div>
+						<div class="as-actions">
+							${studio.formLink("Change status", "Agent Tool", tool.name)}
 						</div>
 					</aside>
 				</div>`;

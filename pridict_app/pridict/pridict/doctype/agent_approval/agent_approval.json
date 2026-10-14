@@ -1,0 +1,195 @@
+{
+ "actions": [],
+ "creation": "2026-10-14 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "run",
+  "agent",
+  "requested_by",
+  "status",
+  "column_break_value",
+  "action",
+  "estimated_value",
+  "risk",
+  "required_approvals",
+  "section_proposal",
+  "summary",
+  "proposal_json",
+  "policy_results_json",
+  "section_decision",
+  "decided_by",
+  "decided_at",
+  "decision_note",
+  "column_break_result",
+  "created_doctype",
+  "created_docname"
+ ],
+ "fields": [
+  {
+   "fieldname": "run",
+   "fieldtype": "Link",
+   "label": "Run",
+   "options": "Agent Run",
+   "reqd": 1,
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "agent",
+   "fieldtype": "Link",
+   "label": "Agent",
+   "options": "Agent Definition",
+   "fetch_from": "run.agent",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "requested_by",
+   "fieldtype": "Link",
+   "label": "Requested By",
+   "options": "User",
+   "fetch_from": "run.requested_by",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nApproved\nRejected\nExpired",
+   "default": "Pending",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_value",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "action",
+   "fieldtype": "Data",
+   "label": "Proposed Action",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "estimated_value",
+   "fieldtype": "Currency",
+   "label": "Estimated Value",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "risk",
+   "fieldtype": "Select",
+   "label": "Risk",
+   "options": "Low\nMedium\nHigh",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "required_approvals",
+   "fieldtype": "Int",
+   "label": "Required Approvals",
+   "default": "1",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_proposal",
+   "fieldtype": "Section Break",
+   "label": "Proposal"
+  },
+  {
+   "fieldname": "summary",
+   "fieldtype": "Small Text",
+   "label": "Summary",
+   "read_only": 1
+  },
+  {
+   "fieldname": "proposal_json",
+   "fieldtype": "Code",
+   "label": "Proposal",
+   "options": "JSON",
+   "read_only": 1
+  },
+  {
+   "fieldname": "policy_results_json",
+   "fieldtype": "Code",
+   "label": "Policy Check Results",
+   "options": "JSON",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_decision",
+   "fieldtype": "Section Break",
+   "label": "Decision"
+  },
+  {
+   "fieldname": "decided_by",
+   "fieldtype": "Link",
+   "label": "Decided By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "decided_at",
+   "fieldtype": "Datetime",
+   "label": "Decided At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "decision_note",
+   "fieldtype": "Small Text",
+   "label": "Decision Note",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_result",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "created_doctype",
+   "fieldtype": "Link",
+   "label": "Created DocType",
+   "options": "DocType",
+   "read_only": 1
+  },
+  {
+   "fieldname": "created_docname",
+   "fieldtype": "Dynamic Link",
+   "label": "Created Document",
+   "options": "created_doctype",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-14 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pridict",
+ "name": "Agent Approval",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "report": 1,
+   "write": 1,
+   "delete": 1
+  },
+  {
+   "role": "Purchase Manager",
+   "read": 1,
+   "report": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "format:AGA-{YYYY}-{#####}",
+ "naming_rule": "Expression",
+ "title_field": "action",
+ "track_changes": 1
+}
