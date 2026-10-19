@@ -11,7 +11,12 @@ WORKDIR /home/frappe/frappe-bench
 
 COPY --chown=frappe:frappe pridict_app/ apps/pridict/
 
+# --no-deps keeps the pinned Frappe/ERPNext stack untouched; Pridict's own runtime
+# dependency (LangGraph, for Agent Studio) is installed explicitly.
 RUN ./env/bin/pip install --no-cache-dir --no-deps --editable apps/pridict \
+    && ./env/bin/pip freeze --exclude-editable > /tmp/stack-constraints.txt \
+    && ./env/bin/pip install --no-cache-dir --constraint /tmp/stack-constraints.txt "langgraph>=1.2,<2" \
+    && ./env/bin/python -c "import langgraph.graph, langgraph.types" \
     && printf 'frappe\nerpnext\npridict\n' > sites/apps.txt \
     && ln -s /home/frappe/frappe-bench/assets sites/assets \
     && ln -s /home/frappe/frappe-bench/apps/pridict/pridict/public assets/pridict \
