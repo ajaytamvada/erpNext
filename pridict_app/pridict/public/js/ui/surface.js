@@ -15,6 +15,15 @@
 		return nav;
 	}
 	function ensureListContext(page, options) {
+		// Route timers can fire after Frappe has already swapped in the next page (e.g. list -> form).
+		// Only list pages get list presets; anything left on other pages is removed.
+		document.querySelectorAll(".pridict-list-context").forEach((element) => {
+			if (!element.closest(".page-container")?.querySelector(".frappe-list")) element.remove();
+		});
+		if (!page.querySelector(".frappe-list") || !String(options.actions || "").trim()) {
+			page.querySelector(`.${options.className}`)?.remove();
+			return document.createElement("section");
+		}
 		let block = page.querySelector(`.${options.className}`);
 		if (!block) {
 			block = document.createElement("section");

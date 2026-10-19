@@ -188,7 +188,7 @@ class PridictExecutiveHome {
 
 	renderMetrics() {
 		const metrics = [
-			[__("Revenue"), this.data.metrics.revenue, this.data.filters.currency, this.data.definitions.revenue, "trend-up"],
+			[__("Revenue"), this.data.metrics.revenue, this.data.filters.currency, this.data.definitions.revenue, "income"],
 			[__("Total expenses"), this.data.metrics.expenses, this.data.filters.currency, this.data.definitions.expenses, "accounting"],
 			[
 				__("Sales pipeline"),
@@ -203,7 +203,7 @@ class PridictExecutiveHome {
 				this.data.metrics.overdue_receivables?.value,
 				this.data.filters.currency,
 				this.data.definitions.overdue_receivables,
-				"time",
+				"today",
 				this.data.metrics.overdue_receivables
 					? __("{0} invoices to follow up", [this.data.metrics.overdue_receivables.count])
 					: null,

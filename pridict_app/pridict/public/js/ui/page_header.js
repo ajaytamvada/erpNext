@@ -56,7 +56,7 @@
 			titleArea.prepend(sidebarBtn);
 		}
 
-		const [moduleLabel, moduleRoute] = moduleHomes[context.module] || moduleHomes.overview;
+		const [moduleLabel, moduleRoute] = moduleHomes[context.navModule || context.module] || moduleHomes.overview;
 		const currentTitle = pageTitle(page, context);
 		const currentRoute = context.route || context.parts.join("/") || context.slug;
 		const normTitle = routes.normalize(currentTitle);

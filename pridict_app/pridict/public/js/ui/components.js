@@ -5,6 +5,10 @@
 
 	function documentStatus(doc, fallbackFields = [], options = {}) {
 		if (doc?.docstatus === 2 && options.cancelledFirst) return __("Cancelled");
+		// Same source as the status pill in the page header, so the two never disagree
+		// (e.g. "Enabled" in the header but "Draft" on the card for non-submittable records).
+		const indicator = doc?.doctype && window.frappe?.get_indicator?.(doc, doc.doctype);
+		if (indicator?.[0]) return indicator[0];
 		if (doc?.status) return options.translateStatus ? __(doc.status) : doc.status;
 		for (const fieldname of fallbackFields) {
 			if (doc?.[fieldname]) return doc[fieldname];
@@ -32,6 +36,11 @@
 		const headerClass = options.headerClass ? ` ${options.headerClass}` : "";
 		const fieldsClass = options.fieldsClass ? ` ${options.fieldsClass}` : "";
 		const emptyName = __(options.emptyName || "New document");
+		// Unsaved records carry a temporary "new-<doctype>-<random>" name; show the empty label instead.
+		const unsaved = Boolean(window.cur_frm?.doc?.__islocal && window.cur_frm.doc.name === options.name);
+		if (unsaved) {
+			options = { ...options, name: "", status: __("Not Saved") };
+		}
 		const fieldGrid = options.fields?.length ? `<div class="pridict-document-fields${fieldsClass}">${fields}</div>` : "";
 		const content = options.guidancePosition === "before-fields" ? `${guidance}${fieldGrid}` : `${fieldGrid}${guidance}`;
 		const markup = `<header class="pridict-document-card-header${headerClass}"><div><span>${surface.escape(__(options.eyebrow))}</span><strong>${surface.escape(options.name || emptyName)}</strong></div><b class="pridict-document-status">${surface.escape(options.status)}</b></header>${content}`;
@@ -39,10 +48,22 @@
 		return block;
 	}
 
+	// Plain-text value as the form would show it: checkboxes as Yes/No, dates and currency formatted.
+	function displayValue(doc, fieldname) {
+		const value = doc?.[fieldname];
+		const df = doc?.doctype && window.frappe?.meta?.get_docfield?.(doc.doctype, fieldname, doc.name);
+		if (df?.fieldtype === "Check") return value ? __("Yes") : __("No");
+		if (value === undefined || value === null || value === "") return __("Not set");
+		if (!df || !window.frappe?.format) return String(value);
+		const holder = document.createElement("div");
+		holder.innerHTML = window.frappe.format(value, df, { inline: true }, doc);
+		return holder.textContent.trim() || String(value);
+	}
+
 	function safeDocumentFields(doc, fieldnames, labelResolver) {
 		return fieldnames.map((fieldname) => {
 			const label = labelResolver ? labelResolver(fieldname) : fieldname.replaceAll("_", " ");
-			return [label, surface.escape(doc?.[fieldname] ?? __("Not set"))];
+			return [label, surface.escape(displayValue(doc, fieldname))];
 		});
 	}
 

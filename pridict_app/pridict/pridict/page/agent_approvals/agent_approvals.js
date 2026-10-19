@@ -22,7 +22,7 @@ frappe.pages["agent-approvals"].on_page_load = async (wrapper) => {
 				route: "agent-approvals",
 				title: "Approval Inbox",
 				eyebrow: "Agent Studio · Step 7",
-				intro: "Proposals that need a person's decision. The agent has stopped and is waiting. Nothing has been created in ERPNext yet.",
+				intro: "Proposals that need a person's decision. The agent has stopped and is waiting. Nothing has been created yet.",
 			});
 			this.selected = null;
 			this.details = {};
@@ -78,7 +78,7 @@ frappe.pages["agent-approvals"].on_page_load = async (wrapper) => {
 					</div>
 
 					${p.item_code ? `
-						<h3>${t("Evidence from ERPNext")}</h3>
+						<h3>${t("Evidence from your records")}</h3>
 						<div class="as-evidence">
 							<div><span>${t("Required")}</span><strong>${escape(p.required_qty)} ${uom}</strong></div>
 							<div><span>${t("In stock")} (${escape(p.warehouse)})</span><strong>${escape(p.stock_qty)} ${uom}</strong></div>

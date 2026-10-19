@@ -639,7 +639,7 @@ WORKFLOWS: dict[str, dict] = {
 			},
 			{
 				"id": "resolve_records",
-				"label": "Resolve ERPNext records",
+				"label": "Resolve existing records",
 				"kind": "tool",
 				"desc": "Looks up the real Item and Warehouse records so later steps work with exact codes, not guesses.",
 				"tools": ["search_items", "get_warehouses"],
@@ -649,7 +649,7 @@ WORKFLOWS: dict[str, dict] = {
 				"id": "propose_item",
 				"label": "Propose a new item",
 				"kind": "llm",
-				"desc": "The item is not in ERPNext. Looks for similar items and drafts a new Item (name, group, unit) for the buyer to confirm.",
+				"desc": "The item does not exist yet. Looks for similar items and drafts a new Item (name, group, unit) for the buyer to confirm.",
 				"tools": ["search_items"],
 				"next": [["", "confirm_item"]],
 			},
@@ -787,7 +787,7 @@ WORKFLOWS: dict[str, dict] = {
 				"id": "human_review",
 				"label": "Human review",
 				"kind": "human",
-				"desc": "Interrupt: the run is saved (checkpoint) and appears in the Approval Inbox. Nothing is written to ERPNext yet.",
+				"desc": "Interrupt: the run is saved (checkpoint) and appears in the Approval Inbox. Nothing is written yet.",
 				"next": [["approved", "revalidate"], ["rejected", "record_rejection"]],
 			},
 			{

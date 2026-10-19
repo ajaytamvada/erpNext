@@ -108,6 +108,37 @@ function removeUpstreamTourLinks() {
 	});
 }
 
+// The upstream About dialog lists framework names, versions and upstream links.
+// Third-party attributions stay available on the notices page.
+function showPridictAbout() {
+	const version = window.frappe?.boot?.versions?.pridict || "";
+	const dialog = new frappe.ui.Dialog({ title: __("About Pridict") });
+	$(dialog.body).html(`
+		<div class="pridict-about">
+			<img src="${PRIDICT_LOGO_PATH}" alt="Pridict" height="28">
+			<p>${__("Enterprise operations platform")}</p>
+			${version ? `<p class="text-muted">${__("Version {0}", [frappe.utils.escape_html(version)])}</p>` : ""}
+			<p><a href="/pridict-notices" target="_blank">${__("Notices and open-source licences")}</a></p>
+		</div>
+	`);
+	dialog.show();
+}
+
+function rebrandUpstreamUi() {
+	if (window.frappe?.ui?.misc && window.frappe.ui.misc.about !== showPridictAbout) {
+		window.frappe.ui.misc.about = showPridictAbout;
+	}
+	const apps = window.frappe?.boot?.apps_data?.apps;
+	if (Array.isArray(apps)) {
+		apps.forEach((app) => {
+			if (app.name === "erpnext" || app.name === "frappe") {
+				app.title = "Pridict";
+				app.logo = "/assets/pridict/images/pridict-icon.svg";
+			}
+		});
+	}
+}
+
 function enablePridictUi() {
 	document.documentElement.classList.add(PRIDICT_ROOT_CLASS);
 
@@ -125,6 +156,7 @@ function enablePridictUi() {
 	}
 
 	ensureThemeToggle();
+	rebrandUpstreamUi();
 	removeUpstreamContextualHelp();
 	removeUpstreamTourLinks();
 }

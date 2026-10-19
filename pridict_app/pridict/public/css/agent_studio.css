@@ -143,3 +143,17 @@
 .as-screen .as-card dd { min-width: 0; }
 .as-screen .as-card dd code { overflow-wrap: anywhere; word-break: break-all; }
 .as-screen .as-text-bad { color: #dc2626; font-weight: 600; }
+
+/* Dark theme: the light-theme text colours above sit below 3:1 on dark panels. */
+[data-theme="dark"] .as-badge-good { color: #4ade80; }
+[data-theme="dark"] .as-badge-warn { color: #facc15; }
+[data-theme="dark"] .as-badge-bad { color: #f87171; }
+[data-theme="dark"] .as-badge-info { color: #60a5fa; }
+[data-theme="dark"] .as-badge-muted { color: #94a3b8; }
+[data-theme="dark"] .as-kind-llm { color: #a78bfa; }
+[data-theme="dark"] .as-kind-tool { color: #60a5fa; }
+[data-theme="dark"] .as-kind-rule { color: #cbd5e1; }
+[data-theme="dark"] .as-kind-router { color: #facc15; }
+[data-theme="dark"] .as-kind-human { color: #fb923c; }
+[data-theme="dark"] .as-kind-end { color: #4ade80; }
+[data-theme="dark"] .as-screen code { color: #c4b5fd; }

@@ -12,7 +12,7 @@ frappe.pages["agent-tools"].on_page_load = async (wrapper) => {
 				route: "agent-tools",
 				title: "Tools & Connectors",
 				eyebrow: "Agent Studio · Step 4",
-				intro: "Tools are the only way an agent can touch ERPNext. Each one is a tested Python function with a fixed input, a fixed output, a permission scope and an audit log.",
+				intro: "Tools are the only way an agent can touch your data. Each one is a tested Python function with a fixed input, a fixed output, a permission scope and an audit log.",
 			});
 			this.selected = "get_open_purchase_orders";
 			this.filter = "all";
@@ -49,7 +49,7 @@ frappe.pages["agent-tools"].on_page_load = async (wrapper) => {
 						</div>
 						<div class="as-table-scroll">
 							<table class="as-table">
-								<thead><tr><th>${t("Tool")}</th><th>${t("Access")}</th><th>${t("ERPNext target")}</th><th>${t("Calls 7d")}</th><th>${t("Status")}</th></tr></thead>
+								<thead><tr><th>${t("Tool")}</th><th>${t("Access")}</th><th>${t("Target")}</th><th>${t("Calls 7d")}</th><th>${t("Status")}</th></tr></thead>
 								<tbody>
 									${tools.map((x) => `
 										<tr class="is-selectable ${x.name === this.selected ? "is-selected" : ""}" data-name="${escape(x.name)}">
@@ -84,7 +84,7 @@ frappe.pages["agent-tools"].on_page_load = async (wrapper) => {
 						${studio.json(tool.output)}
 						<div class="as-callout" style="margin-top:14px">
 							${tool.access === "Read"
-								? t("Runs as the user who started the run, so ERPNext permissions still apply. The agent never gets more access than the person using it.")
+								? t("Runs as the user who started the run, so that user's permissions still apply. The agent never gets more access than the person using it.")
 								: t("Write tools need an approval_id. The server checks the approval is valid, unused and matches this exact action before running.")}
 						</div>
 						<div class="as-actions">

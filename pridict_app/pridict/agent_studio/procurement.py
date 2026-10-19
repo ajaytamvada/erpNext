@@ -456,7 +456,7 @@ def propose_item(state: State, ctx: RunContext) -> dict:
 
 	options = _item_options()
 	if not options["groups"] or not options["uoms"]:
-		raise tools.ToolError(_("ERPNext has no item groups or units set up, so I cannot create items."))
+		raise tools.ToolError(_("No item groups or units are set up yet, so I cannot create items."))
 	proposal = ctx.llm(
 		[
 			{
@@ -784,7 +784,7 @@ def find_suppliers(state: State, ctx: RunContext) -> dict:
 			"none are listed on the item"
 		)
 		question = _(
-			"No approved supplier is available for {0} ({1}). Add suppliers to the item's Supplier list in ERPNext and reply 'done', or tell me what to change."
+			"No approved supplier is available for {0} ({1}). Add suppliers to the item's Supplier list and reply 'done', or tell me what to change."
 		).format(record["item_code"], reasons)
 		ctx.note(question)
 		return {"route": "not enough", "question": question, "suppliers": [], "excluded": excluded}

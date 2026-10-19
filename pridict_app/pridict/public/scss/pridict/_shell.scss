@@ -81,6 +81,25 @@ html.pridict-shell-active .pridict-executive-sidebar {
 	display: none;
 }
 
+// The rail, sticky page heads and full-height panels are offset by --navbar-height, but the
+// core navbar kept its fixed 48px height, leaving an 8px strip under it on every page.
+html.pridict-ui .navbar {
+	height: var(--navbar-height);
+}
+
+html.pridict-ui .navbar > .container {
+	height: 100%;
+	align-items: center;
+}
+
+// The page head already carries module breadcrumbs; the navbar copy duplicated them
+// with upstream module names ("Buying" next to "Procurement").
+@media (min-width: 768px) {
+	html.pridict-shell-active #navbar-breadcrumbs {
+		display: none !important;
+	}
+}
+
 .pridict-shell-backdrop {
 	display: none;
 }

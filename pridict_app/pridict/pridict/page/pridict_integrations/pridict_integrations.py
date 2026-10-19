@@ -69,7 +69,7 @@ def get_overview():
 			doctype: frappe.has_permission(doctype, "create") for doctype in INTEGRATION_DOCTYPES
 		},
 		"compatibility_routes": [
-			{"label": _("ERPNext Integrations workspace"), "route": "erpnext-integrations"},
+			{"label": _("Integrations workspace"), "route": "erpnext-integrations"},
 			{"label": _("Integrations workspace"), "route": "integrations"},
 		],
 	}

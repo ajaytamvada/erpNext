@@ -7,7 +7,7 @@ frappe.pages["agent-registry"].on_page_load = async (wrapper) => {
 	const { t, escape, badge, formLink } = studio;
 
 	const modes = {
-		readonly: ["Read-only analysis", "Reads ERPNext data and explains. Cannot create anything."],
+		readonly: ["Read-only analysis", "Reads business data and explains. Cannot create anything."],
 		recommend: ["Recommend and prepare drafts", "Prepares a proposal; a human must approve before a draft document is created."],
 		execute: ["Execute authorized actions after approval", "After approval, may create permitted draft documents automatically."],
 	};

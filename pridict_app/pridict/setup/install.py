@@ -57,6 +57,11 @@ def apply_branding():
 	_reconcile_standard_onboarding()
 	_reconcile_contextual_help()
 	frappe.db.set_default("disable_standard_email_footer", 1)
+	# Mail configured through site_config otherwise goes out with the upstream sender name.
+	if not frappe.conf.get("email_sender_name"):
+		from frappe.installer import update_site_config
+
+		update_site_config("email_sender_name", APP_NAME)
 	# Workspace titles participate in routing. Keep their identifiers unchanged;
 	# translations provide the Pridict display names instead.
 	for name in ("ERPNext Settings", "ERPNext Integrations"):

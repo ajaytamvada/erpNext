@@ -1,2 +1,50 @@
 ERPNext Settings,Pridict Settings
 ERPNext Integrations,Pridict Integrations
+"<a href=""https://docs.frappe.io/framework/user/en/api/rest#1-token-based-authentication"" target=""_blank"">
+  Click here to learn about token-based authentication
+</a>",Token-based authentication lets integrations call the API with this user's API key and secret.
+Allowed Users is not required as Frappe CRM is already installed on the site.,Allowed Users is not required as CRM App is already installed on the site.
+Allowed Users is required for data synchronization from remote Frappe CRM site.,Allowed Users is required for data synchronization from remote CRM App site.
+"By default, the Supplier Name is set as per the Supplier Name entered. If you want Suppliers to be named by a <a href='https://docs.erpnext.com/docs/user/manual/en/setting-up/settings/naming-series' target='_blank'>Naming Series</a> choose the 'Naming Series' option.","By default, the Supplier Name is set as per the Supplier Name entered. If you want Suppliers to be named by a Naming Series choose the 'Naming Series' option."
+ERPNext User ID,Pridict User ID
+Enable Frappe CRM Data Synchronization,Enable CRM App Data Synchronization
+"Enter static url parameters here (Eg. sender=ERPNext, username=ERPNext, password=1234 etc.)","Enter static url parameters here (Eg. sender=Pridict, username=Pridict, password=1234 etc.)"
+"Error connecting to QZ Tray Application...<br><br> You need to have QZ Tray application installed and running, to use the Raw Print feature.<br><br><a target=""_blank"" href=""https://qz.io/download/"">Click here to Download and install QZ Tray</a>.<br> <a target=""_blank"" href=""https://erpnext.com/docs/user/manual/en/setting-up/print/raw-printing"">Click here to learn more about Raw Printing</a>.","Error connecting to QZ Tray Application...<br><br> You need to have QZ Tray application installed and running, to use the Raw Print feature.<br><br><a target=""_blank"" href=""https://qz.io/download/"">Click here to Download and install QZ Tray</a>."
+Failed to request login to Frappe Cloud,Failed to request login to Pridict Cloud
+"For help see <a href=""https://frappeframework.com/docs/user/en/guides/portal-development/web-forms"" target=""_blank"" rel=""noopener noreferrer"">Client Script API and Examples</a>",Client scripts can use the standard form API.
+"For more information, <a class=""text-muted"" href=""https://docs.frappe.io/erpnext/user/manual/en/linking-emails-to-document"">click here</a>.",Emails are linked to documents automatically when the document reference is included.
+Frappe,Pridict
+Frappe Blog,Pridict Blog
+Frappe CRM,CRM App
+Frappe CRM Allowed User,CRM App Allowed User
+Frappe CRM data synchronization is not enabled on ERPNext. Contact System Manager of ERPNext.,CRM App data synchronization is not enabled on Pridict. Contact System Manager of Pridict.
+Frappe Forum,Pridict Community
+Frappe Framework,Pridict Platform
+Frappe Light,Light
+Frappe School,Pridict Academy
+Frappe Support,Pridict Support
+"Frappe no longer uses Gravatar because it can disclose hashed email addresses to a third-party service. To fully stop this behavior, existing Gravatar image URLs must be deleted.","Pridict no longer uses Gravatar because it can disclose hashed email addresses to a third-party service. To fully stop this behavior, existing Gravatar image URLs must be deleted."
+Frappe page builder using components,Page builder using components
+Guidelines and policies on vulnerability reporting. Defaults to `https://frappe.io/security`,Guidelines and policies on vulnerability reporting.
+"If this option is configured 'Yes', ERPNext will prevent you from creating a Purchase Invoice or Receipt without creating a Purchase Order first. This configuration can be overridden for a particular supplier by enabling the 'Allow Purchase Invoice Creation Without Purchase Order' checkbox in the Supplier master.","If this option is configured 'Yes', Pridict will prevent you from creating a Purchase Invoice or Receipt without creating a Purchase Order first. This configuration can be overridden for a particular supplier by enabling the 'Allow Purchase Invoice Creation Without Purchase Order' checkbox in the Supplier master."
+"If this option is configured 'Yes', ERPNext will prevent you from creating a Purchase Invoice without creating a Purchase Receipt first. This configuration can be overridden for a particular supplier by enabling the 'Allow Purchase Invoice Creation Without Purchase Receipt' checkbox in the Supplier master.","If this option is configured 'Yes', Pridict will prevent you from creating a Purchase Invoice without creating a Purchase Receipt first. This configuration can be overridden for a particular supplier by enabling the 'Allow Purchase Invoice Creation Without Purchase Receipt' checkbox in the Supplier master."
+"If you are maintaining stock of this Item in your Inventory, ERPNext will make a stock ledger entry for each transaction of this item.","If you are maintaining stock of this Item in your Inventory, Pridict will make a stock ledger entry for each transaction of this item."
+Login with Frappe Cloud,Login with Pridict Cloud
+Loving Frappe Framework?,Enjoying Pridict?
+Please add atleast one user on Allowed Users to allow Data Synchronization from Frappe CRM site.,Please add atleast one user on Allowed Users to allow Data Synchronization from CRM App site.
+Please visit https://frappecloud.com/docs/sites/migrate-an-existing-site#encryption-key for more information.,Please contact your administrator for more information.
+"SMS Settings.allowed_roles not found. Update the Frappe Framework app to a version that includes this field, then re-run bench migrate.","SMS Settings.allowed_roles not found. Update the platform to a version that includes this field, then run the migration again."
+Starting Frappe ...,Starting Pridict ...
+Sub-domain provided by erpnext.com,Sub-domain provided by your hosting provider
+"The stock for the item {0} in the {1} warehouse was negative on the {2}. You should create a positive entry {3} before the date {4} and time {5} to post the correct valuation rate. For more details, please read the <a href='https://docs.erpnext.com/docs/user/manual/en/stock-adjustment-cogs-with-negative-stock'>documentation<a>.",The stock for the item {0} in the {1} warehouse was negative on the {2}. You should create a positive entry {3} before the date {4} and time {5} to post the correct valuation rate.
+"There are two options to maintain valuation of stock. FIFO (first in - first out) and Moving Average. To understand this topic in detail please visit <a href='https://docs.frappe.io/erpnext/user/manual/en/calculation-of-valuation-rate-in-fifo-and-moving-average' target='_blank'>Item Valuation, FIFO and Moving Average.</a>","There are two options to maintain valuation of stock. FIFO (first in - first out) and Moving Average. To understand this topic in detail please visit Item Valuation, FIFO and Moving Average."
+This action will unlink this account from any external service integrating ERPNext with your bank accounts. It cannot be undone. Are you certain ?,This action will unlink this account from any external service integrating Pridict with your bank accounts. It cannot be undone. Are you certain ?
+This is an example website auto-generated from ERPNext,This is an example website auto-generated from Pridict
+Update from Frappe Cloud,Update from Pridict Cloud
+User not allowed to synchronize data from Frappe CRM on ERPNext. Contact System Manager of ERPNext.,User not allowed to synchronize data from CRM App on Pridict. Contact System Manager of Pridict.
+"WARNING: Exotel app has been separated from ERPNext, please install the app to continue using Exotel integration.","WARNING: Exotel app has been separated from Pridict, please install the app to continue using Exotel integration."
+"Website, email or phone where vulnerabilities can be reported. Defaults to `https://security.frappe.io`","Website, email or phone where vulnerabilities can be reported."
+[Important] [ERPNext] Auto Reorder Errors,[Important] [Pridict] Auto Reorder Errors
+Frappe Version,Platform Version
+ERPNext Version,Application Version
+ERPNext,Pridict

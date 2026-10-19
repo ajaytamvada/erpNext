@@ -81,3 +81,11 @@
 @media (max-width: 575px) {
 	.di-screen .di-metrics { grid-template-columns: 1fr; }
 }
+
+/* Dark theme: the light-theme text colours above sit below 3:1 on dark panels. */
+[data-theme="dark"] .di-badge-compliant { color: #4ade80; }
+[data-theme="dark"] .di-badge-warning { color: #facc15; }
+[data-theme="dark"] .di-badge-breach, [data-theme="dark"] .di-badge-high { color: #f87171; }
+[data-theme="dark"] .di-badge-preferred { color: #60a5fa; }
+[data-theme="dark"] .di-badge-standard { color: #cbd5e1; }
+[data-theme="dark"] .di-badge-watchlist { color: #fb923c; }

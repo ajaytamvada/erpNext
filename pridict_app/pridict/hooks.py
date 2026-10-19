@@ -84,6 +84,13 @@ web_include_js = ["pridict.bundle.js", "/assets/pridict/js/customer_facing.js"]
 
 welcome_email = "pridict.email.get_welcome_email_subject"
 
+extend_bootinfo = "pridict.boot.extend_bootinfo"
+
+after_request = ["pridict.website.strip_upstream_markers"]
+
+# The upstream app chooser page lists framework apps by name; Pridict has a single entry point.
+website_redirects = [{"source": "/apps", "target": "/app"}]
+
 after_install = "pridict.setup.install.apply_pridict_setup"
 after_migrate = "pridict.setup.install.apply_pridict_setup"
 

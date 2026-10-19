@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 import frappe
@@ -30,3 +31,18 @@ def get_release_notes_context(context):
 def _repository_notices_available():
 	repository_root = Path(__file__).resolve().parents[2]
 	return all((repository_root / filename).exists() for filename in ("license.txt", "attributions.md"))
+
+
+# Upstream markers that core templates (base.html, printview.html) write into every page.
+_UPSTREAM_MARKERS = re.compile(
+	r'<!--\s*Built on Frappe[^>]*-->\s*|<meta name="generator" content="frappe">\s*', re.IGNORECASE
+)
+
+
+def strip_upstream_markers(response, request):
+	if response.direct_passthrough or response.is_streamed or response.mimetype != "text/html":
+		return
+	html = response.get_data(as_text=True)
+	cleaned = _UPSTREAM_MARKERS.sub("", html)
+	if cleaned != html:
+		response.set_data(cleaned)

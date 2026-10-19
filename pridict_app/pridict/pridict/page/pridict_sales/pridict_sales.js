@@ -42,7 +42,7 @@ class PridictSales {
 		}
 		this.$root.html(`
 			<header class="pridict-sales-hero">
-				<div><span>${__("Customer operations")}</span><h1>${__("Sales & CRM")}</h1><p>${__("Move prospects through qualification, quotation, fulfillment, and billing while retaining native ERPNext controls.")}</p></div>
+				<div><span>${__("Customer operations")}</span><h1>${__("Sales & CRM")}</h1><p>${__("Move prospects through qualification, quotation, fulfillment, and billing with the standard document controls.")}</p></div>
 				<label><span>${__("Company")}</span><select data-filter="company">${this.data.companies.map((company) => `<option value="${frappe.utils.escape_html(company.name)}" ${company.name === this.company ? "selected" : ""}>${frappe.utils.escape_html(company.name)}</option>`).join("")}</select></label>
 			</header>
 			<section class="pridict-sales-metrics">${this.renderMetrics()}</section>

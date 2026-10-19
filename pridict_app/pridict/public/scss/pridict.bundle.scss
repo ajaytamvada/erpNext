@@ -931,7 +931,7 @@ html.pridict-ui .page-head {
 }
 
 html.pridict-ui .page-head .page-head-content {
-	height: 64px;
+	min-height: 64px;
 	padding-block: 12px;
 }
 
@@ -3711,3 +3711,4 @@ html.pridict-ui * {
 @import "pridict/administration";
 @import "pridict/cross-product";
 @import "pridict/generic-module";
+@import "pridict/desk-fixes";

@@ -35,13 +35,11 @@
 		"decision-intelligence": `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg>`,
 	};
 
+	// frappe.utils.icon(name) always renders <use href="#icon-name">, so only the
+	// "icon-" symbol counts; es-line-* or bare ids would render an empty icon.
 	function hasSvgSymbol(id) {
 		if (typeof document === "undefined") return false;
-		return Boolean(
-			document.getElementById(`icon-${id}`) ||
-			document.getElementById(`es-line-${id}`) ||
-			document.getElementById(id)
-		);
+		return Boolean(document.getElementById(`icon-${id}`));
 	}
 
 	function hasRole(roles) {
@@ -59,13 +57,13 @@
 
 	function icon(name) {
 		try {
-			if (window.frappe?.utils?.icon && hasSvgSymbol(name)) {
-				return window.frappe.utils.icon(name, "sm");
-			}
 			if (customIcons[name]) {
 				return customIcons[name];
 			}
-			return window.frappe?.utils?.icon ? window.frappe.utils.icon(name, "sm") : (customIcons[name] || "");
+			if (window.frappe?.utils?.icon && hasSvgSymbol(name)) {
+				return window.frappe.utils.icon(name, "sm");
+			}
+			return `<svg class="icon icon-sm" aria-hidden="true"></svg>`;
 		} catch (_error) {
 			return customIcons[name] || "";
 		}
@@ -162,7 +160,7 @@
 		const shell = ensureShell();
 		if (!shell) return;
 		shell.querySelectorAll("[data-pridict-module]").forEach((button) => {
-			button.classList.toggle("is-active", button.dataset.pridictModule === context.module);
+			button.classList.toggle("is-active", button.dataset.pridictModule === context.navModule);
 			if (button.classList.contains("is-active")) button.setAttribute("aria-current", "page");
 			else button.removeAttribute("aria-current");
 		});

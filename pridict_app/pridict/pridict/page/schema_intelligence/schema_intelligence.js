@@ -300,7 +300,7 @@ class PridictSchemaIntelligence {
 		return `
 			<details class="pridict-schema-diagnostics">
 				<summary>
-					${frappe.utils.icon("alert-triangle", "sm")}
+					${frappe.utils.icon("solid-warning", "sm")}
 					${__("Diagnostics")}
 					<span>${diagnostics.length}</span>
 				</summary>

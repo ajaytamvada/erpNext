@@ -78,7 +78,7 @@ def get_overview():
 			doctype: frappe.has_permission(doctype, "create") for doctype in ADMINISTRATION_DOCTYPES
 		},
 		"compatibility_routes": [
-			{"label": _("ERPNext Settings workspace"), "route": "erpnext-settings"},
+			{"label": _("Settings workspace"), "route": "erpnext-settings"},
 			{"label": _("Users workspace"), "route": "users"},
 			{"label": _("Tools workspace"), "route": "tools"},
 		],

@@ -195,7 +195,9 @@
 		if (context.surface !== "list" || !window.cur_list?.data?.length) return;
 		window.cur_list.data.forEach((doc) => {
 			const selector = `[data-name="${window.CSS?.escape ? CSS.escape(doc.name) : doc.name}"]`;
-			const row = page.querySelector(selector);
+			// Scope to real list rows: [data-name] also matches the like/follow buttons on a form,
+			// which is where the bars ended up when this ran just after list -> form navigation.
+			const row = page.querySelector(`.frappe-list .list-row-container ${selector}`)?.closest(".list-row");
 			if (!row) return;
 			const values = progressValues(context, doc).filter(([, value]) => value !== undefined && value !== null);
 			if (!values.length) return;

@@ -159,6 +159,38 @@
 		assets: ["Asset Depreciation Ledger", "Asset Depreciations and Balances"],
 		manufacturing: ["BOM Operations Time", "BOM Search", "Downtime Analysis", "Quality Inspection Summary", "Work Order Consumed Materials"],
 	};
+	// Fallback for anything not listed above: the owning app module (sent in boot) decides.
+	const appModules = {
+		Accounts: "finance", Regional: "finance",
+		Buying: "procurement", Subcontracting: "procurement", "Supplier Onboarding": "procurement",
+		Selling: "sales", CRM: "sales", Contacts: "sales",
+		Stock: "inventory",
+		Assets: "assets",
+		Manufacturing: "manufacturing",
+		Projects: "projects",
+		"Quality Management": "quality",
+		Support: "support", Maintenance: "support",
+		Website: "website", Portal: "website",
+		Integrations: "integrations", "ERPNext Integrations": "integrations", Telephony: "integrations",
+	};
+	const pridictPrefixes = [
+		["agent-", "agent-studio"], ["llm-", "agent-studio"], ["procurement-assistant", "procurement"], ["assistant-", "procurement"],
+		["schema-", "governance"], ["process-", "process-intelligence"], ["decision-", "decision-intelligence"],
+	];
+
+	function moduleFromApp(routeType, parts, slug) {
+		const map = window.frappe?.boot?.pridict_modules;
+		if (!map) return null;
+		const name = parts[1] || "";
+		let appModule = null;
+		if (["list", "form", "tree"].includes(routeType)) appModule = map.doctypes?.[name];
+		else if (["query-report", "report"].includes(routeType)) appModule = map.reports?.[name];
+		else appModule = map.pages?.[parts[0]] || map.doctypes?.[Object.keys(map.doctypes || {}).find((dt) => normalize(dt) === slug)];
+		if (!appModule) return null;
+		if (appModule === "Pridict") return pridictPrefixes.find(([prefix]) => slug.startsWith(prefix))?.[1] || null;
+		return appModules[appModule] || "administration";
+	}
+
 	const secondaryDoctypes = new Map(Object.entries(secondaryDoctypeGroups).flatMap(([module, names]) => names.map((name) => [normalize(name), { name, module }])));
 	const secondaryReports = new Map(Object.entries(secondaryReportGroups).flatMap(([module, names]) => names.map((name) => [normalize(name), module])));
 	const specialPages = new Map([
@@ -244,6 +276,7 @@
 			route: routeType === "workspaces" ? slug : parts.join("/") || slug,
 			doctype,
 			module: module || "overview",
+			navModule: module || moduleFromApp(routeType, parts, slug) || "overview",
 			surface,
 			isPurchasing: module === "procurement",
 			isSales: module === "sales",

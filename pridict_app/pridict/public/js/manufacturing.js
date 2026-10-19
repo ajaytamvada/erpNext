@@ -72,7 +72,7 @@
 		if (context.surface !== "list" || !window.cur_list?.data?.length) return;
 		window.cur_list.data.forEach((doc) => {
 			const values = progress(context.doctype, doc); if (!values.length) return;
-			const row = page.querySelector(`[data-name="${window.CSS?.escape ? CSS.escape(doc.name) : doc.name}"]`); if (!row) return;
+			const row = page.querySelector(`.frappe-list .list-row-container [data-name="${window.CSS?.escape ? CSS.escape(doc.name) : doc.name}"]`)?.closest(".list-row"); if (!row) return;
 			let block = row.querySelector(".pridict-manufacturing-progress"); if (!block) { block = document.createElement("div"); block.className = "pridict-manufacturing-progress"; (row.querySelector(".level-right") || row).appendChild(block); }
 			surface.render(block, values.map(([label, value]) => { const percent = Math.max(0, Math.min(100, Number(value) || 0)); return `<span><i><b style="width:${percent}%"></b></i><em>${surface.escape(label)} ${percent.toFixed(0)}%</em></span>`; }).join(""));
 		});

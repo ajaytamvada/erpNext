@@ -23,6 +23,109 @@ html.pridict-ui .pridict-page-context {
 	display: none !important;
 }
 
+// Frappe sizes the title as a fixed col-md-4 and the actions as the rest. With breadcrumbs
+// injected into the title column that overflowed and the title was painted over the crumbs.
+// The title column now takes the free space and shrinks first (crumbs, then title text);
+// custom action labels only shrink below 1440px once the title column is at its floor.
+html.pridict-ui .page-head .page-head-content {
+	flex-wrap: nowrap;
+	gap: 12px;
+	margin-inline: 0;
+}
+
+html.pridict-ui .page-head .page-title {
+	display: flex;
+	align-items: center;
+	flex: 1 20 auto;
+	gap: 6px;
+	width: auto;
+	max-width: none;
+	min-width: 280px;
+	padding-inline: 0;
+	overflow: hidden;
+}
+
+html.pridict-ui .page-head .page-title .title-area {
+	flex: 1 1 auto;
+	flex-wrap: nowrap;
+	min-width: 120px;
+}
+
+html.pridict-ui .page-head .page-title .title-area > div,
+html.pridict-ui .page-head .page-title .title-area .flex {
+	min-width: 0;
+	max-width: 100%;
+	align-items: center;
+}
+
+html.pridict-ui .page-head .page-title .title-text {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+html.pridict-ui .page-head .page-actions {
+	flex: 0 1 auto;
+	width: auto;
+	max-width: none;
+	min-width: 0;
+	padding-inline: 0;
+	flex-wrap: nowrap;
+}
+
+html.pridict-ui .page-head .page-actions .custom-actions,
+html.pridict-ui .page-head .page-actions .standard-actions {
+	flex-wrap: nowrap;
+	gap: 6px;
+}
+
+html.pridict-ui .page-head .page-actions .standard-actions {
+	flex: 0 0 auto;
+}
+
+html.pridict-ui .page-head .page-actions .inner-group-button,
+html.pridict-ui .page-head .page-actions .menu-btn-group {
+	margin: 0;
+}
+
+html.pridict-ui .page-head .page-actions .btn {
+	max-width: 240px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+@media (min-width: 1440px) {
+	html.pridict-ui .page-head .page-actions {
+		flex-shrink: 0;
+	}
+}
+
+@media (max-width: 1439px) {
+	html.pridict-ui .page-head .page-actions .custom-actions {
+		flex: 0 1 auto;
+		min-width: 0;
+		overflow: hidden;
+	}
+
+	html.pridict-ui .page-head .page-actions .custom-actions > .inner-group-button,
+	html.pridict-ui .page-head .page-actions .custom-actions > .btn {
+		flex: 0 1 auto;
+		min-width: 56px;
+	}
+
+	// Flex buttons cannot show an ellipsis; shrunk custom actions need block-level text.
+	html.pridict-ui .page-head .page-actions .custom-actions > .inner-group-button > .btn,
+	html.pridict-ui .page-head .page-actions .custom-actions > .btn {
+		display: inline-block;
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}
+
 html.pridict-ui .page-head .title-area {
 	display: flex;
 	align-items: center;
@@ -53,8 +156,11 @@ html.pridict-ui .page-head .sidebar-toggle-btn {
 html.pridict-ui .pridict-page-breadcrumbs {
 	display: inline-flex;
 	align-items: center;
+	flex: 0 1 auto;
 	gap: 4px;
 	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
 	margin: 0;
 	color: var(--pridict-text-muted);
 	font-size: 13px;
@@ -64,6 +170,12 @@ html.pridict-ui .pridict-page-breadcrumbs {
 
 html.pridict-ui .pridict-page-breadcrumbs button,
 html.pridict-ui .pridict-page-breadcrumbs .pridict-breadcrumb-link {
+	flex: 0 1 auto;
+	min-width: 24px;
+	max-width: 180px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	padding: 3px 6px;
 	color: var(--pridict-text-muted);
 	font: inherit;
@@ -96,6 +208,7 @@ html.pridict-ui .pridict-breadcrumb-separator {
 	line-height: 1;
 	user-select: none;
 	margin-inline: 4px;
+	flex: 0 0 auto;
 }
 
 html.pridict-ui .page-head .page-title,

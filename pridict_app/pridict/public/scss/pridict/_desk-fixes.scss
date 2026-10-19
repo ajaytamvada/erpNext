@@ -1,0 +1,319 @@
+// Layout fixes for core Desk views (lists, forms, reports) found by the UI crawl.
+
+// Status pill next to the page title: never push into the action buttons.
+html.pridict-ui .page-head .page-title .indicator-pill {
+	flex: 0 1 auto;
+	min-width: 48px;
+	max-width: 220px;
+	margin-left: 8px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+
+	span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+}
+
+// Checkboxes line up with the first line of a wrapped label instead of its middle.
+html.pridict-ui .frappe-control .checkbox label {
+	align-items: flex-start;
+
+	input[type="checkbox"] {
+		flex: 0 0 auto;
+		margin-top: 3px;
+	}
+}
+
+// Form sidebar: "0 · 0" counters ran straight into "Follow".
+html.pridict-ui .form-sidebar .form-stats {
+	margin-right: 12px;
+}
+
+html.pridict-ui .form-sidebar .form-follow {
+	white-space: nowrap;
+}
+
+// List sidebar: labels and text links sat 8px left of the group-by buttons,
+// and each section was drawn as a grey box.
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .sidebar-section {
+	background: transparent;
+}
+
+html.pridict-ui .list-sidebar .sidebar-label,
+html.pridict-ui .list-sidebar .sidebar-action > a,
+html.pridict-ui .list-sidebar .list-filters {
+	padding-inline: 8px;
+}
+
+// List rows: the activity column was flex:1 (wasting ~90px per row) and the subject link
+// could not shrink, so long names were clipped without an ellipsis. Header and rows share
+// the same fixed right width so the columns stay aligned.
+html.pridict-ui .frappe-list .list-row-head .level-right,
+html.pridict-ui .frappe-list .list-row .level-right {
+	flex: 0 0 132px;
+	max-width: 132px;
+}
+
+html.pridict-ui .frappe-list .list-subject .level-item.bold {
+	flex: 0 1 auto;
+	min-width: 0;
+}
+
+html.pridict-ui .frappe-list .list-row-head .level-left,
+html.pridict-ui .frappe-list .list-row .level-left {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+// Form sidebar sections should not draw boxes on list pages.
+html.pridict-ui .pridict-contextual-sidebar-route .layout-side-section .sidebar-section {
+	border: 0;
+}
+
+// Module scripts append progress bars to the row's activity column. They were never visible
+// before (the row lookup matched the checkbox), and they do not fit the fixed activity width;
+// the native "% Received / % Billed" columns already show the same values.
+html.pridict-ui .frappe-list .list-row .level-right > :not(.list-row-activity) {
+	display: none;
+}
+
+// Upstream product adverts in list sidebars ("Switch to ... CRM", "... Helpdesk", "... Insights").
+html.pridict-ui .list-sidebar .sidebar-section:has(> a[href*="frappe.io"]) {
+	display: none;
+}
+
+html.pridict-ui .pridict-about {
+	display: grid;
+	gap: 8px;
+	justify-items: start;
+
+	p {
+		margin: 0;
+	}
+}
+
+// ---------------------------------------------------------------------------------------------
+// Batch 2 (visual review)
+
+// Content started flush under the page head / module tabs, hiding the first card's top border.
+// Pridict intro and summary blocks already bring their own 16px margin, so only pad when the
+// native layout comes first. Custom pages (surface "page") manage their own spacing.
+html.pridict-ui .page-container:not([data-pridict-surface="page"]) .page-body > .page-wrapper:first-child > .page-content > .layout-main,
+html.pridict-ui .page-body > .page-wrapper:first-child > .page-content > .layout-main:has(.form-layout) {
+	padding-top: 16px;
+}
+
+// Gap between the contextual sidebar and the main card, so the card border and the
+// Comments / Activity headings no longer sit on the sidebar divider.
+html.pridict-ui .pridict-contextual-sidebar-route .layout-main-section-wrapper {
+	padding-left: 16px;
+}
+
+// One module tab bar style everywhere (some modules used 15px text and borderless pills).
+html.pridict-ui :is(.pridict-purchasing-journey, .pridict-finance-journey, .pridict-sales-journey, .pridict-inventory-journey,
+	.pridict-assets-journey, .pridict-manufacturing-journey, .pridict-projects-journey, .pridict-domain-journey,
+	.pridict-admin-journey, .pridict-generic-journey) {
+	display: flex;
+	gap: 4px;
+	padding: 8px 16px;
+	background: var(--pridict-surface);
+	border-bottom: 1px solid var(--pridict-border);
+	overflow-x: auto;
+
+	button {
+		flex: 0 0 auto;
+		padding: 7px 11px;
+		color: var(--pridict-text-muted);
+		font-size: 12px;
+		font-weight: 550;
+		line-height: 1.2;
+		background: transparent;
+		border: 1px solid transparent;
+		border-radius: 5px;
+	}
+
+	button:hover,
+	button:focus-visible,
+	button.is-active {
+		color: var(--pridict-blue-600);
+		background: var(--pridict-blue-100);
+		border-color: color-mix(in srgb, var(--pridict-blue-600) 20%, transparent);
+	}
+}
+
+// Tabbed forms: the form page is the card; sections inside it are separated by a divider
+// instead of drawing their own rounded borders (card-in-card double borders).
+html.pridict-ui .page-container .form-layout > .form-page .form-section.card-section {
+	margin-bottom: 0;
+	border: 0;
+	border-bottom: 1px solid var(--pridict-border);
+	border-radius: 0;
+	box-shadow: none;
+}
+
+html.pridict-ui .page-container .form-layout > .form-page .form-section.card-section:last-child {
+	border-bottom: 0;
+}
+
+// List filter bar: the Filter/Sort group was a bordered box inside the bordered filter bar and
+// stretched to the full height when the standard filters wrapped.
+html.pridict-ui .page-form .filter-section {
+	align-self: flex-start;
+	background: transparent;
+	border: 0;
+}
+
+// Empty lists: Frappe nests two .no-result blocks and both got the dashed frame.
+html.pridict-ui .no-result .no-result {
+	padding: 0;
+	border: 0;
+}
+
+// Records without a creation time (singles) rendered "You created this ·" with nothing after it.
+html.pridict-ui .form-sidebar li:has(> .frappe-timestamp:empty) {
+	display: none;
+}
+
+// Workspaces: start below the page head with a gap, and drop the outer bordered card that
+// wrapped every widget (cards inside a card).
+html.pridict-ui .page-container[data-pridict-surface="workspace"] .layout-main-section-wrapper {
+	padding-top: 16px;
+}
+
+html.pridict-ui .page-container[data-pridict-surface="workspace"] .layout-main-section {
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+}
+
+// Module home heroes: some pages fell back to the browser's 40px h1.
+html.pridict-ui :is(.pridict-domain-home, .pridict-manufacturing, .pridict-projects) > header h1 {
+	font-size: 28px;
+	letter-spacing: -0.04em;
+}
+
+// Native selects and date inputs on Pridict pages rendered at the browser default (~11px).
+html.pridict-ui .page-container[data-pridict-surface="page"] :is(select, input[type="date"]):not(.form-control) {
+	font-size: 13px;
+}
+
+// Filter inputs: long values and placeholders were cut mid-word; selects ran under the arrow.
+html.pridict-ui .page-form .form-control {
+	text-overflow: ellipsis;
+}
+
+html.pridict-ui .page-form select.form-control {
+	padding-right: 26px;
+}
+
+// Workspace shortcuts: cards without a count pill drew their label 2px higher.
+html.pridict-ui .shortcut-widget-box .widget-head {
+	align-items: center;
+	min-height: 24px;
+}
+
+// List sidebar notes (log retention etc.) align with the sidebar labels.
+html.pridict-ui .list-sidebar .log-retention-note > div {
+	padding-inline: 8px;
+}
+
+// Projects home: link and action buttons were unstyled browser buttons.
+html.pridict-ui :is(.pridict-projects-links, .pridict-projects-actions) button {
+	padding: 7px 12px;
+	color: var(--pridict-text);
+	font-size: 13px;
+	background: var(--pridict-surface);
+	border: 1px solid var(--pridict-border-strong);
+	border-radius: 6px;
+
+	&:hover {
+		color: var(--pridict-blue-600);
+		background: var(--pridict-blue-100);
+	}
+}
+
+// ---------------------------------------------------------------------------------------------
+// Dark theme (visual review): core components that kept neutral greys or light-theme colours.
+html.pridict-ui[data-theme="dark"] {
+	// White labels on the light dark-mode blue were hard to read.
+	.btn-primary,
+	.btn.primary-action,
+	.page-actions .btn.btn-primary,
+	.pridict-page-actions .pridict-page-action.is-primary {
+		color: #ffffff;
+		background: #2f63c7;
+		border-color: #2f63c7;
+
+		&:hover,
+		&:focus,
+		&:active {
+			background: #284ba9;
+			border-color: #284ba9;
+		}
+	}
+
+	// Read-only values, selected autocomplete rows and disabled checkboxes were near-black.
+	.like-disabled-input,
+	.control-value.like-disabled-input,
+	.frappe-control .control-value {
+		background: var(--pridict-surface-muted);
+		color: var(--pridict-text);
+	}
+
+	.awesomplete > ul > li[aria-selected="true"],
+	.awesomplete > ul > li:hover {
+		background: var(--pridict-blue-100);
+	}
+
+	input[type="checkbox"]:disabled {
+		background-color: var(--pridict-surface-muted);
+		border-color: var(--pridict-border-strong);
+	}
+
+	// Workspace spacer blocks showed as lighter strips.
+	.widget.spacer,
+	.ce-block .spacer {
+		background: transparent;
+	}
+
+	// Grey count pills kept their light-theme solid fill.
+	.indicator-pill.gray,
+	.indicator-pill.grey {
+		color: #cbd5e1;
+		background: rgb(148 163 184 / 16%);
+	}
+
+	// Rich text toolbar, progress tracks, image placeholders.
+	.ql-toolbar {
+		background: var(--pridict-surface-muted);
+		border-color: var(--pridict-border);
+	}
+
+	.progress {
+		background: var(--pridict-surface-muted);
+	}
+
+	.sidebar-standard-image .standard-image {
+		background: var(--pridict-surface-muted);
+	}
+
+	// Saturated blue intro banners on forms.
+	.form-message.blue {
+		color: #9cc2ff;
+		background: rgb(111 157 242 / 14%);
+		border: 1px solid rgb(111 157 242 / 30%);
+	}
+
+	// Chart axes and grid were too faint to read.
+	.frappe-chart .x.axis text,
+	.frappe-chart .y.axis text,
+	.frappe-chart .chart-label {
+		fill: var(--pridict-text-muted);
+	}
+
+	.frappe-chart .line-horizontal,
+	.frappe-chart .line-vertical {
+		stroke: var(--pridict-border-strong);
+	}
+}

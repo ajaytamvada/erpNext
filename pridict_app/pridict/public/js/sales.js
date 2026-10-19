@@ -116,7 +116,7 @@
 		window.cur_list.data.forEach((doc) => {
 			const values = progressValues(context.doctype, doc).filter(([, value]) => value !== undefined && value !== null);
 			if (!values.length) return;
-			const row = page.querySelector(`[data-name="${window.CSS?.escape ? CSS.escape(doc.name) : doc.name}"]`);
+			const row = page.querySelector(`.frappe-list .list-row-container [data-name="${window.CSS?.escape ? CSS.escape(doc.name) : doc.name}"]`)?.closest(".list-row");
 			if (!row) return;
 			let progress = row.querySelector(".pridict-sales-list-progress");
 			if (!progress) {
