@@ -122,6 +122,13 @@ class TestAgentApprovals(FrappeTestCase):
 		self.assertEqual(
 			[s.node_id for s in run_doc.steps][-3:], ["revalidate", "create_draft", "verify_audit"]
 		)
+		# The buyer is told in the conversation, with a link to the draft.
+		last = run_doc.messages[-1]
+		self.assertEqual((last.role, last.kind), ("assistant", "result"))
+		self.assertIn(rfq_name, last.content)
+		self.assertEqual(
+			json.loads(last.card_json)["link"], {"doctype": "Request for Quotation", "name": rfq_name}
+		)
 
 	def test_used_or_altered_approval_cannot_create_another_rfq(self):
 		run, approval = self.start()
@@ -186,6 +193,9 @@ class TestAgentApprovals(FrappeTestCase):
 			self.decide(PM, approval, "reject")
 		self.decide(PM, approval, "reject", "Supplier list too short")
 		self.assertEqual(frappe.db.get_value("Agent Run", run, "status"), "Rejected")
+		last = frappe.get_doc("Agent Run", run).messages[-1]
+		self.assertIn("decided not to go ahead", last.content)
+		self.assertIn("Supplier list too short", last.content)
 		self.assertFalse(frappe.db.get_value("Agent Approval", approval, "created_docname"))
 
 	def test_dual_approval_needs_both_roles(self):
@@ -198,6 +208,9 @@ class TestAgentApprovals(FrappeTestCase):
 		first = self.decide(PM, approval, "approve")
 		self.assertEqual(first, {"status": "Pending", "remaining": ["Accounts Manager"]})
 		self.assertEqual(frappe.db.get_value("Agent Run", run, "status"), "Awaiting approval")
+		notice = frappe.get_doc("Agent Run", run).messages[-1]
+		self.assertEqual(notice.kind, "notice")
+		self.assertIn("Still waiting for: Accounts Manager", notice.content)
 		with self.assertRaises(frappe.PermissionError):
 			self.decide(PM, approval, "approve")  # same person twice
 		self.assertEqual(self.decide(AM, approval, "approve")["status"], "Approved")

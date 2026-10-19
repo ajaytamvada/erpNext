@@ -7,6 +7,7 @@ from frappe import _
 from frappe.utils import add_days, add_to_date, now_datetime
 
 from pridict.agent_studio.checkpointer import MariaDBSaver
+from pridict.agent_studio.runtime import post_message
 
 STALE_REQUEST_DAYS = 14
 ORPHAN_HOURS = 2
@@ -45,6 +46,12 @@ def fail_orphaned_runs():
 				"ended_at": now_datetime(),
 			},
 		)
+		post_message(
+			name,
+			"assistant",
+			_("Sorry, I was interrupted before I could finish this request. Please start it again."),
+			"error",
+		)
 		MariaDBSaver().delete_thread(name)
 	frappe.db.commit()
 
@@ -77,6 +84,12 @@ def expire_stale_requests():
 					STALE_REQUEST_DAYS
 				),
 			},
+		)
+		post_message(
+			name,
+			"assistant",
+			_("I closed this request because nobody responded within {0} days.").format(STALE_REQUEST_DAYS),
+			"notice",
 		)
 		MariaDBSaver().delete_thread(name)
 	frappe.db.commit()

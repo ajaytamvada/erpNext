@@ -9,21 +9,28 @@ Division of labour:
   explaining the outcome. Its answers are constrained by JSON schemas.
 - Code does every number (stock, shortage, value, limits) and every policy check.
   Figures in LLM output are overwritten with the computed ones.
+
+The run is a conversation with the buyer. Pausing nodes put the buyer-facing text in
+the interrupt payload ("chat", "card", "choices"); finishing nodes set "reply". When
+the item or a supplier does not exist, the agent drafts it, asks the buyer to confirm,
+and creates it with a master-data tool, instead of sending the buyer to do it by hand.
 """
 
 from __future__ import annotations
 
 import json
+import re
 from typing import Any, TypedDict
 
 import frappe
 from frappe import _
-from frappe.utils import add_days, flt, fmt_money, getdate, nowdate
+from frappe.utils import add_days, flt, fmt_money, get_fullname, getdate, nowdate
 
 from pridict.agent_studio import registry, tools
 from pridict.agent_studio.runtime import BudgetExceeded, RunContext
 
-MAX_QUESTIONS = 3
+MAX_QUESTIONS = 6
+COMMON_UOMS = ["Nos", "Unit", "Pair", "Set", "Box", "Pack", "Kg", "Gram", "Litre", "Meter"]
 
 
 class State(TypedDict, total=False):
@@ -59,6 +66,21 @@ class State(TypedDict, total=False):
 	outcome: str
 	final_status: str
 	result: dict
+	# Conversation
+	choices: list
+	answered_by: str
+	reply: str
+	reply_card: dict
+	missing_item: str
+	item_proposal: dict
+	item_options: dict
+	similar_items: list
+	item_feedback: str
+	supplier_suggestions: list
+	supplier_plan: list
+	supplier_feedback: str
+	created: list
+	revalidation_note: str
 
 
 def _str(schema_title: str, properties: dict) -> dict:
@@ -95,6 +117,45 @@ def _money(value: float, company: str | None) -> str:
 
 def _facts(**values) -> str:
 	return json.dumps(values, default=str, ensure_ascii=False, indent=1)
+
+
+def _answer(resume) -> tuple[str, str]:
+	"""(text, user) from an interrupt resume value."""
+	if isinstance(resume, dict):
+		return str(resume.get("answer") or "").strip(), resume.get("by") or ""
+	return str(resume or "").strip(), ""
+
+
+def _quick(text: str, choices: list[str]) -> str | None:
+	"""The quick-reply button the buyer clicked (or typed exactly), if any."""
+	normal = text.strip().rstrip(".!").lower()
+	return next((c for c in choices if c.lower() == normal), None)
+
+
+def _label(name: str, code: str) -> str:
+	return name if not code or name == code else f"{name} ({code})"
+
+
+def _and(names: list[str]) -> str:
+	names = list(names)
+	return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " " + _("and") + " " + names[-1]
+
+
+def _check_questions(state: State):
+	if (state.get("asks") or 0) >= MAX_QUESTIONS:
+		raise BudgetExceeded(
+			_("Stopped after {0} questions without enough information.").format(MAX_QUESTIONS)
+		)
+
+
+def _master(ctx: RunContext, state: State, name: str, **arguments) -> dict:
+	"""Run a master-data tool with the buyer's chat confirmation."""
+	ctx.step_tools.append(name)
+	confirmation = {"run": ctx.run, "by": state.get("answered_by") or ctx.requested_by}
+	outcome = tools.run_tool(name, arguments, confirmation=confirmation)
+	if not outcome["ok"]:
+		raise tools.ToolError(_("{0} failed: {1}").format(name, outcome["error"]))
+	return outcome["result"]
 
 
 # ---------------------------------------------------------------------------
@@ -138,6 +199,8 @@ def resolve_records(state: State, ctx: RunContext) -> dict:
 	requirement = state["requirement"]
 	record: dict[str, Any] = {}
 	missing: list[str] = []
+	choices: list[str] = []
+	new_item = ""
 
 	query = (requirement.get("item_query") or "").strip()
 	if not query:
@@ -148,11 +211,14 @@ def resolve_records(state: State, ctx: RunContext) -> dict:
 			i for i in items if query.lower() in (i["item_code"].lower(), (i["item_name"] or "").lower())
 		]
 		choice = exact[0] if len(exact) == 1 else (items[0] if len(items) == 1 else None)
-		if not items:
+		if not items and ctx.policy("create_missing_master_data"):
+			new_item = query
+		elif not items:
 			missing.append(_("I could not find an item matching '{0}'. What is the item code?").format(query))
 		elif not choice:
 			options = ", ".join(f"{i['item_code']} ({i['item_name']})" for i in items)
 			missing.append(_("Which item do you mean: {0}?").format(options))
+			choices = [i["item_code"] for i in items]
 		else:
 			record.update(
 				item_code=choice["item_code"], item_name=choice["item_name"], stock_uom=choice["stock_uom"]
@@ -162,6 +228,8 @@ def resolve_records(state: State, ctx: RunContext) -> dict:
 	company = (requirement.get("company") or "").strip() or frappe.defaults.get_user_default("Company")
 	if not wanted:
 		missing.append(_("Which warehouse should receive it?"))
+		if company:
+			choices = [w["name"] for w in ctx.tool("get_warehouses", company=company)["warehouses"][:8]]
 	elif frappe.db.exists("Warehouse", wanted) and frappe.has_permission("Warehouse", "read", wanted):
 		record.update(warehouse=wanted, company=frappe.db.get_value("Warehouse", wanted, "company"))
 	elif company:
@@ -171,6 +239,7 @@ def resolve_records(state: State, ctx: RunContext) -> dict:
 			record.update(warehouse=matches[0], company=company)
 		elif matches:
 			missing.append(_("Which warehouse do you mean: {0}?").format(", ".join(matches[:8])))
+			choices = matches[:8]
 		else:
 			missing.append(
 				_("I could not find warehouse '{0}' in {1}. Which warehouse?").format(wanted, company)
@@ -179,11 +248,20 @@ def resolve_records(state: State, ctx: RunContext) -> dict:
 		missing.append(_("I could not find warehouse '{0}'. Which warehouse?").format(wanted))
 
 	found = ", ".join(f"{k}={v}" for k, v in record.items() if k in ("item_code", "warehouse", "company"))
+	if new_item:
+		ctx.note(_("No item matches '{0}'; offering to create one").format(new_item), record)
+		return {"route": "new item", "missing_item": new_item, "record": record, "missing": missing}
 	ctx.note(
 		_("Resolved {0}").format(found or "-") + (f"; {len(missing)} open question(s)" if missing else ""),
 		record,
 	)
-	return {"record": record, "missing": missing}
+	# Quick replies only make sense when there is exactly one question.
+	return {
+		"route": "found",
+		"record": record,
+		"missing": missing,
+		"choices": choices if len(missing) == 1 else [],
+	}
 
 
 def _conversion_factor(item_code: str, uom: str, stock_uom: str) -> float | None:
@@ -262,13 +340,12 @@ def validate_inputs(state: State, ctx: RunContext) -> dict:
 			)
 
 	if missing:
-		if (state.get("asks") or 0) >= MAX_QUESTIONS:
-			raise BudgetExceeded(
-				_("Stopped after {0} questions without enough information.").format(MAX_QUESTIONS)
-			)
-		question = "\n".join(dict.fromkeys(missing))
+		_check_questions(state)
+		questions = list(dict.fromkeys(missing))
+		question = "\n".join(questions)
 		ctx.note(_("Missing information: {0}").format(question.replace("\n", " ")))
-		return {"route": "missing data", "question": question, "record": record}
+		choices = (state.get("choices") or []) if len(questions) == 1 else []
+		return {"route": "missing data", "question": question, "record": record, "choices": choices}
 
 	if ctx.policy("required_fields"):
 		results.append(
@@ -304,8 +381,9 @@ def ask_buyer(state: State, ctx: RunContext) -> dict:
 
 	question = state.get("question") or _("Can you give more detail?")
 	ctx.note(_("Asked the buyer: {0}").format(question.replace("\n", " ")))
-	answer = interrupt({"type": "question", "message": question})
-	text = (answer.get("answer") if isinstance(answer, dict) else str(answer or "")).strip()
+	text, _by = _answer(
+		interrupt({"type": "question", "message": question, "choices": state.get("choices") or []})
+	)
 
 	conversation = [*(state.get("conversation") or []), {"question": question, "answer": text}]
 	response = ctx.llm(
@@ -325,7 +403,224 @@ def ask_buyer(state: State, ctx: RunContext) -> dict:
 	)
 	requirement = response.json()
 	ctx.note(_("Buyer answered: {0}").format(text), requirement)
-	return {"requirement": requirement, "asks": (state.get("asks") or 0) + 1, "conversation": conversation}
+	return {
+		"requirement": requirement,
+		"asks": (state.get("asks") or 0) + 1,
+		"conversation": conversation,
+		"choices": [],
+	}
+
+
+# ---------------------------------------------------------------------------
+# Creating a missing item
+
+
+def _item_options() -> dict:
+	groups = frappe.get_all(
+		"Item Group", filters={"is_group": 0}, pluck="name", order_by="name asc", limit=80
+	)
+	used = frappe.get_all(
+		"Item",
+		fields=["stock_uom", "count(name) as n"],
+		group_by="stock_uom",
+		order_by="n desc",
+		limit=20,
+	)
+	wanted = list(dict.fromkeys([*(u.stock_uom for u in used if u.stock_uom), *COMMON_UOMS]))
+	uoms = frappe.get_all("UOM", filters={"name": ["in", wanted], "enabled": 1}, pluck="name")
+	return {"groups": groups, "uoms": sorted(uoms, key=wanted.index)}
+
+
+def _item_schema(title: str, options: dict, extra: dict | None = None) -> dict:
+	return _str(
+		title,
+		{
+			**(extra or {}),
+			"item_name": {"type": "string", "description": "Short, clear, singular item name in title case"},
+			"item_group": {"type": "string", "enum": options["groups"]},
+			"stock_uom": {"type": "string", "enum": options["uoms"]},
+			"is_stock_item": {"type": "boolean", "description": "True for physical goods kept in stock"},
+			"description": {"type": "string"},
+		},
+	)
+
+
+def propose_item(state: State, ctx: RunContext) -> dict:
+	query = state["missing_item"]
+	similar: dict[str, dict] = {}
+	# Look for near misses ("laptops" vs "Laptop 14in") one word at a time.
+	for word in list(dict.fromkeys(w.rstrip("s") for w in re.findall(r"[\w-]{3,}", query.lower())))[:4]:
+		for item in ctx.tool("search_items", query=word, limit=5)["items"]:
+			similar.setdefault(item["item_code"], item)
+	similar_items = list(similar.values())[:5]
+
+	options = _item_options()
+	if not options["groups"] or not options["uoms"]:
+		raise tools.ToolError(_("ERPNext has no item groups or units set up, so I cannot create items."))
+	proposal = ctx.llm(
+		[
+			{
+				"role": "user",
+				"content": (
+					"The buyer asked to purchase something that is not in the item master. Draft a new item for them "
+					"to confirm: a clear singular name, the best matching item group and stock unit from the lists, "
+					"and whether it is a physical good kept in stock (false for services).\n\n"
+					f"Buyer's request:\n{state['request']}\n\nItem as written: {query}"
+				),
+			}
+		],
+		response_schema=_item_schema("item_proposal", options),
+		max_tokens=512,
+	).json()
+	ctx.note(
+		_("Proposed new item {0} ({1}, {2}); {3} similar item(s)").format(
+			proposal["item_name"], proposal["item_group"], proposal["stock_uom"], len(similar_items)
+		),
+		{"proposal": proposal, "similar": similar_items},
+	)
+	return {
+		"item_proposal": proposal,
+		"item_options": options,
+		"similar_items": similar_items,
+		"item_feedback": "",
+	}
+
+
+def _item_card(proposal: dict) -> dict:
+	return {
+		"title": _("New item"),
+		"fields": [
+			[_("Name"), proposal["item_name"]],
+			[_("Item group"), proposal["item_group"]],
+			[_("Unit"), proposal["stock_uom"]],
+			[_("Kept in stock"), _("Yes") if proposal["is_stock_item"] else _("No")],
+		],
+	}
+
+
+def confirm_item(state: State, ctx: RunContext) -> dict:
+	from langgraph.types import interrupt
+
+	_check_questions(state)
+	proposal, similar = state["item_proposal"], state.get("similar_items") or []
+	create, stop = _("Yes, create it"), _("Cancel request")
+	lines = [
+		state.get("item_feedback") or _('I couldn\'t find "{0}" in your items.').format(state["missing_item"])
+	]
+	# An item with exactly the proposed name already exists: steer towards it, not a duplicate.
+	same = next((i for i in similar if i["item_name"].lower() == proposal["item_name"].lower()), None)
+	if same:
+		create = _("Create a separate new item")
+		similar = [same, *[i for i in similar if i is not same]]
+		lines.append(
+			_("You already have an item called {0}. Shall I use it?").format(
+				_label(same["item_name"], same["item_code"])
+			)
+		)
+	elif similar:
+		lines.append(
+			_("Is it one of these existing items? {0}").format(
+				", ".join(_label(i["item_name"], i["item_code"]) for i in similar)
+			)
+		)
+		lines.append(_("If not, I can create it as a new item. Shall I?"))
+	else:
+		lines.append(_("I can create it as a new item. Shall I? You can also change any of the details."))
+	question = "\n".join(lines)
+	ctx.note(_("Asked the buyer to confirm new item {0}").format(proposal["item_name"]))
+	text, by = _answer(
+		interrupt(
+			{
+				"type": "question",
+				"message": question,
+				"card": _item_card(proposal),
+				"choices": [*([same["item_code"]] if same else []), create]
+				+ [i["item_code"] for i in similar[:4] if i is not same]
+				+ [stop],
+			}
+		)
+	)
+	asks = (state.get("asks") or 0) + 1
+	conversation = [*(state.get("conversation") or []), {"question": question, "answer": text}]
+	common = {"asks": asks, "conversation": conversation, "answered_by": by}
+	codes = [i["item_code"] for i in similar]
+
+	quick = _quick(text, [create, stop, *codes])
+	if quick == create:
+		decision = {"action": "create", **proposal}
+	elif quick == stop:
+		decision = {"action": "stop"}
+	elif quick:
+		decision = {"action": "use_existing", "existing_item": quick}
+	else:
+		decision = ctx.llm(
+			[
+				{
+					"role": "user",
+					"content": (
+						"You asked the buyer to confirm a new item. Decide what the buyer wants:\n"
+						"- create: they agree to create it (apply any changes they asked for to the fields)\n"
+						"- use_existing: they picked one of the similar existing items (give its code)\n"
+						"- stop: they do not want to continue\n"
+						"- unclear: anything else (apply any changes they mentioned to the fields)\n\n"
+						+ _facts(proposal=proposal, similar_items=similar, buyer_answer=text)
+					),
+				}
+			],
+			response_schema=_item_schema(
+				"item_answer",
+				state["item_options"],
+				{
+					"action": {"type": "string", "enum": ["create", "use_existing", "stop", "unclear"]},
+					"existing_item": {"type": "string", "enum": ["", *codes]},
+				},
+			),
+			max_tokens=512,
+		).json()
+
+	action = decision.get("action")
+	updated = (
+		{k: decision.get(k, proposal[k]) for k in proposal} if action in ("create", "unclear") else proposal
+	)
+	ctx.note(_("Buyer answered: {0} → {1}").format(text, action), decision)
+	if action == "create":
+		return {**common, "item_proposal": updated, "route": "create"}
+	if action == "use_existing" and decision.get("existing_item") in codes:
+		requirement = {**state["requirement"], "item_query": decision["existing_item"]}
+		return {**common, "requirement": requirement, "route": "use existing"}
+	if action == "stop":
+		return {**common, "route": "stop"}
+	return {
+		**common,
+		"item_proposal": updated,
+		"item_feedback": _("I've updated the details.")
+		if updated != proposal
+		else _("Sorry, I didn't quite get that."),
+		"route": "change",
+	}
+
+
+def create_item(state: State, ctx: RunContext) -> dict:
+	proposal = state["item_proposal"]
+	created = _master(
+		ctx,
+		state,
+		"create_item",
+		item_name=proposal["item_name"],
+		item_group=proposal["item_group"],
+		stock_uom=proposal["stock_uom"],
+		is_stock_item=bool(proposal["is_stock_item"]),
+		description=proposal.get("description") or "",
+	)
+	ctx.note(_("Created item {0}").format(created["item_code"]), created)
+	ctx.say(
+		_("Done. I created the item {0}.").format(_label(created["item_name"], created["item_code"])),
+		"notice",
+	)
+	return {
+		"requirement": {**state["requirement"], "item_query": created["item_code"]},
+		"created": [*(state.get("created") or []), {"doctype": "Item", "name": created["item_code"]}],
+	}
 
 
 # ---------------------------------------------------------------------------
@@ -442,6 +737,32 @@ def find_suppliers(state: State, ctx: RunContext) -> dict:
 				kept.append(supplier)
 		eligible = kept
 
+	if not eligible and ctx.policy("create_missing_master_data"):
+		if excluded:
+			intro = _("The suppliers set up for {0} can't be used right now ({1}).").format(
+				record["item_name"], "; ".join(f"{e['supplier']}: {e['reason']}" for e in excluded)
+			)
+		else:
+			intro = _("{0} doesn't have any suppliers set up yet.").format(record["item_name"])
+		question = (
+			intro
+			+ " "
+			+ _(
+				"Which supplier should I ask for a quote? Name one you already buy from or a new one (add their email if you have it)."
+			)
+		)
+		suggestions = _supplier_suggestions(record["item_code"], [e["supplier"] for e in excluded])
+		ctx.note(question, {"excluded": excluded, "suggestions": suggestions})
+		return {
+			"route": "no supplier",
+			"question": question,
+			"suppliers": [],
+			"excluded": excluded,
+			"supplier_suggestions": suggestions,
+			"supplier_plan": [],
+			"supplier_feedback": "",
+		}
+
 	if not eligible:
 		reasons = "; ".join(f"{e['supplier']}: {e['reason']}" for e in excluded) or _(
 			"none are listed on the item"
@@ -464,6 +785,205 @@ def find_suppliers(state: State, ctx: RunContext) -> dict:
 		{"eligible": eligible, "excluded": excluded},
 	)
 	return {"route": "enough data", "suppliers": eligible, "excluded": excluded}
+
+
+def _supplier_suggestions(item_code: str, exclude: list[str]) -> list[str]:
+	"""Suppliers of other items in the same group, else the most used suppliers overall."""
+	group = frappe.db.get_value("Item", item_code, "item_group")
+	rows = frappe.db.sql(
+		"""
+		select isup.supplier, count(*) as n
+		from `tabItem Supplier` isup
+		join `tabItem` i on i.name = isup.parent and isup.parenttype = 'Item'
+		join `tabSupplier` s on s.name = isup.supplier
+		where i.item_group = %(group)s and s.disabled = 0 and s.on_hold = 0
+		group by isup.supplier order by n desc limit 8
+		""",
+		{"group": group},
+		as_dict=True,
+	)
+	names = [r.supplier for r in rows]
+	if len(names) < 3:
+		names += [
+			r.supplier
+			for r in frappe.get_all(
+				"Purchase Order",
+				filters={"docstatus": 1, "transaction_date": [">=", add_days(nowdate(), -365)]},
+				fields=["supplier", "count(name) as n"],
+				group_by="supplier",
+				order_by="n desc",
+				limit=8,
+			)
+		]
+	return [n for n in dict.fromkeys(names) if n not in exclude][:4]
+
+
+def _match_supplier(name: str) -> str | None:
+	"""Existing, enabled supplier the buyer meant by this name, if exactly one matches."""
+	name = name.strip()
+	for field in ("name", "supplier_name"):
+		found = frappe.db.get_value("Supplier", {field: name, "disabled": 0}, "name")
+		if found:
+			return found
+	matches = frappe.get_all(
+		"Supplier", filters={"supplier_name": ["like", f"%{name}%"], "disabled": 0}, pluck="name", limit=2
+	)
+	return matches[0] if len(matches) == 1 else None
+
+
+def _supplier_card(plan: list[dict], item_name: str) -> dict:
+	return {
+		"title": _("Suppliers for {0}").format(item_name),
+		"fields": [
+			[
+				p["name"],
+				(_("New supplier") + (f" · {p['email']}" if p.get("email") else ""))
+				if p["new"]
+				else _("Existing supplier"),
+			]
+			for p in plan
+		],
+	}
+
+
+SUPPLIER_ANSWER_SCHEMA = _str(
+	"supplier_answer",
+	{
+		"action": {"type": "string", "enum": ["confirm", "use", "stop", "unclear"]},
+		"suppliers": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {"name": {"type": "string"}, "email": {"type": "string"}},
+				"required": ["name", "email"],
+				"additionalProperties": False,
+			},
+		},
+	},
+)
+
+
+def confirm_supplier(state: State, ctx: RunContext) -> dict:
+	from langgraph.types import interrupt
+
+	_check_questions(state)
+	record = state["record"]
+	plan = state.get("supplier_plan") or []
+	go, stop = _("Yes, go ahead"), _("Cancel request")
+	suggestions = state.get("supplier_suggestions") or []
+	if plan:
+		new = [p["name"] for p in plan if p["new"]]
+		question = _("{0} isn't one of your suppliers yet. I'll create it and add it to {1}.").format(
+			_and(new), record["item_name"]
+		)
+		if len(new) > 1:
+			question = _("{0} aren't among your suppliers yet. I'll create them and add them to {1}.").format(
+				_and(new), record["item_name"]
+			)
+		if len(plan) > len(new):
+			question += " " + _("The others are already set up and will be added too.")
+		question += " " + _("Shall I go ahead?")
+		choices, card = [go, stop], _supplier_card(plan, record["item_name"])
+	else:
+		question = state["question"]
+		choices, card = [*suggestions, stop], None
+	if state.get("supplier_feedback"):
+		question = f"{state['supplier_feedback']} {question}"
+	ctx.note(_("Asked the buyer about suppliers"), {"plan": plan, "suggestions": suggestions})
+	text, by = _answer(interrupt({"type": "question", "message": question, "card": card, "choices": choices}))
+	asks = (state.get("asks") or 0) + 1
+	conversation = [*(state.get("conversation") or []), {"question": question, "answer": text}]
+	common = {"asks": asks, "conversation": conversation, "answered_by": by, "supplier_feedback": ""}
+
+	quick = _quick(text, choices)
+	if quick == stop:
+		decision = {"action": "stop", "suppliers": []}
+	elif quick == go:
+		decision = {"action": "confirm", "suppliers": []}
+	elif quick:
+		decision = {"action": "use", "suppliers": [{"name": quick, "email": ""}]}
+	else:
+		decision = ctx.llm(
+			[
+				{
+					"role": "user",
+					"content": (
+						"You are helping the buyer choose suppliers to ask for a quotation. Decide what the buyer wants:\n"
+						"- confirm: they agree to the current plan as shown\n"
+						"- use: they name suppliers; return the complete list they want now, with an email when they give one\n"
+						"- stop: they do not want to continue\n"
+						"- unclear: anything else\n\n"
+						+ _facts(
+							item=record["item_name"], question=question, current_plan=plan, buyer_answer=text
+						)
+					),
+				}
+			],
+			response_schema=SUPPLIER_ANSWER_SCHEMA,
+			max_tokens=512,
+		).json()
+
+	action = decision.get("action")
+	ctx.note(_("Buyer answered: {0} → {1}").format(text, action), decision)
+	if action == "stop":
+		return {**common, "route": "stop"}
+	if action == "confirm" and plan:
+		return {**common, "route": "ready"}
+	named = [s for s in decision.get("suppliers") or [] if (s.get("name") or "").strip()]
+	same = {s["name"].strip().lower() for s in named} == {p["name"].lower() for p in plan}
+	if plan and action == "use" and same:
+		# Restating the suppliers already shown is agreement, not a new plan to confirm again.
+		return {**common, "route": "ready"}
+	if action in ("use", "confirm") and named:
+		plan = []
+		for entry in named:
+			existing = _match_supplier(entry["name"])
+			plan.append(
+				{
+					"name": existing or entry["name"].strip(),
+					"supplier": existing or "",
+					"email": (entry.get("email") or "").strip(),
+					"new": not existing,
+				}
+			)
+		# Naming existing suppliers is the go-ahead; new ones are confirmed first.
+		route = "again" if any(p["new"] for p in plan) else "ready"
+		return {**common, "supplier_plan": plan, "route": route}
+	return {**common, "supplier_feedback": _("Sorry, I didn't quite get that."), "route": "again"}
+
+
+def setup_suppliers(state: State, ctx: RunContext) -> dict:
+	record = state["record"]
+	created = list(state.get("created") or [])
+	new, linked = [], []
+	for entry in state["supplier_plan"]:
+		supplier = entry["supplier"]
+		if entry["new"]:
+			supplier = _master(
+				ctx, state, "create_supplier", supplier_name=entry["name"], email=entry["email"]
+			)["supplier"]
+			new.append(supplier)
+			created.append({"doctype": "Supplier", "name": supplier})
+		_master(ctx, state, "link_item_supplier", item_code=record["item_code"], supplier=supplier)
+		linked.append(supplier)
+	message = _("Done. {0} can now supply {1}.").format(_and(linked), record["item_name"])
+	if new:
+		message = _("Done. I created the supplier record for {0}, and {1} can now supply {2}.").format(
+			_and(new), _and(linked), record["item_name"]
+		)
+	ctx.note(message, {"created": new, "linked": linked})
+	ctx.say(message, "notice")
+	return {"supplier_plan": [], "created": created}
+
+
+def end_conversation(state: State, ctx: RunContext) -> dict:
+	ctx.note(_("The buyer stopped the request"))
+	return {
+		"outcome": _("Stopped by the buyer"),
+		"final_status": "Cancelled",
+		"reply": _("OK, I've stopped here. Start a new request whenever you're ready."),
+		"result": {"recommended_action": "stopped", "created": state.get("created") or []},
+	}
 
 
 def analyze_sourcing(state: State, ctx: RunContext) -> dict:
@@ -825,6 +1345,53 @@ def _proposal(state: State) -> dict:
 	}
 
 
+def _approval_chat(state: State) -> dict:
+	record, rec = state["record"], state["recommendation"]
+	roles = [_(r) for r in (state.get("approval_roles") or ["Purchase Manager"])]
+	lines = []
+	if state.get("revalidation_note"):
+		lines.append(
+			_("Things changed while this was waiting ({0}), so I've updated it.").format(
+				state["revalidation_note"]
+			)
+		)
+	lines.append(rec.get("explanation") or state["analysis"]["rationale"])
+	if len(roles) > 1:
+		lines.append(
+			_(
+				"It needs two approvals ({0}). I've sent it to them and will let you know here when they decide."
+			).format(_and(roles))
+		)
+	else:
+		lines.append(
+			_("I've sent it to a {0} for approval and will let you know here when they decide.").format(
+				roles[0]
+			)
+		)
+	estimate = (
+		_money(state["estimate"], record.get("company"))
+		if state.get("rate")
+		else _("Unknown (no price history yet)")
+	)
+	card = {
+		"title": _("Request for quotation · waiting for approval"),
+		"fields": [
+			[_("Item"), _label(record["item_name"], record["item_code"])],
+			[_("Quantity to buy"), f"{_num(state['shortage_qty'])} {record['stock_uom']}"],
+			[
+				_("In stock / on order"),
+				f"{_num(state['stock']['actual_qty'])} / {_num(state['usable_open_qty'])}",
+			],
+			[_("Deliver to"), record["warehouse"]],
+			[_("Needed by"), frappe.format(record["need_by"], "Date")],
+			[_("Suppliers"), ", ".join(c["supplier"] for c in state["candidates"])],
+			[_("Recommended"), rec.get("recommended_supplier") or ""],
+			[_("Estimated value"), estimate],
+		],
+	}
+	return {"chat": "\n\n".join(lines), "card": card}
+
+
 def human_review(state: State, ctx: RunContext) -> dict:
 	from langgraph.types import interrupt
 
@@ -871,6 +1438,7 @@ def human_review(state: State, ctx: RunContext) -> dict:
 			"message": _("Approval {0}: Draft RFQ worth {1}").format(
 				approval, _money(state["estimate"], state["record"].get("company"))
 			),
+			**_approval_chat(state),
 		}
 	)
 	decision = decision if isinstance(decision, dict) else {"decision": str(decision)}
@@ -896,10 +1464,15 @@ def record_rejection(state: State, ctx: RunContext) -> dict:
 		decision.get("by", "-"), decision.get("note") or _("no reason given")
 	)
 	ctx.note(outcome)
+	by = get_fullname(decision["by"]) if decision.get("by") else _("The approver")
+	reply = _("{0} decided not to go ahead with this purchase.").format(by)
+	if decision.get("note"):
+		reply += " " + _("Reason: {0}").format(decision["note"])
 	return {
 		"outcome": outcome,
 		"final_status": "Rejected",
 		"result": {**state["recommendation"], "decision": decision},
+		"reply": reply,
 	}
 
 
@@ -942,6 +1515,7 @@ def revalidate(state: State, ctx: RunContext) -> dict:
 		estimate = round(shortage * flt(state["rate"]), 2)
 		return {
 			"route": "fail",
+			"revalidation_note": " ".join(problems),
 			"stock": stock,
 			"open_orders": orders,
 			"usable_open_qty": usable,
@@ -996,8 +1570,35 @@ def verify_audit(state: State, ctx: RunContext) -> dict:
 		rfq.name, _num(state["shortage_qty"]), record["stock_uom"], record["item_name"], len(expected)
 	)
 	ctx.note(outcome)
+	approvers = [
+		get_fullname(row.approver)
+		for row in frappe.get_doc("Agent Approval", state["approval"]).decisions
+		if row.decision == "Approved"
+	]
+	reply = _(
+		"Good news: {0} approved it. I've created a draft Request for Quotation {1} for {2} {3} of {4}, addressed to {5}. "
+		"It is still a draft: open it to check the details and send it to the suppliers."
+	).format(
+		" and ".join(approvers) or _("your approver"),
+		rfq.name,
+		_num(state["shortage_qty"]),
+		record["stock_uom"],
+		record["item_name"],
+		", ".join(sorted(expected)),
+	)
 	return {
 		"outcome": outcome,
 		"final_status": "Completed",
 		"result": {**state["recommendation"], "rfq": rfq.name, "decision": state["decision"]},
+		"reply": reply,
+		"reply_card": {
+			"title": _("Draft Request for Quotation"),
+			"link": {"doctype": "Request for Quotation", "name": rfq.name},
+			"fields": [
+				[_("Document"), rfq.name],
+				[_("Item"), record["item_name"]],
+				[_("Quantity"), f"{_num(state['shortage_qty'])} {record['stock_uom']}"],
+				[_("Suppliers"), ", ".join(sorted(expected))],
+			],
+		},
 	}

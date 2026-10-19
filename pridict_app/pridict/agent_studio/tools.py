@@ -7,7 +7,8 @@ agent never sees more than the person using it.
 
 run_tool() is the single entry point. It checks the Agent Tool record (status and
 access), validates arguments against the tool's input schema, enforces the approval
-requirement for write tools, and times the call.
+requirement for write tools (or the buyer's chat confirmation for master-data tools),
+and times the call.
 """
 
 from __future__ import annotations
@@ -466,6 +467,128 @@ WRITE_TOOLS: dict[str, Any] = {"create_draft_rfq": create_draft_rfq}
 
 
 # ---------------------------------------------------------------------------
+# Master-data tools. They run only after the buyer confirmed the exact record in chat
+# (confirmation = {"run", "by"}). By design they do not depend on the buyer's own
+# Item/Supplier permissions: the assistant creates on their behalf, and every record
+# carries a comment naming the buyer and the run, so the action is fully attributable.
+
+
+def _attribute(doc, confirmation: dict, what: str):
+	doc.add_comment(
+		"Comment",
+		_("{0} by the Procurement Assistant for {1}, who confirmed it in conversation {2}.").format(
+			what, confirmation["by"], confirmation["run"]
+		),
+	)
+
+
+def _unique_name(doctype: str, name: str) -> str:
+	candidate, n = name, 1
+	while frappe.db.exists(doctype, candidate):
+		n += 1
+		candidate = f"{name} - {n}"
+	return candidate
+
+
+def create_item(
+	confirmation: dict,
+	item_name: str,
+	item_group: str,
+	stock_uom: str,
+	is_stock_item: bool,
+	description: str = "",
+) -> dict:
+	item_name = item_name.strip()[:140]
+	if not item_name:
+		raise ToolError(_("The item needs a name."))
+	if not frappe.db.exists("Item Group", {"name": item_group, "is_group": 0}):
+		raise ToolError(_("Item group {0} does not exist.").format(item_group))
+	if not frappe.db.exists("UOM", {"name": stock_uom, "enabled": 1}):
+		raise ToolError(_("Unit {0} does not exist.").format(stock_uom))
+	item = frappe.get_doc(
+		{
+			"doctype": "Item",
+			"item_name": item_name,
+			"item_group": item_group,
+			"stock_uom": stock_uom,
+			"is_stock_item": 1 if is_stock_item else 0,
+			"is_purchase_item": 1,
+			"description": description or item_name,
+		}
+	)
+	if frappe.db.get_single_value("Stock Settings", "item_naming_by") != "Naming Series":
+		item.item_code = _unique_name("Item", item_name)
+	item.insert(ignore_permissions=True)
+	_attribute(item, confirmation, _("Created"))
+	return {"item_code": item.name, "item_name": item.item_name, "stock_uom": item.stock_uom}
+
+
+def _default_supplier_group() -> str:
+	group = frappe.db.get_single_value("Buying Settings", "supplier_group")
+	if group:
+		return group
+	groups = frappe.get_all(
+		"Supplier Group", filters={"is_group": 0}, pluck="name", order_by="lft asc", limit=1
+	)
+	if not groups:
+		raise ToolError(_("No supplier group exists to put the new supplier in."))
+	return groups[0]
+
+
+def create_supplier(confirmation: dict, supplier_name: str, email: str = "") -> dict:
+	supplier_name = supplier_name.strip()[:140]
+	if not supplier_name:
+		raise ToolError(_("The supplier needs a name."))
+	email = (email or "").strip()
+	if email and not frappe.utils.validate_email_address(email):
+		raise ToolError(_("{0} is not a valid email address.").format(email))
+	supplier = frappe.get_doc(
+		{
+			"doctype": "Supplier",
+			"supplier_name": supplier_name,
+			"supplier_group": _default_supplier_group(),
+			"supplier_type": "Company",
+		}
+	)
+	supplier.insert(ignore_permissions=True)
+	_attribute(supplier, confirmation, _("Created"))
+	contact = None
+	if email:
+		doc = frappe.get_doc(
+			{
+				"doctype": "Contact",
+				"first_name": supplier_name,
+				"email_ids": [{"email_id": email, "is_primary": 1}],
+				"links": [{"link_doctype": "Supplier", "link_name": supplier.name}],
+			}
+		)
+		doc.insert(ignore_permissions=True)
+		contact = doc.name
+		# The RFQ picks up the supplier's email from its primary contact.
+		supplier.db_set("supplier_primary_contact", contact)
+	return {"supplier": supplier.name, "contact": contact or ""}
+
+
+def link_item_supplier(confirmation: dict, item_code: str, supplier: str) -> dict:
+	if not frappe.db.exists("Supplier", supplier):
+		raise ToolError(_("Supplier {0} does not exist.").format(supplier))
+	item = frappe.get_doc("Item", item_code)
+	if any(row.supplier == supplier for row in item.supplier_items):
+		return {"added": False}
+	item.append("supplier_items", {"supplier": supplier})
+	item.save(ignore_permissions=True)
+	_attribute(item, confirmation, _("Supplier {0} added").format(supplier))
+	return {"added": True}
+
+
+MASTER_DATA_TOOLS: dict[str, Any] = {
+	"create_item": create_item,
+	"create_supplier": create_supplier,
+	"link_item_supplier": link_item_supplier,
+}
+
+
+# ---------------------------------------------------------------------------
 # Dispatcher
 
 
@@ -494,14 +617,19 @@ def tool_specs(names: list[str]) -> list[dict]:
 	return specs
 
 
-def run_tool(name: str, arguments: dict | None, *, approval=None) -> dict:
+def run_tool(name: str, arguments: dict | None, *, approval=None, confirmation=None) -> dict:
 	"""Run a tool and return {ok, result | error, duration_ms}. Never raises for tool errors."""
 	started = time.monotonic()
 	try:
 		record = _tool_record(name)
 		if record.status in ("Disabled", "Blocked for agents"):
 			raise ToolError(_("Tool {0} is {1}.").format(name, _(record.status).lower()))
-		if record.access != "Read":
+		if record.access == "Write (master data)":
+			if not (confirmation and confirmation.get("by") and confirmation.get("run")):
+				raise ToolError(_("Tool {0} needs the buyer's confirmation in chat.").format(name))
+			if name not in MASTER_DATA_TOOLS:
+				raise ToolError(_("Tool {0} has no implementation.").format(name))
+		elif record.access != "Read":
 			if approval is None or approval.status != "Approved":
 				raise ToolError(_("Tool {0} changes data and needs an approved Agent Approval.").format(name))
 			if name not in WRITE_TOOLS:
@@ -513,6 +641,8 @@ def run_tool(name: str, arguments: dict | None, *, approval=None) -> dict:
 		validate_arguments(json.loads(record.input_schema or "{}"), arguments)
 		if record.access == "Read":
 			result = READ_TOOLS[name](**arguments)
+		elif record.access == "Write (master data)":
+			result = MASTER_DATA_TOOLS[name](confirmation=confirmation, **arguments)
 		else:
 			result = WRITE_TOOLS[name](approval=approval, **arguments)
 		return {"ok": True, "result": result, "duration_ms": int((time.monotonic() - started) * 1000)}

@@ -159,6 +159,15 @@ def decide(approval: str, decision: str, note: str = "") -> dict:
 			doc.name,
 		)
 	else:
+		runtime.post_message(
+			run,
+			"assistant",
+			_("{0} approved. Still waiting for: {1}.").format(
+				frappe.utils.get_fullname(user), ", ".join(_(r) for r in remaining)
+			),
+			"notice",
+		)
+		runtime._publish(run, "Awaiting approval")
 		_notify(
 			[requester],
 			_("{0} approved {1}; still waiting for: {2}").format(user, doc.name, ", ".join(remaining)),

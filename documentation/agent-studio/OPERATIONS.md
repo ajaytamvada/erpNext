@@ -61,6 +61,12 @@ The person who started a run cannot approve it (policy *Self-approval*).
 Agents read data with the requester's own ERPNext permissions, and the draft RFQ
 is created as the requester, so they never see or do more than that person can.
 
+One exception, by design: when an item or supplier is missing, the assistant
+creates it for the buyer after they confirm in chat, even if the buyer has no
+right to create Items or Suppliers. Each such record gets a comment naming the
+buyer and the conversation. Switch this off with the policy *Create missing
+items and suppliers*; the agent then asks the buyer to add them by hand.
+
 ## 5. Policies
 
 **Policies & Guardrails** lists every rule; click a rule to change it. Values are
@@ -74,12 +80,18 @@ in the **Parameters** JSON, for example:
 | Permitted warehouses | `{"warehouses": ["Stores - PRD"]}` (empty list = any the user may access) |
 | Price variance tolerance | `{"tolerance_pct": 10, "days": 90}` |
 
-Changes apply to the next run. Items must list their approved suppliers on the
-item's **Supplier** table; otherwise the agent stops and asks for one.
+Changes apply to the next run. The agent only quotes suppliers listed on the
+item's **Supplier** table. If there are none, it asks the buyer which supplier to
+use and adds it (creating the supplier first if it is new).
 
 ## 6. Day-to-day
 
-- **Waiting for buyer**: the agent asked a question; the requester answers on the Runs page.
+- Buyers use the **Procurement Assistant** (`/app/procurement-assistant`, or *Ask the
+  assistant* on the Procurement page). It is a chat: they see questions, cards and
+  results, never steps or tools. Each conversation is one run, so administrators
+  still see the full trace in **Runs & Traces**.
+- **Waiting for buyer**: the agent asked a question; the requester answers in the
+  assistant (or on the Runs page).
 - **Awaiting approval**: approvers get an ERPNext notification; decide in the Approval Inbox
   or on the Agent Approval form. Rejection needs a reason.
 - **Cancel run** is available on paused runs.
@@ -96,14 +108,15 @@ item's **Supplier** table; otherwise the agent stops and asks for one.
 | "All model configurations failed" | Test connection on the provider; check the deployment name and API version |
 | Page does not update live | Is `bench socketio` running? In Docker the container must resolve the site name |
 | "You started this run, so you cannot approve it" | Approve as another user with the required role |
-| Agent asks for a supplier | Add suppliers to the item's Supplier table |
+| Agent asks for a supplier | The item has no usable supplier; the buyer names one in chat, or add it to the item's Supplier table |
+| "limit of N LLM calls" mid-conversation | Raise **Max Steps** on the agent (16 suits conversations that create an item and a supplier) |
 | Run *Failed* with a step error | Open the run: the failed step and the error are shown in the trace |
 
 ## 8. Tests
 
 ```bash
 bench --site <test-site> set-config allow_tests true
-for m in test_graph test_agent_studio test_gateway test_tools test_runtime test_approvals test_evals; do
+for m in test_graph test_agent_studio test_gateway test_tools test_runtime test_approvals test_evals test_assistant; do
   bench --site <test-site> run-tests --module pridict.agent_studio.$m
 done
 ```

@@ -177,6 +177,7 @@
 		["agent-policies", "agent-studio"],
 		["agent-runs", "agent-studio"],
 		["agent-approvals", "agent-studio"],
+		["procurement-assistant", "procurement"],
 	]);
 
 	function getRouteParts() {

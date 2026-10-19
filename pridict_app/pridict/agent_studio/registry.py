@@ -8,6 +8,8 @@ from __future__ import annotations
 
 PROCUREMENT_AGENT = "Procurement Sourcing Agent"
 PROCUREMENT_WORKFLOW = "procurement_sourcing"
+# Tools that create master data once the buyer confirms in chat (no Agent Approval needed).
+MASTER_DATA_TOOLS = ["create_item", "create_supplier", "link_item_supplier"]
 
 
 def _obj(properties: dict, required: list[str] | None = None) -> dict:
@@ -187,6 +189,48 @@ TOOLS: list[dict] = [
 		"output_schema": _obj({"rfq": STR}),
 	},
 	{
+		"tool_name": "create_item",
+		"access": "Write (master data)",
+		"status": "Enabled",
+		"target": "Item",
+		"scope": "Item: create (after the buyer confirms in chat)",
+		"timeout_s": 10,
+		"description": "Create a new Item the buyer asked for and confirmed. Never edits existing items.",
+		"input_schema": _obj(
+			{
+				"item_name": STR,
+				"item_group": STR,
+				"stock_uom": STR,
+				"is_stock_item": {"type": "boolean"},
+				"description": STR,
+			},
+			["item_name", "item_group", "stock_uom", "is_stock_item"],
+		),
+		"output_schema": _obj({"item_code": STR, "item_name": STR, "stock_uom": STR}),
+	},
+	{
+		"tool_name": "create_supplier",
+		"access": "Write (master data)",
+		"status": "Enabled",
+		"target": "Supplier, Contact",
+		"scope": "Supplier: create (after the buyer confirms in chat)",
+		"timeout_s": 10,
+		"description": "Create a new Supplier the buyer named and confirmed, with a contact if an email is given.",
+		"input_schema": _obj({"supplier_name": STR, "email": STR}, ["supplier_name"]),
+		"output_schema": _obj({"supplier": STR, "contact": STR}),
+	},
+	{
+		"tool_name": "link_item_supplier",
+		"access": "Write (master data)",
+		"status": "Enabled",
+		"target": "Item Supplier",
+		"scope": "Item: add a row to the supplier list (after the buyer confirms in chat)",
+		"timeout_s": 10,
+		"description": "Add a supplier the buyer chose to the item's approved supplier list.",
+		"input_schema": _obj({"item_code": STR, "supplier": STR}),
+		"output_schema": _obj({"added": {"type": "boolean"}}),
+	},
+	{
 		"tool_name": "create_draft_purchase_order",
 		"access": "Write (draft)",
 		"status": "Disabled",
@@ -271,6 +315,13 @@ POLICIES: list[dict] = [
 		"description": "Must be today or later",
 	},
 	{
+		"policy_group": "Data requirements",
+		"policy_name": "Create missing items and suppliers",
+		"rule_key": "create_missing_master_data",
+		"severity": "Ask buyer",
+		"description": "When the item or a supplier does not exist, the assistant offers to create it and does so only after the buyer confirms in chat",
+	},
+	{
 		"policy_group": "Money & quantity limits",
 		"policy_name": "Single approver limit",
 		"rule_key": "single_approver_limit",
@@ -326,7 +377,7 @@ POLICIES: list[dict] = [
 		"policy_name": "Change master data",
 		"rule_key": "no_master_edits",
 		"severity": "Block",
-		"description": "No edits to Supplier, Item, Price List",
+		"description": "No edits to existing Supplier, Item or Price List records (adding a supplier the buyer confirmed to an item's supplier list is allowed)",
 	},
 	{
 		"policy_group": "Prohibited for agents",
@@ -346,9 +397,9 @@ PROCUREMENT_AGENT_DEFAULTS: dict = {
 	"workflow_key": PROCUREMENT_WORKFLOW,
 	"mode": "recommend",
 	"approval_required": 1,
-	"max_steps": 8,
+	"max_steps": 16,
 	"max_runtime_s": 180,
-	"token_budget": 40000,
+	"token_budget": 60000,
 	"tools": [
 		"search_items",
 		"get_warehouses",
@@ -360,6 +411,7 @@ PROCUREMENT_AGENT_DEFAULTS: dict = {
 		"score_vendors",
 		"detect_price_anomalies",
 		"create_draft_rfq",
+		*MASTER_DATA_TOOLS,
 	],
 	"instructions": (
 		"You help buyers decide whether and how to source a material.\n"
@@ -367,7 +419,9 @@ PROCUREMENT_AGENT_DEFAULTS: dict = {
 		"2. Never compute stock or shortage yourself; use the numbers returned by tools.\n"
 		"3. Only consider suppliers returned by get_approved_suppliers.\n"
 		"4. Explain every recommendation with the evidence you used.\n"
-		"5. You cannot approve or submit documents. Propose; a human decides."
+		"5. You cannot approve or submit documents. Propose; a human decides.\n"
+		"6. When an item or supplier is missing, offer to create it; never create one the buyer has not confirmed.\n"
+		"7. Talk to the buyer in short, friendly, plain sentences, without internal terms."
 	),
 	"output_schema": _obj(
 		{
@@ -390,7 +444,7 @@ PROCUREMENT_AGENT_DEFAULTS: dict = {
 WORKFLOWS: dict[str, dict] = {
 	PROCUREMENT_WORKFLOW: {
 		"name": "Procurement Sourcing",
-		"version": "v1",
+		"version": "v2",
 		"entry": "parse_requirement",
 		"nodes": [
 			{
@@ -406,7 +460,35 @@ WORKFLOWS: dict[str, dict] = {
 				"kind": "tool",
 				"desc": "Looks up the real Item and Warehouse records so later steps work with exact codes, not guesses.",
 				"tools": ["search_items", "get_warehouses"],
-				"next": [["", "validate_inputs"]],
+				"next": [["found", "validate_inputs"], ["new item", "propose_item"]],
+			},
+			{
+				"id": "propose_item",
+				"label": "Propose a new item",
+				"kind": "llm",
+				"desc": "The item is not in ERPNext. Looks for similar items and drafts a new Item (name, group, unit) for the buyer to confirm.",
+				"tools": ["search_items"],
+				"next": [["", "confirm_item"]],
+			},
+			{
+				"id": "confirm_item",
+				"label": "Buyer confirms the item",
+				"kind": "human",
+				"desc": "Asks the buyer to create the drafted item, pick a similar existing one, or change the details.",
+				"next": [
+					["create", "create_item"],
+					["use existing", "resolve_records"],
+					["change", "confirm_item"],
+					["stop", "end_conversation"],
+				],
+			},
+			{
+				"id": "create_item",
+				"label": "Create the item",
+				"kind": "tool",
+				"desc": "Creates the confirmed Item, recording that the assistant created it for the buyer.",
+				"tools": ["create_item"],
+				"next": [["", "resolve_records"]],
 			},
 			{
 				"id": "validate_inputs",
@@ -450,7 +532,37 @@ WORKFLOWS: dict[str, dict] = {
 				"kind": "tool",
 				"desc": "Gets approved suppliers for the item and scores them using the existing vendor scoring engine.",
 				"tools": ["get_approved_suppliers", "score_vendors"],
-				"next": [["enough data", "analyze_sourcing"], ["not enough", "ask_buyer"]],
+				"next": [
+					["enough data", "analyze_sourcing"],
+					["no supplier", "confirm_supplier"],
+					["not enough", "ask_buyer"],
+				],
+			},
+			{
+				"id": "confirm_supplier",
+				"label": "Buyer chooses suppliers",
+				"kind": "human",
+				"desc": "Asks the buyer which supplier to use. Existing suppliers are matched by name; new ones are created only after the buyer confirms.",
+				"next": [
+					["ready", "setup_suppliers"],
+					["again", "confirm_supplier"],
+					["stop", "end_conversation"],
+				],
+			},
+			{
+				"id": "setup_suppliers",
+				"label": "Create & link suppliers",
+				"kind": "tool",
+				"desc": "Creates any new suppliers the buyer confirmed and adds them to the item's supplier list.",
+				"tools": ["create_supplier", "link_item_supplier"],
+				"next": [["", "find_suppliers"]],
+			},
+			{
+				"id": "end_conversation",
+				"label": "Stop at buyer's request",
+				"kind": "rule",
+				"desc": "The buyer chose not to continue. Nothing more is created.",
+				"next": [["", "END"]],
 			},
 			{
 				"id": "ask_buyer",

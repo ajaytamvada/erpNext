@@ -10,6 +10,7 @@ class PridictProcurement {
 	constructor(wrapper) {
 		this.wrapper = wrapper;
 		this.page = frappe.ui.make_app_page({ parent: wrapper, title: __("Procurement"), single_column: true });
+		this.page.set_primary_action(__("Ask the assistant"), () => frappe.set_route("procurement-assistant"));
 		if (["System Manager", "Process Analyst", "Purchase Manager"].some((role) => frappe.user.has_role(role))) {
 			this.page.add_inner_button(__("Process Intelligence"), () => frappe.set_route("process-intelligence"));
 			this.page.add_inner_button(__("Decision Intelligence"), () => frappe.set_route("decision-intelligence"));

@@ -9,6 +9,10 @@ Step, commits, and announces progress over realtime.
 Human pauses use LangGraph interrupts. The interrupt payload decides the run status
 ("question" -> Waiting for buyer, "approval" -> Awaiting approval); resume_run()
 continues from the checkpoint with the person's answer or decision.
+
+Each run is also a conversation: post_message() appends Agent Chat Message rows that
+the Procurement Assistant page shows to the buyer. Steps are for administrators;
+messages are the only thing the buyer sees.
 """
 
 from __future__ import annotations
@@ -59,6 +63,45 @@ def _commit():
 		frappe.db.commit()
 
 
+def post_message(
+	run: str,
+	role: str,
+	content: str,
+	kind: str = "text",
+	card: dict | None = None,
+	choices: list[str] | None = None,
+):
+	"""Append one message to a run's conversation (bypasses document save, like steps)."""
+	idx = frappe.db.count("Agent Chat Message", {"parent": run, "parenttype": "Agent Run"}) + 1
+	message = frappe.new_doc("Agent Chat Message")
+	message.update(
+		{
+			"parent": run,
+			"parenttype": "Agent Run",
+			"parentfield": "messages",
+			"idx": idx,
+			"role": role,
+			"kind": kind,
+			"posted_at": now_datetime(),
+			"content": content or "",
+			"card_json": _json(card) if card else None,
+			"choices_json": _json(choices) if choices else None,
+		}
+	)
+	message.name = frappe.generate_hash(length=20)
+	message.db_insert()
+
+
+def _friendly_error(error: Exception) -> str:
+	if isinstance(error, gateway.LLMError):
+		return _("I can't reach the AI model right now, so I had to stop. Please try again in a few minutes.")
+	if isinstance(error, (BudgetExceeded, tools.ToolError)):
+		return _("Sorry, I couldn't finish this request: {0}").format(str(error))
+	return _(
+		"Sorry, something went wrong on my side and I had to stop. Your administrator can see the details. Please start a new request."
+	)
+
+
 def _publish(run: str, status: str, node: str | None = None):
 	# Payload carries no business data; pages re-fetch through permission-checked APIs.
 	frappe.publish_realtime(RUN_EVENT, {"run": run, "status": status, "node": node}, after_commit=True)
@@ -91,6 +134,10 @@ class RunContext:
 		self.step_summary = summary
 		if output is not None:
 			self.step_output = output
+
+	def say(self, content: str, kind: str = "text", card: dict | None = None):
+		"""Tell the buyer something mid-run. Not for nodes that pause: they re-run on resume."""
+		post_message(self.run, "assistant", content, kind, card)
 
 	def tool(self, name: str, **arguments) -> dict:
 		"""Run a read tool as the requesting user; raise on failure so the step fails visibly."""
@@ -281,6 +328,9 @@ def _finish(run_name: str, values: dict):
 		},
 		update_modified=False,
 	)
+	reply = values.get("reply") or (values.get("result") or {}).get("explanation") or values.get("outcome")
+	if reply:
+		post_message(run_name, "assistant", reply, "result", values.get("reply_card"))
 	# A finished run can never resume, so its checkpoints are no longer needed.
 	MariaDBSaver().delete_thread(run.thread_id or run_name)
 	return status
@@ -341,6 +391,14 @@ def execute(run: str, resume: dict | None = None):
 				{"status": status, "pending_question": pause.get("message") or ""},
 				update_modified=False,
 			)
+			post_message(
+				run,
+				"assistant",
+				pause.get("chat") or pause.get("message") or "",
+				"approval" if status == "Awaiting approval" else "question",
+				pause.get("card"),
+				pause.get("choices"),
+			)
 		else:
 			status = _finish(run, snapshot.values)
 	except Exception as error:
@@ -362,6 +420,7 @@ def execute(run: str, resume: dict | None = None):
 			},
 			update_modified=False,
 		)
+		post_message(run, "assistant", _friendly_error(error), "error")
 		ctx.saver.discard()
 		ctx.saver.delete_thread(doc.thread_id or run)
 	finally:
@@ -435,6 +494,7 @@ def start_run(agent: str, request: str) -> dict:
 	)
 	run.insert(ignore_permissions=True)
 	run.db_set("thread_id", run.name, update_modified=False)
+	post_message(run.name, "user", request[:4000])
 	_enqueue(run.name)
 	return {"run": run.name}
 
@@ -454,6 +514,7 @@ def answer_run(run: str, answer: str) -> dict:
 	if not answer:
 		frappe.throw(_("Enter an answer."))
 	doc.db_set({"status": "Queued", "pending_question": None}, update_modified=False)
+	post_message(run, "user", answer[:2000])
 	_enqueue(run, {"answer": answer[:2000], "by": frappe.session.user})
 	return {"run": run}
 
@@ -489,5 +550,6 @@ def cancel_run(run: str) -> dict:
 		update_modified=False,
 	)
 	MariaDBSaver().delete_thread(doc.thread_id or run)
+	post_message(run, "assistant", _("Request cancelled. Nothing more will be done for it."), "notice")
 	_publish(run, "Cancelled")
 	return {"run": run}

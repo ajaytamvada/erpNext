@@ -26,17 +26,35 @@ EVAL_EVENT = "agent_eval_update"
 
 
 class ScriptedLLM:
-	"""Stands in for gateway.chat; answers by response schema title."""
+	"""Stands in for gateway.chat; answers by response schema title.
 
-	def __init__(self, requirements: list[dict]):
+	scripted maps other schema titles (e.g. "supplier_answer") to payloads given in
+	order; the last one repeats.
+	"""
+
+	def __init__(self, requirements: list[dict], scripted: dict[str, list[dict]] | None = None):
 		self.requirements = list(requirements)
+		self.scripted = {title: list(payloads) for title, payloads in (scripted or {}).items()}
 		self.calls: list[str] = []
 
 	def __call__(self, config, messages, *, response_schema=None, max_tokens=None, **_):
 		title = (response_schema or {}).get("title", "text")
 		self.calls.append(title)
-		if title == "requirement":
+		if title in self.scripted:
+			queue = self.scripted[title]
+			payload = queue.pop(0) if len(queue) > 1 else queue[0]
+		elif title == "requirement":
 			payload = self.requirements.pop(0) if len(self.requirements) > 1 else self.requirements[0]
+		elif title == "item_proposal":
+			props = response_schema["properties"]
+			groups, uoms = props["item_group"]["enum"], props["stock_uom"]["enum"]
+			payload = {
+				"item_name": "Scripted Item",
+				"item_group": "Products" if "Products" in groups else groups[0],
+				"stock_uom": "Nos" if "Nos" in uoms else uoms[0],
+				"is_stock_item": True,
+				"description": "",
+			}
 		elif title == "sourcing_analysis":
 			names = response_schema["properties"]["recommended_supplier"]["enum"]
 			payload = {

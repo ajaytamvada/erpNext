@@ -1,0 +1,72 @@
+{
+ "actions": [],
+ "creation": "2026-10-19 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "role",
+  "kind",
+  "posted_at",
+  "content",
+  "card_json",
+  "choices_json"
+ ],
+ "fields": [
+  {
+   "fieldname": "role",
+   "fieldtype": "Select",
+   "label": "Role",
+   "options": "user\nassistant",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "kind",
+   "fieldtype": "Select",
+   "label": "Kind",
+   "options": "text\nquestion\napproval\nresult\nnotice\nerror",
+   "default": "text",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "posted_at",
+   "fieldtype": "Datetime",
+   "label": "Posted At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "content",
+   "fieldtype": "Long Text",
+   "label": "Content",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "card_json",
+   "fieldtype": "Code",
+   "label": "Card",
+   "options": "JSON",
+   "read_only": 1
+  },
+  {
+   "fieldname": "choices_json",
+   "fieldtype": "Code",
+   "label": "Quick Replies",
+   "options": "JSON",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-19 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pridict",
+ "name": "Agent Chat Message",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1
+}

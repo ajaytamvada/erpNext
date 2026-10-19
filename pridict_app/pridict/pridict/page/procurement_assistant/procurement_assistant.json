@@ -1,0 +1,21 @@
+{
+ "doctype": "Page",
+ "name": "procurement-assistant",
+ "page_name": "procurement-assistant",
+ "title": "Procurement Assistant",
+ "icon": "intelligence",
+ "module": "Pridict",
+ "standard": "Yes",
+ "system_page": 0,
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Purchase Manager"
+  },
+  {
+   "role": "Purchase User"
+  }
+ ]
+}

@@ -26,6 +26,8 @@
   "prompt_tokens",
   "completion_tokens",
   "total_tokens",
+  "section_chat",
+  "messages",
   "section_trace",
   "steps",
   "result_json"
@@ -175,6 +177,19 @@
    "read_only": 1
   },
   {
+   "fieldname": "section_chat",
+   "fieldtype": "Section Break",
+   "label": "Conversation",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "messages",
+   "fieldtype": "Table",
+   "label": "Messages",
+   "options": "Agent Chat Message",
+   "read_only": 1
+  },
+  {
    "fieldname": "section_trace",
    "fieldtype": "Section Break",
    "label": "Trace"
@@ -195,7 +210,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-14 02:00:00.000000",
+ "modified": "2026-10-19 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pridict",
  "name": "Agent Run",
