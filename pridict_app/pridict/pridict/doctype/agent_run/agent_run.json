@@ -13,6 +13,7 @@
   "ended_at",
   "duration_s",
   "thread_id",
+  "conversation",
   "section_request",
   "request",
   "request_summary",
@@ -97,6 +98,13 @@
    "label": "Thread ID",
    "read_only": 1,
    "description": "LangGraph checkpoint thread."
+  },
+  {
+   "fieldname": "conversation",
+   "fieldtype": "Link",
+   "label": "Conversation",
+   "options": "Assistant Conversation",
+   "read_only": 1
   },
   {
    "fieldname": "section_request",
@@ -210,7 +218,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-19 00:00:00.000000",
+ "modified": "2026-10-19 00:00:01.000000",
  "modified_by": "Administrator",
  "module": "Pridict",
  "name": "Agent Run",

@@ -486,9 +486,9 @@ def propose_item(state: State, ctx: RunContext) -> dict:
 	}
 
 
-def _item_card(proposal: dict) -> dict:
+def _item_card(proposal: dict, alternative: bool = False) -> dict:
 	return {
-		"title": _("New item"),
+		"title": _("Or create a new item") if alternative else _("New item"),
 		"fields": [
 			[_("Name"), proposal["item_name"]],
 			[_("Item group"), proposal["item_group"]],
@@ -503,28 +503,40 @@ def confirm_item(state: State, ctx: RunContext) -> dict:
 
 	_check_questions(state)
 	proposal, similar = state["item_proposal"], state.get("similar_items") or []
-	create, stop = _("Yes, create it"), _("Cancel request")
+	stop = _("Cancel request")
 	lines = [
 		state.get("item_feedback") or _('I couldn\'t find "{0}" in your items.').format(state["missing_item"])
 	]
 	# An item with exactly the proposed name already exists: steer towards it, not a duplicate.
 	same = next((i for i in similar if i["item_name"].lower() == proposal["item_name"].lower()), None)
 	if same:
-		create = _("Create a separate new item")
 		similar = [same, *[i for i in similar if i is not same]]
+	# Buttons show item names; map them back to codes.
+	use = {_("Use {0}").format(i["item_name"]): i["item_code"] for i in similar[:4]}
+	if same:
+		create = _("Create a separate new item")
 		lines.append(
 			_("You already have an item called {0}. Shall I use it?").format(
 				_label(same["item_name"], same["item_code"])
 			)
 		)
-	elif similar:
+	elif len(similar) == 1:
+		create = _("No, create a new item")
 		lines.append(
-			_("Is it one of these existing items? {0}").format(
+			_("Did you mean {0}? If not, I can create a new item for it.").format(
+				_label(similar[0]["item_name"], similar[0]["item_code"])
+			)
+		)
+	elif similar:
+		create = _("None of these, create it")
+		lines.append(
+			_("Did you mean one of these? {0}").format(
 				", ".join(_label(i["item_name"], i["item_code"]) for i in similar)
 			)
 		)
-		lines.append(_("If not, I can create it as a new item. Shall I?"))
+		lines.append(_("If not, I can create a new item for it."))
 	else:
+		create = _("Yes, create it")
 		lines.append(_("I can create it as a new item. Shall I? You can also change any of the details."))
 	question = "\n".join(lines)
 	ctx.note(_("Asked the buyer to confirm new item {0}").format(proposal["item_name"]))
@@ -533,10 +545,9 @@ def confirm_item(state: State, ctx: RunContext) -> dict:
 			{
 				"type": "question",
 				"message": question,
-				"card": _item_card(proposal),
-				"choices": [*([same["item_code"]] if same else []), create]
-				+ [i["item_code"] for i in similar[:4] if i is not same]
-				+ [stop],
+				"card": _item_card(proposal, alternative=bool(similar)),
+				# With an exact-name match, "create anyway" sits right after it, before other near misses.
+				"choices": [*list(use)[:1], create, *list(use)[1:], stop] if same else [*use, create, stop],
 			}
 		)
 	)
@@ -545,13 +556,13 @@ def confirm_item(state: State, ctx: RunContext) -> dict:
 	common = {"asks": asks, "conversation": conversation, "answered_by": by}
 	codes = [i["item_code"] for i in similar]
 
-	quick = _quick(text, [create, stop, *codes])
+	quick = _quick(text, [create, stop, *use, *codes])
 	if quick == create:
 		decision = {"action": "create", **proposal}
 	elif quick == stop:
 		decision = {"action": "stop"}
 	elif quick:
-		decision = {"action": "use_existing", "existing_item": quick}
+		decision = {"action": "use_existing", "existing_item": use.get(quick, quick)}
 	else:
 		decision = ctx.llm(
 			[
@@ -562,8 +573,13 @@ def confirm_item(state: State, ctx: RunContext) -> dict:
 						"- create: they agree to create it (apply any changes they asked for to the fields)\n"
 						"- use_existing: they picked one of the similar existing items (give its code)\n"
 						"- stop: they do not want to continue\n"
-						"- unclear: anything else (apply any changes they mentioned to the fields)\n\n"
-						+ _facts(proposal=proposal, similar_items=similar, buyer_answer=text)
+						"- unclear: anything else (apply any changes they mentioned to the fields)\n"
+						"If the question asked whether they meant an existing item and they simply agree "
+						"('yes', 'that one'), choose use_existing with that item. If it only offered to create, "
+						"'yes' means create.\n\n"
+						+ _facts(
+							question=question, proposal=proposal, similar_items=similar, buyer_answer=text
+						)
 					),
 				}
 			],

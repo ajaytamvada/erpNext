@@ -70,14 +70,15 @@ def post_message(
 	kind: str = "text",
 	card: dict | None = None,
 	choices: list[str] | None = None,
+	parenttype: str = "Agent Run",
 ):
-	"""Append one message to a run's conversation (bypasses document save, like steps)."""
-	idx = frappe.db.count("Agent Chat Message", {"parent": run, "parenttype": "Agent Run"}) + 1
+	"""Append one chat message to a run or an Assistant Conversation (bypasses document save)."""
+	idx = frappe.db.count("Agent Chat Message", {"parent": run, "parenttype": parenttype}) + 1
 	message = frappe.new_doc("Agent Chat Message")
 	message.update(
 		{
 			"parent": run,
-			"parenttype": "Agent Run",
+			"parenttype": parenttype,
 			"parentfield": "messages",
 			"idx": idx,
 			"role": role,
@@ -102,9 +103,20 @@ def _friendly_error(error: Exception) -> str:
 	)
 
 
+CONVERSATION_EVENT = "assistant_update"
+
+
 def _publish(run: str, status: str, node: str | None = None):
 	# Payload carries no business data; pages re-fetch through permission-checked APIs.
 	frappe.publish_realtime(RUN_EVENT, {"run": run, "status": status, "node": node}, after_commit=True)
+	conversation = frappe.db.get_value("Agent Run", run, "conversation")
+	if conversation:
+		publish_conversation(conversation)
+
+
+def publish_conversation(conversation: str):
+	user = frappe.db.get_value("Assistant Conversation", conversation, "user")
+	frappe.publish_realtime(CONVERSATION_EVENT, {"conversation": conversation}, user=user, after_commit=True)
 
 
 @dataclass
@@ -456,6 +468,11 @@ def _enqueue(run: str, resume: dict | None = None):
 
 @frappe.whitelist(methods=["POST"])
 def start_run(agent: str, request: str) -> dict:
+	return {"run": create_run(agent, request)}
+
+
+def create_run(agent: str, request: str, conversation: str | None = None) -> str:
+	"""Start a run as the session user. From a conversation, the request is already in the chat."""
 	if not STARTER_ROLES & set(frappe.get_roles()):
 		frappe.throw(_("You are not allowed to start agent runs."), frappe.PermissionError)
 	request = (request or "").strip()
@@ -490,13 +507,15 @@ def start_run(agent: str, request: str) -> dict:
 			"status": "Queued",
 			"requested_by": frappe.session.user,
 			"request": request[:4000],
+			"conversation": conversation,
 		}
 	)
 	run.insert(ignore_permissions=True)
 	run.db_set("thread_id", run.name, update_modified=False)
-	post_message(run.name, "user", request[:4000])
+	if not conversation:
+		post_message(run.name, "user", request[:4000])
 	_enqueue(run.name)
-	return {"run": run.name}
+	return run.name
 
 
 def _can_act_on(run) -> bool:
@@ -505,6 +524,12 @@ def _can_act_on(run) -> bool:
 
 @frappe.whitelist(methods=["POST"])
 def answer_run(run: str, answer: str) -> dict:
+	answer_paused_run(run, answer)
+	return {"run": run}
+
+
+def answer_paused_run(run: str, answer: str, post: bool = True):
+	"""Resume a run waiting for the buyer. post=False when the answer is already in a conversation."""
 	doc = frappe.get_doc("Agent Run", run)
 	if not _can_act_on(doc):
 		frappe.throw(_("Only the person who started this run can answer."), frappe.PermissionError)
@@ -514,9 +539,9 @@ def answer_run(run: str, answer: str) -> dict:
 	if not answer:
 		frappe.throw(_("Enter an answer."))
 	doc.db_set({"status": "Queued", "pending_question": None}, update_modified=False)
-	post_message(run, "user", answer[:2000])
+	if post:
+		post_message(run, "user", answer[:2000])
 	_enqueue(run, {"answer": answer[:2000], "by": frappe.session.user})
-	return {"run": run}
 
 
 def resume_run(run: str, resume: dict):

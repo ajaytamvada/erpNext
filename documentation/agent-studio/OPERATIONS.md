@@ -87,9 +87,17 @@ use and adds it (creating the supplier first if it is new).
 ## 6. Day-to-day
 
 - Buyers use the **Procurement Assistant** (`/app/procurement-assistant`, or *Ask the
-  assistant* on the Procurement page). It is a chat: they see questions, cards and
-  results, never steps or tools. Each conversation is one run, so administrators
-  still see the full trace in **Runs & Traces**.
+  assistant* on the Procurement page). It is a chat: they ask questions about buying
+  and stock ("show my open purchase orders", "top suppliers this year"), raise draft
+  Material Requests after confirming them, or say what they need to buy, which starts
+  the sourcing workflow inside the same conversation. They see answers, cards and
+  results, never steps or tools.
+- The assistant is its own agent, **Procurement Assistant** (type *Assistant*), with its
+  own instructions, model and tool list in the Agent Registry. **Max Steps** there is the
+  number of model calls allowed per message. It reads data only with the user's own
+  permissions. Each conversation is an *Assistant Conversation* record whose Trace
+  section lists every model and tool call; sourcing it starts are normal runs in
+  **Runs & Traces**, linked to the conversation.
 - **Waiting for buyer**: the agent asked a question; the requester answers in the
   assistant (or on the Runs page).
 - **Awaiting approval**: approvers get an ERPNext notification; decide in the Approval Inbox
@@ -116,7 +124,7 @@ use and adds it (creating the supplier first if it is new).
 
 ```bash
 bench --site <test-site> set-config allow_tests true
-for m in test_graph test_agent_studio test_gateway test_tools test_runtime test_approvals test_evals test_assistant; do
+for m in test_graph test_agent_studio test_gateway test_tools test_runtime test_approvals test_evals test_assistant test_conversation; do
   bench --site <test-site> run-tests --module pridict.agent_studio.$m
 done
 ```

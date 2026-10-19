@@ -10,13 +10,22 @@ PROCUREMENT_AGENT = "Procurement Sourcing Agent"
 PROCUREMENT_WORKFLOW = "procurement_sourcing"
 # Tools that create master data once the buyer confirms in chat (no Agent Approval needed).
 MASTER_DATA_TOOLS = ["create_item", "create_supplier", "link_item_supplier"]
+ASSISTANT_AGENT = "Procurement Assistant"
+BUYING_DOCTYPE_NAMES = [
+	"Purchase Order",
+	"Material Request",
+	"Request for Quotation",
+	"Supplier Quotation",
+	"Purchase Receipt",
+	"Purchase Invoice",
+]
 
 
 def _obj(properties: dict, required: list[str] | None = None) -> dict:
 	return {
 		"type": "object",
 		"properties": properties,
-		"required": required or list(properties),
+		"required": list(properties) if required is None else required,
 		"additionalProperties": False,
 	}
 
@@ -231,6 +240,126 @@ TOOLS: list[dict] = [
 		"output_schema": _obj({"added": {"type": "boolean"}}),
 	},
 	{
+		"tool_name": "list_documents",
+		"access": "Read",
+		"status": "Enabled",
+		"target": ", ".join(BUYING_DOCTYPE_NAMES),
+		"scope": "Buying documents: read",
+		"timeout_s": 8,
+		"description": (
+			"List buying documents (newest first) with optional filters. Use for questions like "
+			"'show my open purchase orders', 'overdue POs', 'invoices from Acme this month'. "
+			"Status values: Purchase Order: Draft, To Receive and Bill, To Bill, To Receive, Completed, Closed, "
+			"Cancelled; Material Request: Draft, Pending, Partially Ordered, Ordered, Received, Stopped, Cancelled; "
+			"Purchase Invoice: Draft, Unpaid, Overdue, Partly Paid, Paid, Return, Cancelled."
+		),
+		"input_schema": _obj(
+			{
+				"doctype": {"type": "string", "enum": BUYING_DOCTYPE_NAMES},
+				"status": STR,
+				"supplier": {"type": "string", "description": "Supplier name or part of it"},
+				"item_code": STR,
+				"from_date": DATE,
+				"to_date": DATE,
+				"overdue": {
+					"type": "boolean",
+					"description": "Purchase orders past their required-by date and not fully received",
+				},
+				"limit": _int(50),
+			},
+			["doctype"],
+		),
+		"output_schema": _obj(
+			{"doctype": STR, "documents": _list({"type": "object"}), "more": {"type": "boolean"}}
+		),
+	},
+	{
+		"tool_name": "get_document",
+		"access": "Read",
+		"status": "Enabled",
+		"target": ", ".join([*BUYING_DOCTYPE_NAMES, "Item", "Supplier"]),
+		"scope": "Buying documents, Item, Supplier: read",
+		"timeout_s": 8,
+		"description": "Open one buying document, item or supplier and return its details and lines.",
+		"input_schema": _obj(
+			{"doctype": {"type": "string", "enum": [*BUYING_DOCTYPE_NAMES, "Item", "Supplier"]}, "name": STR}
+		),
+		"output_schema": {"type": "object"},
+	},
+	{
+		"tool_name": "list_items",
+		"access": "Read",
+		"status": "Enabled",
+		"target": "Item",
+		"scope": "Item: read",
+		"timeout_s": 5,
+		"description": "List items, optionally searching code/name or filtering by item group.",
+		"input_schema": _obj({"query": STR, "item_group": STR, "limit": _int(50)}, []),
+		"output_schema": _obj({"items": _list({"type": "object"}), "more": {"type": "boolean"}}),
+	},
+	{
+		"tool_name": "list_suppliers",
+		"access": "Read",
+		"status": "Enabled",
+		"target": "Supplier",
+		"scope": "Supplier: read",
+		"timeout_s": 5,
+		"description": "List suppliers, optionally searching by name or filtering by supplier group.",
+		"input_schema": _obj({"query": STR, "supplier_group": STR, "limit": _int(50)}, []),
+		"output_schema": _obj({"suppliers": _list({"type": "object"}), "more": {"type": "boolean"}}),
+	},
+	{
+		"tool_name": "get_stock_levels",
+		"access": "Read",
+		"status": "Enabled",
+		"target": "Bin",
+		"scope": "Bin: read",
+		"timeout_s": 5,
+		"description": "Stock of an item across warehouses, or of all items in a warehouse (actual, reserved, ordered, projected).",
+		"input_schema": _obj({"item_code": STR, "warehouse": STR, "limit": _int(50)}, []),
+		"output_schema": _obj({"stock": _list({"type": "object"}), "more": {"type": "boolean"}}),
+	},
+	{
+		"tool_name": "purchase_summary",
+		"access": "Read",
+		"status": "Enabled",
+		"target": "Purchase Order",
+		"scope": "Purchase Order: read (aggregated)",
+		"timeout_s": 10,
+		"description": "Total value of submitted purchase orders grouped by supplier, item or month, for spend questions.",
+		"input_schema": _obj(
+			{
+				"group_by": {"type": "string", "enum": ["supplier", "item", "month"]},
+				"from_date": DATE,
+				"to_date": DATE,
+				"limit": _int(50),
+			},
+			["group_by"],
+		),
+		"output_schema": _obj({"group_by": STR, "currency": STR, "rows": _list({"type": "object"})}),
+	},
+	{
+		"tool_name": "create_draft_material_request",
+		"access": "Write (draft)",
+		"status": "Enabled",
+		"target": "Material Request",
+		"scope": "Material Request: create draft (after the user confirms in chat)",
+		"timeout_s": 15,
+		"description": "Create a draft purchase Material Request the user confirmed in chat. Never submitted.",
+		"input_schema": _obj(
+			{
+				"items": _list(
+					_obj({"item_code": STR, "qty": NUM, "schedule_date": DATE}, ["item_code", "qty"])
+				),
+				"warehouse": STR,
+				"schedule_date": DATE,
+				"company": STR,
+			},
+			["items", "warehouse", "schedule_date"],
+		),
+		"output_schema": _obj({"material_request": STR, "url": STR}),
+	},
+	{
 		"tool_name": "create_draft_purchase_order",
 		"access": "Write (draft)",
 		"status": "Disabled",
@@ -435,6 +564,60 @@ PROCUREMENT_AGENT_DEFAULTS: dict = {
 			"explanation": STR,
 		}
 	),
+	"change_note": "Seeded by Agent Studio setup",
+}
+
+ASSISTANT_INSTRUCTIONS = """You are the Procurement Assistant inside the company's ERP. You help employees with buying and stock:
+answer questions, look things up, and start purchases.
+
+How to work:
+- Use the tools to look up real data. Never invent document numbers, quantities, prices or suppliers.
+- If a question is ambiguous, make a sensible assumption and say it, or ask one short question.
+- Keep answers short and friendly. Use a markdown table for lists of documents or items (at most 20 rows),
+  and link every document as [NAME](url) using the url the tools return.
+- Amounts: show the currency. Dates: write them like 19 Oct 2026.
+- You may answer general questions (definitions, how a process works) without tools.
+
+Buying something:
+- When the user wants to buy, order, source or restock something, call start_sourcing with their request in their
+  own words, including item, quantity, warehouse and date if known. The sourcing workflow checks stock, suppliers
+  and prices, asks the user for anything missing, and sends a request for quotation for approval.
+- While a sourcing request is waiting for the user's answer, and their message answers it, call answer_sourcing.
+  If they ask something else instead, just answer it; the sourcing request keeps waiting.
+
+Draft documents:
+- To raise a Material Request, call propose_material_request. The user sees the draft and confirms it; never
+  claim a document was created unless a tool returned it.
+
+You cannot submit, approve or cancel ERP documents, and you only see what the user is allowed to see."""
+
+ASSISTANT_TOOLS = [
+	"list_documents",
+	"get_document",
+	"list_items",
+	"list_suppliers",
+	"get_stock_levels",
+	"purchase_summary",
+	"get_price_history",
+	"get_supplier_quotations",
+	"score_vendors",
+	"get_warehouses",
+	"create_draft_material_request",
+]
+
+ASSISTANT_AGENT_DEFAULTS: dict = {
+	"agent_name": ASSISTANT_AGENT,
+	"agent_module": "Procurement",
+	"agent_type": "Assistant",
+	"status": "Draft",
+	"version": "v1.0",
+	"mode": "recommend",
+	"approval_required": 1,
+	"max_steps": 8,
+	"max_runtime_s": 120,
+	"token_budget": 40000,
+	"tools": ASSISTANT_TOOLS,
+	"instructions": ASSISTANT_INSTRUCTIONS,
 	"change_note": "Seeded by Agent Studio setup",
 }
 

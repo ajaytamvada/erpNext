@@ -77,3 +77,23 @@
 	.pa-side { max-height: 220px; }
 	.pa-main { min-height: 70vh; }
 }
+
+/* Markdown in assistant replies */
+.pa-md p { margin: 0 0 6px; }
+.pa-md p:last-child { margin-bottom: 0; }
+.pa-md ul, .pa-md ol { margin: 4px 0 8px; padding-left: 20px; }
+.pa-md li { margin: 2px 0; }
+.pa-md code { font-size: 12px; background: var(--card-bg, var(--fg-color)); padding: 1px 5px; border-radius: 4px; }
+.pa-md a { color: var(--primary, #2563eb); text-decoration: underline; text-underline-offset: 2px; }
+.pa-table-wrap { overflow-x: auto; margin: 6px 0 8px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-bg, var(--fg-color)); }
+.pa-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.pa-table th { text-align: left; font-weight: 650; color: var(--text-muted); background: var(--control-bg); padding: 7px 10px; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+.pa-table td { padding: 7px 10px; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+.pa-table tr:last-child td { border-bottom: none; }
+.pa-stack:has(.pa-table-wrap) { max-width: min(900px, 92%); }
+
+/* Purchase request still waiting on the user, pinned above the message box */
+.pa-pinned { margin: 0 16px; padding: 10px 12px; border: 1px solid rgba(234, 179, 8, .35); background: rgba(234, 179, 8, .08); border-radius: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 12.5px; }
+.pa-pinned-text { line-height: 1.5; }
+.pa-pinned .fa { color: #a16207; }
+.pa-pinned + .pa-composer { border-top: none; padding-top: 10px; }

@@ -17,6 +17,7 @@ import json
 import statistics
 import time
 from typing import Any
+from urllib.parse import quote
 
 import frappe
 from frappe import _
@@ -388,6 +389,306 @@ def detect_price_anomalies(item_code: str, proposed_rate: float) -> dict:
 	}
 
 
+# ---------------------------------------------------------------------------
+# Read tools for the Procurement Assistant (general questions about buying and stock).
+# All use frappe.get_list / has_permission, so answers never exceed what the user may see.
+
+MAX_ROWS = 50
+
+# doctype -> (list fields, date field, item child table, has supplier field)
+BUYING_DOCTYPES: dict[str, dict] = {
+	"Purchase Order": {
+		"fields": [
+			"name",
+			"supplier",
+			"transaction_date",
+			"schedule_date",
+			"status",
+			"grand_total",
+			"currency",
+			"per_received",
+			"per_billed",
+		],
+		"date": "transaction_date",
+		"items": "Purchase Order Item",
+		"supplier": True,
+	},
+	"Material Request": {
+		"fields": [
+			"name",
+			"material_request_type",
+			"transaction_date",
+			"schedule_date",
+			"status",
+			"per_ordered",
+		],
+		"date": "transaction_date",
+		"items": "Material Request Item",
+		"supplier": False,
+	},
+	"Request for Quotation": {
+		"fields": ["name", "transaction_date", "status"],
+		"date": "transaction_date",
+		"items": "Request for Quotation Item",
+		"supplier": False,
+	},
+	"Supplier Quotation": {
+		"fields": ["name", "supplier", "transaction_date", "valid_till", "status", "grand_total", "currency"],
+		"date": "transaction_date",
+		"items": "Supplier Quotation Item",
+		"supplier": True,
+	},
+	"Purchase Receipt": {
+		"fields": ["name", "supplier", "posting_date", "status", "grand_total", "currency", "per_billed"],
+		"date": "posting_date",
+		"items": "Purchase Receipt Item",
+		"supplier": True,
+	},
+	"Purchase Invoice": {
+		"fields": [
+			"name",
+			"supplier",
+			"posting_date",
+			"due_date",
+			"status",
+			"grand_total",
+			"outstanding_amount",
+			"currency",
+		],
+		"date": "posting_date",
+		"items": "Purchase Invoice Item",
+		"supplier": True,
+	},
+}
+ITEM_FIELDS = [
+	"item_code",
+	"item_name",
+	"qty",
+	"uom",
+	"rate",
+	"amount",
+	"schedule_date",
+	"warehouse",
+	"received_qty",
+]
+
+
+def _url(doctype: str, name: str) -> str:
+	return f"/app/{frappe.scrub(doctype).replace('_', '-')}/{quote(name, safe='')}"
+
+
+def _rows(doctype: str, rows: list[dict]) -> list[dict]:
+	return [
+		{**{k: v for k, v in row.items() if v not in (None, "")}, "url": _url(doctype, row["name"])}
+		for row in rows
+	]
+
+
+def _limit(limit) -> int:
+	return max(1, min(int(limit or 20), MAX_ROWS))
+
+
+def list_documents(
+	doctype: str,
+	status: str = "",
+	supplier: str = "",
+	item_code: str = "",
+	from_date: str = "",
+	to_date: str = "",
+	overdue: bool = False,
+	limit: int = 20,
+) -> dict:
+	spec = BUYING_DOCTYPES.get(doctype)
+	if not spec:
+		raise ToolError(_("{0} is not a buying document I can list.").format(doctype))
+	limit = _limit(limit)
+	filters: list = []
+	if status:
+		filters.append([doctype, "status", "=", status])
+	if supplier:
+		if spec["supplier"]:
+			filters.append([doctype, "supplier", "like", f"%{supplier}%"])
+		elif doctype == "Request for Quotation":
+			filters.append(["Request for Quotation Supplier", "supplier", "like", f"%{supplier}%"])
+	if item_code:
+		filters.append([spec["items"], "item_code", "=", item_code])
+	if from_date:
+		filters.append([doctype, spec["date"], ">=", from_date])
+	if to_date:
+		filters.append([doctype, spec["date"], "<=", to_date])
+	if overdue:
+		if doctype != "Purchase Order":
+			raise ToolError(_("Overdue is only tracked for purchase orders."))
+		filters += [
+			[doctype, "docstatus", "=", 1],
+			[doctype, "schedule_date", "<", nowdate()],
+			[doctype, "per_received", "<", 100],
+			[doctype, "status", "not in", OPEN_PO_EXCLUDED_STATUS],
+		]
+	rows = frappe.get_list(
+		doctype,
+		filters=filters,
+		fields=spec["fields"],
+		order_by=f"`tab{doctype}`.{spec['date']} desc, `tab{doctype}`.creation desc",
+		limit_page_length=limit + 1,
+		distinct=True,
+	)
+	return {"doctype": doctype, "documents": _rows(doctype, rows[:limit]), "more": len(rows) > limit}
+
+
+def get_document(doctype: str, name: str) -> dict:
+	if doctype not in (*BUYING_DOCTYPES, "Item", "Supplier"):
+		raise ToolError(_("I can't open {0} documents.").format(doctype))
+	if not frappe.db.exists(doctype, name):
+		raise ToolError(_("{0} {1} does not exist.").format(doctype, name))
+	if not frappe.has_permission(doctype, "read", name):
+		raise ToolError(_("You are not allowed to see {0} {1}.").format(doctype, name))
+	doc = frappe.get_doc(doctype, name)
+	if doctype == "Item":
+		return {
+			"item_code": doc.name,
+			"item_name": doc.item_name,
+			"item_group": doc.item_group,
+			"stock_uom": doc.stock_uom,
+			"is_stock_item": bool(doc.is_stock_item),
+			"disabled": bool(doc.disabled),
+			"description": frappe.utils.strip_html(doc.description or "")[:500],
+			"suppliers": [row.supplier for row in doc.supplier_items],
+			"url": _url(doctype, name),
+		}
+	if doctype == "Supplier":
+		email = (
+			frappe.db.get_value("Contact", doc.supplier_primary_contact, "email_id")
+			if doc.supplier_primary_contact
+			else None
+		)
+		return {
+			"supplier": doc.name,
+			"supplier_name": doc.supplier_name,
+			"supplier_group": doc.supplier_group,
+			"country": doc.country,
+			"on_hold": bool(doc.on_hold),
+			"disabled": bool(doc.disabled),
+			"email": email,
+			"url": _url(doctype, name),
+		}
+	spec = BUYING_DOCTYPES[doctype]
+	header = {field: doc.get(field) for field in spec["fields"] if doc.get(field) not in (None, "")}
+	header.update(company=doc.get("company"), docstatus=doc.docstatus, url=_url(doctype, name))
+	if doctype == "Request for Quotation":
+		header["suppliers"] = [row.supplier for row in doc.suppliers]
+	items = [
+		{field: row.get(field) for field in ITEM_FIELDS if row.get(field) not in (None, "")}
+		for row in doc.get("items")[:MAX_ROWS]
+	]
+	return {**header, "items": items}
+
+
+def list_items(query: str = "", item_group: str = "", limit: int = 20) -> dict:
+	limit = _limit(limit)
+	filters = {"disabled": 0}
+	if item_group:
+		filters["item_group"] = item_group
+	or_filters = {"item_code": ["like", f"%{query}%"], "item_name": ["like", f"%{query}%"]} if query else None
+	rows = frappe.get_list(
+		"Item",
+		filters=filters,
+		or_filters=or_filters,
+		fields=["name", "item_name", "item_group", "stock_uom", "is_stock_item"],
+		order_by="modified desc",
+		limit_page_length=limit + 1,
+	)
+	return {"items": _rows("Item", rows[:limit]), "more": len(rows) > limit}
+
+
+def list_suppliers(query: str = "", supplier_group: str = "", limit: int = 20) -> dict:
+	limit = _limit(limit)
+	filters = {"disabled": 0}
+	if supplier_group:
+		filters["supplier_group"] = supplier_group
+	or_filters = {"name": ["like", f"%{query}%"], "supplier_name": ["like", f"%{query}%"]} if query else None
+	rows = frappe.get_list(
+		"Supplier",
+		filters=filters,
+		or_filters=or_filters,
+		fields=["name", "supplier_name", "supplier_group", "country", "on_hold"],
+		order_by="modified desc",
+		limit_page_length=limit + 1,
+	)
+	return {"suppliers": _rows("Supplier", rows[:limit]), "more": len(rows) > limit}
+
+
+def get_stock_levels(item_code: str = "", warehouse: str = "", limit: int = 20) -> dict:
+	if not item_code and not warehouse:
+		raise ToolError(_("Give an item or a warehouse."))
+	limit = _limit(limit)
+	filters = {}
+	if item_code:
+		filters["item_code"] = item_code
+	if warehouse:
+		filters["warehouse"] = warehouse
+	rows = frappe.get_list(
+		"Bin",
+		filters=filters,
+		fields=[
+			"item_code",
+			"warehouse",
+			"actual_qty",
+			"reserved_qty",
+			"ordered_qty",
+			"projected_qty",
+			"stock_uom",
+		],
+		order_by="actual_qty desc",
+		limit_page_length=limit + 1,
+	)
+	return {"stock": rows[:limit], "more": len(rows) > limit}
+
+
+def purchase_summary(group_by: str, from_date: str = "", to_date: str = "", limit: int = 10) -> dict:
+	"""Submitted purchase order value (company currency) grouped by supplier, item or month."""
+	limit = _limit(limit)
+	filters = [["Purchase Order", "docstatus", "=", 1]]
+	if from_date:
+		filters.append(["Purchase Order", "transaction_date", ">=", from_date])
+	if to_date:
+		filters.append(["Purchase Order", "transaction_date", "<=", to_date])
+	if group_by == "supplier":
+		fields = ["supplier as label", "sum(base_grand_total) as amount", "count(name) as orders"]
+		group = "supplier"
+	elif group_by == "item":
+		fields = [
+			"`tabPurchase Order Item`.item_code as label",
+			"sum(`tabPurchase Order Item`.base_net_amount) as amount",
+			"sum(`tabPurchase Order Item`.stock_qty) as qty",
+		]
+		group = "`tabPurchase Order Item`.item_code"
+	elif group_by == "month":
+		fields = [
+			"date_format(transaction_date, '%Y-%m') as label",
+			"sum(base_grand_total) as amount",
+			"count(name) as orders",
+		]
+		group = "label"
+	else:
+		raise ToolError(_("Group by supplier, item or month."))
+	rows = frappe.get_list(
+		"Purchase Order",
+		filters=filters,
+		fields=fields,
+		group_by=group,
+		order_by="label desc" if group_by == "month" else "amount desc",
+		limit_page_length=limit,
+	)
+	company = frappe.defaults.get_user_default("Company")
+	currency = frappe.get_cached_value("Company", company, "default_currency") if company else None
+	return {
+		"group_by": group_by,
+		"currency": currency,
+		"rows": [{**r, "amount": flt(r.amount, 2)} for r in rows],
+	}
+
+
 READ_TOOLS = {
 	"search_items": search_items,
 	"get_warehouses": get_warehouses,
@@ -398,6 +699,12 @@ READ_TOOLS = {
 	"get_supplier_quotations": get_supplier_quotations,
 	"score_vendors": score_vendors,
 	"detect_price_anomalies": detect_price_anomalies,
+	"list_documents": list_documents,
+	"get_document": get_document,
+	"list_items": list_items,
+	"list_suppliers": list_suppliers,
+	"get_stock_levels": get_stock_levels,
+	"purchase_summary": purchase_summary,
 }
 
 # ---------------------------------------------------------------------------
@@ -477,7 +784,7 @@ def _attribute(doc, confirmation: dict, what: str):
 	doc.add_comment(
 		"Comment",
 		_("{0} by the Procurement Assistant for {1}, who confirmed it in conversation {2}.").format(
-			what, confirmation["by"], confirmation["run"]
+			what, confirmation["by"], confirmation.get("run") or confirmation.get("conversation")
 		),
 	)
 
@@ -588,6 +895,52 @@ MASTER_DATA_TOOLS: dict[str, Any] = {
 }
 
 
+def create_draft_material_request(
+	confirmation: dict, items: list[dict], warehouse: str, schedule_date: str, company: str = ""
+) -> dict:
+	"""A draft Material Request (Purchase) the user confirmed in chat. Created as the user, never submitted."""
+	company = company or frappe.db.get_value("Warehouse", warehouse, "company")
+	if not company:
+		raise ToolError(_("Warehouse {0} does not exist.").format(warehouse))
+	rows = []
+	for line in items:
+		item_code, qty = line.get("item_code"), flt(line.get("qty"))
+		if not frappe.db.exists("Item", item_code):
+			raise ToolError(_("Item {0} does not exist.").format(item_code))
+		if qty <= 0:
+			raise ToolError(_("Quantity for {0} must be more than zero.").format(item_code))
+		rows.append(
+			{
+				"item_code": item_code,
+				"qty": qty,
+				"schedule_date": line.get("schedule_date") or schedule_date,
+				"warehouse": warehouse,
+			}
+		)
+	doc = frappe.get_doc(
+		{
+			"doctype": "Material Request",
+			"material_request_type": "Purchase",
+			"company": company,
+			"transaction_date": nowdate(),
+			"schedule_date": schedule_date,
+			"set_warehouse": warehouse,
+			"items": rows,
+		}
+	)
+	# Normal insert: the user's own permission to create Material Requests applies.
+	doc.insert()
+	_attribute(doc, confirmation, _("Drafted"))
+	return {"material_request": doc.name, "url": _url("Material Request", doc.name)}
+
+
+# Tools that run on the user's confirmation in chat instead of an Agent Approval.
+CONFIRMED_TOOLS: dict[str, Any] = {
+	**MASTER_DATA_TOOLS,
+	"create_draft_material_request": create_draft_material_request,
+}
+
+
 # ---------------------------------------------------------------------------
 # Dispatcher
 
@@ -624,11 +977,13 @@ def run_tool(name: str, arguments: dict | None, *, approval=None, confirmation=N
 		record = _tool_record(name)
 		if record.status in ("Disabled", "Blocked for agents"):
 			raise ToolError(_("Tool {0} is {1}.").format(name, _(record.status).lower()))
-		if record.access == "Write (master data)":
-			if not (confirmation and confirmation.get("by") and confirmation.get("run")):
+		if name in CONFIRMED_TOOLS:
+			if not (
+				confirmation
+				and confirmation.get("by")
+				and (confirmation.get("run") or confirmation.get("conversation"))
+			):
 				raise ToolError(_("Tool {0} needs the buyer's confirmation in chat.").format(name))
-			if name not in MASTER_DATA_TOOLS:
-				raise ToolError(_("Tool {0} has no implementation.").format(name))
 		elif record.access != "Read":
 			if approval is None or approval.status != "Approved":
 				raise ToolError(_("Tool {0} changes data and needs an approved Agent Approval.").format(name))
@@ -639,10 +994,10 @@ def run_tool(name: str, arguments: dict | None, *, approval=None, confirmation=N
 
 		arguments = arguments or {}
 		validate_arguments(json.loads(record.input_schema or "{}"), arguments)
-		if record.access == "Read":
+		if name in CONFIRMED_TOOLS:
+			result = CONFIRMED_TOOLS[name](confirmation=confirmation, **arguments)
+		elif record.access == "Read":
 			result = READ_TOOLS[name](**arguments)
-		elif record.access == "Write (master data)":
-			result = MASTER_DATA_TOOLS[name](confirmation=confirmation, **arguments)
 		else:
 			result = WRITE_TOOLS[name](approval=approval, **arguments)
 		return {"ok": True, "result": result, "duration_ms": int((time.monotonic() - started) * 1000)}

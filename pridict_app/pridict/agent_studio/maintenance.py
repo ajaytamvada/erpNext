@@ -32,6 +32,7 @@ def _idle_since(statuses: list[str], cutoff) -> list[str]:
 def hourly():
 	fail_orphaned_runs()
 	expire_stale_requests()
+	release_stuck_conversations()
 
 
 def fail_orphaned_runs():
@@ -92,4 +93,21 @@ def expire_stale_requests():
 			"notice",
 		)
 		MariaDBSaver().delete_thread(name)
+	frappe.db.commit()
+
+
+def release_stuck_conversations():
+	"""Conversations still marked working long after any job timeout: the worker stopped mid-reply."""
+	cutoff = add_to_date(now_datetime(), hours=-ORPHAN_HOURS)
+	for name in frappe.get_all(
+		"Assistant Conversation", filters={"working": 1, "last_activity": ["<", cutoff]}, pluck="name"
+	):
+		frappe.db.set_value("Assistant Conversation", name, "working", 0, update_modified=False)
+		post_message(
+			name,
+			"assistant",
+			_("Sorry, I was interrupted before I could answer. Please ask again."),
+			"error",
+			parenttype="Assistant Conversation",
+		)
 	frappe.db.commit()

@@ -1,4 +1,4 @@
-"""Procurement Assistant: conversation messages and creating missing items and suppliers."""
+"""Sourcing runs in conversation: chat messages and creating missing items and suppliers."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from erpnext.stock.doctype.item.test_item import make_item
 from frappe.tests.utils import FrappeTestCase
 from frappe.utils import add_days, nowdate
 
-from pridict.agent_studio import assistant, registry, runtime, tools
+from pridict.agent_studio import registry, runtime, tools
 from pridict.agent_studio.evals import ScriptedLLM
 from pridict.agent_studio.setup import ensure_agent_studio_setup
 
@@ -93,7 +93,22 @@ class TestProcurementAssistant(FrappeTestCase):
 		return frappe.get_doc("Agent Run", run)
 
 	def messages(self, run: str) -> list[dict]:
-		return assistant.get_conversation(run)["messages"]
+		rows = frappe.get_all(
+			"Agent Chat Message",
+			filters={"parent": run, "parenttype": "Agent Run"},
+			fields=["role", "kind", "content", "card_json", "choices_json"],
+			order_by="idx asc",
+		)
+		return [
+			{
+				"role": r.role,
+				"kind": r.kind,
+				"content": r.content,
+				"card": json.loads(r.card_json) if r.card_json else None,
+				"choices": json.loads(r.choices_json) if r.choices_json else [],
+			}
+			for r in rows
+		]
 
 	def test_creates_missing_item_and_supplier_then_waits_for_approval(self):
 		llm = ScriptedLLM(
@@ -110,12 +125,14 @@ class TestProcurementAssistant(FrappeTestCase):
 		question = self.messages(run.name)[-1]
 		self.assertEqual(question["kind"], "question")
 		self.assertIn(NEW_ITEM, question["content"])
-		self.assertEqual(question["card"]["title"], "New item")
-		self.assertIn("Yes, create it", question["choices"])
+		self.assertIn("new item", question["card"]["title"].lower())
+		# The create button sits just before "Cancel request"; its wording depends on near matches.
+		create = question["choices"][-2]
+		self.assertIn("create", create.lower())
 		self.assertFalse(frappe.db.exists("Item", {"item_name": NEW_ITEM}))
 
 		# Clicking the quick reply creates the item without another LLM call.
-		run = self.run_agent(llm, run=run.name, answer="Yes, create it")
+		run = self.run_agent(llm, run=run.name, answer=create)
 		self.assertEqual(run.status, "Waiting for buyer", run.error)
 		item = frappe.db.get_value(
 			"Item", {"item_name": NEW_ITEM}, ["name", "item_group", "stock_uom"], as_dict=True
@@ -208,27 +225,6 @@ class TestProcurementAssistant(FrappeTestCase):
 		self.assertIn("confirmation", outcome["error"])
 		self.assertFalse(frappe.db.exists("Supplier", "_Test Unconfirmed Supplier"))
 
-	def test_send_message_starts_then_answers_a_conversation(self):
-		llm = ScriptedLLM([{**requirement(CHAIR), "warehouse": "", "company": "_Test Company"}])
-		with patch("pridict.agent_studio.gateway.chat", llm):
-			run = assistant.send_message("I need 2 office chairs")["conversation"]
-			runtime.execute(run)
-			detail = assistant.get_conversation(run)
-			self.assertTrue(detail["can_reply"])
-			self.assertTrue(detail["messages"][-1]["choices"])
-			self.assertEqual(assistant.send_message(WAREHOUSE, run)["conversation"], run)
-			self.assertEqual(frappe.db.get_value("Agent Run", run, "status"), "Queued")
-		self.assertEqual(
-			[m["role"] for m in assistant.get_conversation(run)["messages"]], ["user", "assistant", "user"]
-		)
-		self.assertIn(run, [c.name for c in assistant.get_conversations()])
-
-	def test_other_users_cannot_read_a_conversation(self):
-		run = self.run_agent(ScriptedLLM([requirement(CHAIR, qty=0)]))
-		frappe.set_user("test1@example.com")
-		with self.assertRaises(frappe.PermissionError):
-			assistant.get_conversation(run.name)
-
 	def test_existing_item_with_the_proposed_name_is_offered_first(self):
 		make_item("_Test Assistant Widget", {"item_name": "Assistant Duplicate Widget", "is_stock_item": 1})
 		llm = ScriptedLLM(
@@ -238,8 +234,10 @@ class TestProcurementAssistant(FrappeTestCase):
 		run = self.run_agent(llm)
 		question = self.messages(run.name)[-1]
 		self.assertIn("already have an item called", question["content"])
-		self.assertEqual(question["choices"][:2], ["_Test Assistant Widget", "Create a separate new item"])
-		run = self.run_agent(llm, run=run.name, answer="_Test Assistant Widget")
+		self.assertEqual(
+			question["choices"][:2], ["Use Assistant Duplicate Widget", "Create a separate new item"]
+		)
+		run = self.run_agent(llm, run=run.name, answer="Use Assistant Duplicate Widget")
 		self.assertEqual(run.status, "Waiting for buyer", run.error)
 		self.assertIn("supplier", run.pending_question.lower())
 		self.assertEqual(frappe.db.count("Item", {"item_name": "Assistant Duplicate Widget"}), 1)

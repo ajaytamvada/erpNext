@@ -21,6 +21,7 @@ def ensure_agent_studio_setup():
 	_update_policy_descriptions()
 	seed_procurement_agent()
 	bind_master_data_tools()
+	seed_assistant_agent()
 
 
 def _dump(value) -> str:
@@ -95,6 +96,20 @@ def seed_procurement_agent():
 	doc = frappe.get_doc({"doctype": "Agent Definition", **spec})
 	doc.output_schema = _dump(spec["output_schema"])
 	doc.owner_user = "Administrator"
+	for tool in tools:
+		doc.append("tools", {"tool": tool})
+	doc.insert(ignore_permissions=True)
+
+
+def seed_assistant_agent():
+	if frappe.db.exists("Agent Definition", registry.ASSISTANT_AGENT):
+		return
+	spec = dict(registry.ASSISTANT_AGENT_DEFAULTS)
+	tools = spec.pop("tools")
+	doc = frappe.get_doc({"doctype": "Agent Definition", **spec})
+	doc.owner_user = "Administrator"
+	# Start on the same model as the sourcing agent; administrators can change it.
+	doc.model_config = frappe.db.get_value("Agent Definition", registry.PROCUREMENT_AGENT, "model_config")
 	for tool in tools:
 		doc.append("tools", {"tool": tool})
 	doc.insert(ignore_permissions=True)
