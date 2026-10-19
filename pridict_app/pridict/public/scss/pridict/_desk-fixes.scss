@@ -317,3 +317,21 @@ html.pridict-ui[data-theme="dark"] {
 		stroke: var(--pridict-border-strong);
 	}
 }
+
+// Module home report tiles: icon and label drifted left/centre/right depending on label length.
+html.pridict-ui :is(.pridict-finance-links, .pridict-assets-links) button {
+	align-items: center;
+	justify-content: flex-start;
+	gap: 10px;
+	text-align: left;
+
+	> :last-child {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	> svg,
+	> .icon {
+		flex: 0 0 auto;
+	}
+}

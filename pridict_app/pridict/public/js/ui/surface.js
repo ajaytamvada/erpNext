@@ -6,7 +6,10 @@
 	function ensureIntro(page, className, eyebrow, title, description) {
 		let block = page.querySelector(`.${className}`);
 		if (!block) { block = document.createElement("section"); block.className = className; page.querySelector(".page-body .container, .page-body")?.prepend(block); }
-		render(block, `<span>${__(eyebrow)}</span><strong>${__(title)}</strong><p>${__(description)}</p>`);
+		// Skip the title when it only repeats the page-head title.
+		const headTitle = page.querySelector(".page-head .title-text")?.textContent || "";
+		const repeatsHead = headTitle.trim().toLowerCase() === String(__(title)).trim().toLowerCase();
+		render(block, `<span>${__(eyebrow)}</span>${repeatsHead ? "" : `<strong>${__(title)}</strong>`}<p>${__(description)}</p>`);
 		return block;
 	}
 	function ensureJourney(page, options) {

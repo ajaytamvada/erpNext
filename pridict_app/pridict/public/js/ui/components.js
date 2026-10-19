@@ -43,7 +43,10 @@
 		}
 		const fieldGrid = options.fields?.length ? `<div class="pridict-document-fields${fieldsClass}">${fields}</div>` : "";
 		const content = options.guidancePosition === "before-fields" ? `${guidance}${fieldGrid}` : `${fieldGrid}${guidance}`;
-		const markup = `<header class="pridict-document-card-header${headerClass}"><div><span>${surface.escape(__(options.eyebrow))}</span><strong>${surface.escape(options.name || emptyName)}</strong></div><b class="pridict-document-status">${surface.escape(options.status)}</b></header>${content}`;
+		// Singles are named after their DocType; don't print "PRINT SETTINGS / Print Settings".
+		const eyebrow = __(options.eyebrow);
+		const repeatsName = String(eyebrow).trim().toLowerCase() === String(options.name || "").trim().toLowerCase();
+		const markup = `<header class="pridict-document-card-header${headerClass}"><div>${repeatsName ? "" : `<span>${surface.escape(eyebrow)}</span>`}<strong>${surface.escape(options.name || emptyName)}</strong></div><b class="pridict-document-status">${surface.escape(options.status)}</b></header>${content}`;
 		surface.render(block, markup);
 		return block;
 	}

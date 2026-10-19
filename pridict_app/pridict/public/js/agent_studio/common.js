@@ -90,7 +90,6 @@
 				<header class="as-intro">
 					<div>
 						<span class="as-eyebrow">${studio.t(eyebrow)}</span>
-						<h1>${studio.t(title)}</h1>
 						<p>${studio.t(intro)}</p>
 					</div>
 				</header>

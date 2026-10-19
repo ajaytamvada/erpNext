@@ -73,7 +73,6 @@ class ProcurementDecisionIntelligence {
 			<header class="di-intro">
 				<div>
 					<span class="di-eyebrow">${this.text("Procurement Governance & Analytics")}</span>
-					<h1>${this.text("Decision Intelligence")}</h1>
 					<p>${this.text("Audit approval compliance, identify spend & price anomalies, and act on prescriptive recommendations.")}</p>
 				</div>
 				<div class="di-header-actions">

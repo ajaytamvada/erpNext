@@ -52,7 +52,7 @@ class PridictProcurement {
 		}
 		this.$root.html(`
 			<header class="pridict-procurement-hero">
-				<div><span>${__("Purchasing operations")}</span><h1>${__("Procurement")}</h1><p>${__("Move approved demand through ordering, receipt, and supplier billing without leaving the Pridict operating view.")}</p></div>
+				<div><span>${__("Purchasing operations")}</span><p>${__("Move approved demand through ordering, receipt, and supplier billing without leaving the Pridict operating view.")}</p></div>
 				<label><span>${__("Company")}</span><select data-filter="company">${this.data.companies.map((company) => `<option value="${frappe.utils.escape_html(company.name)}" ${company.name === this.company ? "selected" : ""}>${frappe.utils.escape_html(company.name)}</option>`).join("")}</select></label>
 			</header>
 			<section class="pridict-procurement-metrics">${this.renderMetrics()}</section>

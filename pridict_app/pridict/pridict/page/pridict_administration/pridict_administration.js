@@ -23,7 +23,7 @@ class PridictAdministration {
 		const labels = { enabled_users: "Enabled users", workflows: "Workflows", notifications: "Notifications", email_accounts: "Email accounts" };
 		const routeFor = (doctype) => doctype.toLowerCase().replaceAll(" ", "-");
 		this.$root.html(`
-			<header><span>${__("System operations")}</span><h1>${__("Administration")}</h1><p>${__("Manage access, workflows, communication, data tools, printing, and protected system configuration.")}</p></header>
+			<header><span>${__("System operations")}</span><p>${__("Manage access, workflows, communication, data tools, printing, and protected system configuration.")}</p></header>
 			<section class="pridict-admin-metrics">${Object.entries(this.data.metrics).map(([key, value]) => `<article><span>${__(labels[key])}</span><strong>${value ?? "—"}</strong><small>${frappe.utils.escape_html(this.data.definitions[key])}</small></article>`).join("")}</section>
 			<section class="pridict-admin-groups">${this.data.groups.map((group) => `<article><h2>${group.label}</h2><p>${group.description}</p><div>${group.items.map((doctype) => `<button data-route="${routeFor(doctype)}">${__(doctype)}</button>`).join("")}</div></article>`).join("")}</section>
 			<footer><div>${this.data.compatibility_routes.map((item) => `<button data-route="${item.route}">${item.label}</button>`).join("")}</div></footer>

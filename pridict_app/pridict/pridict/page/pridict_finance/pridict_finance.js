@@ -50,7 +50,7 @@ class PridictFinance {
 		}
 		this.$root.html(`
 			<header class="pridict-finance-hero">
-				<div><span>${__("Financial operations")}</span><h1>${__("Finance")}</h1><p>${__("Monitor performance, receivables, payables, and accounting activity from one permission-aware workspace.")}</p></div>
+				<div><span>${__("Financial operations")}</span><p>${__("Monitor performance, receivables, payables, and accounting activity from one permission-aware workspace.")}</p></div>
 				<div class="pridict-finance-filters">
 					<label><span>${__("Company")}</span><select data-filter="company">${this.data.companies.map((company) => `<option value="${frappe.utils.escape_html(company.name)}" ${company.name === this.filters.company ? "selected" : ""}>${frappe.utils.escape_html(company.name)}</option>`).join("")}</select></label>
 					<label><span>${__("From")}</span><input type="date" data-filter="from_date" value="${this.filters.from_date}"></label>
