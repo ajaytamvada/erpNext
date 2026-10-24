@@ -25,3 +25,17 @@ RUN ./env/bin/pip install --no-cache-dir --no-deps --editable apps/pridict \
     && test -n "$(find apps/pridict/pridict/public/dist/css -type f -name 'pridict.bundle.*.css' -print -quit)" \
     && test -n "$(find apps/pridict/pridict/public/dist/js -type f -name 'pridict.bundle.*.js' -print -quit)" \
     && ./env/bin/python -c "import json; from pathlib import Path; a=json.loads(Path('assets/assets.json').read_text()); assert all(Path('sites'+a[k]).is_file() for k in ('pridict.bundle.css', 'pridict.bundle.js', 'desk.bundle.css'))"
+
+# nginx resolves upstream blocks once at startup, so after a VM reboot (new container
+# IPs) it kept proxying to a stale backend address and every request returned 502.
+# Proxy through variables instead so Docker's DNS is re-queried at request time.
+USER root
+RUN sed -i \
+      -e '/^upstream /,/^}/d' \
+      -e 's|^server {|server {\n\tresolver 127.0.0.11 valid=10s ipv6=off;\n\tset $pridict_backend ${BACKEND};\n\tset $pridict_socketio ${SOCKETIO};|' \
+      -e 's|proxy_pass  *http://backend-server;|proxy_pass http://$pridict_backend;|' \
+      -e 's|proxy_pass  *http://socketio-server;|proxy_pass http://$pridict_socketio;|' \
+      /templates/nginx/frappe.conf.template \
+    && grep -q 'resolver 127.0.0.11' /templates/nginx/frappe.conf.template \
+    && ! grep -q -E 'upstream|backend-server|socketio-server' /templates/nginx/frappe.conf.template
+USER frappe
