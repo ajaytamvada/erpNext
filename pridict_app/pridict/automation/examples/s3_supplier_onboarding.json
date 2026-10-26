@@ -1,0 +1,50 @@
+{
+ "schema": 1,
+ "title": "New supplier onboarding",
+ "description": "When a new Supplier is created, email them our onboarding checklist and assign an onboarding check to the purchase team.",
+ "trigger": {
+  "id": "trigger",
+  "type": "trigger.document_event",
+  "label": "Supplier created",
+  "config": {"doctype": "Supplier", "event": "after_insert"},
+  "position": [0, 0]
+ },
+ "nodes": [
+  {
+   "id": "has_email",
+   "type": "logic.if",
+   "label": "Has an email address?",
+   "config": {"condition": "trigger.doc.email_id"},
+   "position": [0, 150]
+  },
+  {
+   "id": "welcome_email",
+   "type": "action.send_email",
+   "label": "Email onboarding checklist",
+   "config": {
+    "to": "{{ trigger.doc.email_id }}",
+    "subject": "Welcome aboard, {{ trigger.doc.supplier_name }}",
+    "message": "<p>Dear {{ trigger.doc.supplier_name }},</p><p>Thank you for registering as a supplier. To complete onboarding, please reply to this email with:</p><ul><li>GST registration certificate</li><li>PAN card</li><li>Cancelled cheque or bank letter</li><li>Contact person for purchase orders</li></ul><p>Regards,<br>Purchase team</p>"
+   },
+   "position": [-220, 300]
+  },
+  {
+   "id": "assign_check",
+   "type": "action.assign",
+   "label": "Assign onboarding check",
+   "config": {
+    "role": "Purchase Manager",
+    "description": "Check onboarding documents for supplier {{ trigger.doc.supplier_name }}{% if not nodes.welcome_email %} (no email address on file, contact them directly){% endif %}"
+   },
+   "position": [0, 450]
+  }
+ ],
+ "edges": [
+  {"from": "trigger", "to": "has_email"},
+  {"from": "has_email", "to": "welcome_email", "branch": "true"},
+  {"from": "has_email", "to": "assign_check", "branch": "false"},
+  {"from": "welcome_email", "to": "assign_check"},
+  {"from": "assign_check", "to": "END"}
+ ],
+ "settings": {"on_error": "stop_and_notify", "max_steps": 20}
+}

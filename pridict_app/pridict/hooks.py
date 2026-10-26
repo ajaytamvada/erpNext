@@ -94,6 +94,13 @@ website_redirects = [{"source": "/apps", "target": "/app"}]
 after_install = "pridict.setup.install.apply_pridict_setup"
 after_migrate = "pridict.setup.install.apply_pridict_setup"
 
+doc_events = {
+	"*": {
+		event: "pridict.automation.triggers.on_doc_event"
+		for event in ("after_insert", "on_update", "on_submit", "on_cancel", "on_trash", "on_change")
+	}
+}
+
 scheduler_events = {
 	"hourly": ["pridict.schema_intelligence.scheduler.hourly", "pridict.agent_studio.maintenance.hourly"],
 }

@@ -1,0 +1,137 @@
+{
+ "actions": [],
+ "autoname": "format:AUT-{#####}",
+ "creation": "2026-10-26 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "status",
+  "run_as",
+  "column_break_state",
+  "trigger_type",
+  "trigger_doctype",
+  "trigger_event",
+  "last_run_at",
+  "last_run_status",
+  "section_description",
+  "description",
+  "section_spec",
+  "draft_revision",
+  "draft_spec"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nActive\nPaused\nDisabled\nArchived",
+   "default": "Draft",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "run_as",
+   "fieldtype": "Link",
+   "label": "Run As",
+   "options": "User",
+   "reqd": 1,
+   "description": "Runs execute as this user, with this user's permissions."
+  },
+  {
+   "fieldname": "column_break_state",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "trigger_type",
+   "fieldtype": "Data",
+   "label": "Trigger Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "trigger_doctype",
+   "fieldtype": "Link",
+   "label": "Trigger DocType",
+   "options": "DocType",
+   "read_only": 1,
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "trigger_event",
+   "fieldtype": "Data",
+   "label": "Trigger Event",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "last_run_at",
+   "fieldtype": "Datetime",
+   "label": "Last Run At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_run_status",
+   "fieldtype": "Data",
+   "label": "Last Run Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_description",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "section_spec",
+   "fieldtype": "Section Break",
+   "label": "Spec"
+  },
+  {
+   "fieldname": "draft_revision",
+   "fieldtype": "Int",
+   "label": "Draft Revision",
+   "read_only": 1,
+   "default": "0"
+  },
+  {
+   "fieldname": "draft_spec",
+   "fieldtype": "JSON",
+   "label": "Draft Spec"
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-26 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pridict",
+ "name": "Automation",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "title",
+ "show_title_field_in_link": 1,
+ "track_changes": 1
+}

@@ -1,0 +1,15 @@
+{
+ "doctype": "Page",
+ "name": "automation-builder",
+ "page_name": "automation-builder",
+ "title": "Automation Builder",
+ "icon": "intelligence",
+ "module": "Pridict",
+ "standard": "Yes",
+ "system_page": 0,
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ]
+}
