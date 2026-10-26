@@ -746,3 +746,42 @@ the reset of 21 October 2026, so the Agent Studio test modules that rely on them
 `test_tools`, `test_approvals`, `test_conversation`, part of `test_assistant`) cannot set up there.
 They fail the same way with or without the Phase 0 changes. They need a separate test site, or test
 records created on dev.
+
+---
+
+## 19. Phase 1 results (26 October 2026)
+
+**Done:** S1, S2 and S3 run from JSON specs against real ERPNext documents (Material Request →
+submitted RFQ + supplier email; daily overdue Sales Invoice loop with reminders and account
+manager notifications; supplier onboarding). 67 tests in `automation/test_*.py`. Live check on
+the dev bench over HTTP: a Supplier event ran on the new `automation` queue using the frozen
+version, and activation of an automation with an email step was refused because the site has
+no outgoing Email Account.
+
+Built in this phase:
+
+| Area | What |
+|---|---|
+| DocTypes | `Automation` (full fields of Section 5.1 except `conversation`), `Automation Version`, `Automation Change` (op log with the spec after each batch, for history and restore), `Automation Settings` (feature switch, kill switch, default Run As, chain depth, failure limit, site email cap); Agent Run `automation_version` |
+| Roles and setup | Automation Manager / Viewer; `automation@<site>` Run As user with no roles; Automation Manager granted to System Managers once per site (`automation/setup.py`) |
+| Spec | Operations of Section 6.3 (`apply_ops`) with revision check and change log; Switch branches from cases; terminal Stop; loop-aware cycle check; `nodes.x` references must exist and should run on every path (dominator check, warning otherwise); live checks of DocTypes, fields, submittable, Email Account, roles and the Run As user's permissions |
+| Expressions | `{{ expr }}` alone keeps its type (lists, numbers); `$each` builds child table rows; output caps (500 rows, 100 kB strings) |
+| Nodes | data.get_document / find_documents (incl. child tables via `parent_doctype`) / aggregate / run_report; logic.if / switch / set_variable / stop / loop; action.create / update / submit_document, add_comment, notify, assign, send_email (account, print attachment) |
+| Engine | Runs use the active version (test runs the draft); checkpoints only when a spec can pause; `on_error: continue`; Stop sets the run outcome; owner notified on failure |
+| Guards | Feature switch and kill switch; runs per hour (excess dropped, owner told once); emails per automation and per site per day; chain depth from settings; auto-pause after N failures |
+| Triggers | Document events (from the active version), schedules (per-minute dispatcher, `croniter`, missed slots fire once), manual `run_now` |
+| Lifecycle | Activate (freezes a version; unchanged draft reuses it), pause, resume, disable; status changes only through these; Run As roles must be a subset of the admin's |
+| Deployment | `compose.yaml`: `workers.automation` registered and the existing worker also serves the `automation` queue (split it out on busy sites) |
+
+Changes to the plan:
+
+1. **`logic.loop` moved from Phase 4 to Phase 1**, because S2 (a Phase 1 acceptance scenario) needs
+   it. It runs without pausing; loops that contain Approval/Ask/Wait steps arrive with Phase 4.
+2. **`max_steps` counts executed steps** (loop iterations included); the limit is now 2,000 and the
+   default 100.
+3. Conditions get the scope as `safe_eval` globals, since nested generator expressions (as in S1's
+   stock check) cannot see eval locals.
+4. Frappe matches notification recipients by email address, and drops notifications people send
+   themselves: owner notices are sent by the automation user to the owner's email.
+5. Test isolation: Frappe test classes roll back once per class, and Redis state (trigger index,
+   cached settings, counters) survives the rollback; `test_helpers.AutomationTestCase` resets them.

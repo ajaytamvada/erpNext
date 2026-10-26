@@ -16,6 +16,7 @@
   "conversation",
   "section_automation",
   "automation",
+  "automation_version",
   "is_test",
   "column_break_automation",
   "trigger_doctype",
@@ -263,10 +264,16 @@
    "fieldname": "trigger_event",
    "fieldtype": "Data",
    "label": "Trigger Event"
+  },
+  {
+   "fieldname": "automation_version",
+   "fieldtype": "Link",
+   "label": "Automation Version",
+   "options": "Automation Version"
   }
  ],
  "links": [],
- "modified": "2026-10-26 00:00:00.000000",
+ "modified": "2026-10-26 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pridict",
  "name": "Agent Run",
@@ -294,6 +301,16 @@
    "read": 1,
    "report": 1,
    "if_owner": 1
+  },
+  {
+   "role": "Automation Manager",
+   "read": 1,
+   "report": 1
+  },
+  {
+   "role": "Automation Viewer",
+   "read": 1,
+   "report": 1
   }
  ],
  "sort_field": "creation",

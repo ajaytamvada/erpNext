@@ -103,6 +103,7 @@ doc_events = {
 
 scheduler_events = {
 	"hourly": ["pridict.schema_intelligence.scheduler.hourly", "pridict.agent_studio.maintenance.hourly"],
+	"cron": {"* * * * *": ["pridict.automation.triggers.dispatch_schedules"]},
 }
 
 notification_skip_email_types = ["Schema Intelligence"]

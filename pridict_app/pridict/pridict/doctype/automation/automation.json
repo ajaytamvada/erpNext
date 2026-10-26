@@ -1,21 +1,31 @@
 {
  "actions": [],
- "autoname": "format:AUT-{#####}",
- "creation": "2026-10-26 00:00:00.000000",
+ "creation": "2026-10-26 12:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "title",
   "status",
   "run_as",
+  "active_version",
   "column_break_state",
   "trigger_type",
   "trigger_doctype",
   "trigger_event",
-  "last_run_at",
-  "last_run_status",
+  "trigger_cron",
   "section_description",
   "description",
+  "section_limits",
+  "max_runs_per_hour",
+  "max_emails_per_day",
+  "column_break_limits",
+  "consecutive_failures",
+  "paused_reason",
+  "section_history",
+  "last_run_at",
+  "last_run_status",
+  "column_break_history",
+  "last_fired_at",
   "section_spec",
   "draft_revision",
   "draft_spec"
@@ -35,15 +45,22 @@
    "options": "Draft\nActive\nPaused\nDisabled\nArchived",
    "default": "Draft",
    "in_list_view": 1,
-   "in_standard_filter": 1
+   "in_standard_filter": 1,
+   "read_only": 1
   },
   {
    "fieldname": "run_as",
    "fieldtype": "Link",
    "label": "Run As",
    "options": "User",
-   "reqd": 1,
    "description": "Runs execute as this user, with this user's permissions."
+  },
+  {
+   "fieldname": "active_version",
+   "fieldtype": "Link",
+   "label": "Active Version",
+   "options": "Automation Version",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_state",
@@ -53,7 +70,8 @@
    "fieldname": "trigger_type",
    "fieldtype": "Data",
    "label": "Trigger Type",
-   "read_only": 1
+   "read_only": 1,
+   "search_index": 1
   },
   {
    "fieldname": "trigger_doctype",
@@ -72,15 +90,9 @@
    "in_list_view": 1
   },
   {
-   "fieldname": "last_run_at",
-   "fieldtype": "Datetime",
-   "label": "Last Run At",
-   "read_only": 1
-  },
-  {
-   "fieldname": "last_run_status",
+   "fieldname": "trigger_cron",
    "fieldtype": "Data",
-   "label": "Last Run Status",
+   "label": "Schedule (cron)",
    "read_only": 1
   },
   {
@@ -93,9 +105,76 @@
    "label": "Description"
   },
   {
+   "fieldname": "section_limits",
+   "fieldtype": "Section Break",
+   "label": "Limits",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "max_runs_per_hour",
+   "fieldtype": "Int",
+   "label": "Max Runs per Hour",
+   "default": "60",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "max_emails_per_day",
+   "fieldtype": "Int",
+   "label": "Max Emails per Day",
+   "default": "200",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "column_break_limits",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "consecutive_failures",
+   "fieldtype": "Int",
+   "label": "Consecutive Failures",
+   "read_only": 1,
+   "default": "0"
+  },
+  {
+   "fieldname": "paused_reason",
+   "fieldtype": "Small Text",
+   "label": "Paused Reason",
+   "read_only": 1,
+   "depends_on": "eval:doc.status=='Paused'"
+  },
+  {
+   "fieldname": "section_history",
+   "fieldtype": "Section Break",
+   "label": "Activity",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "last_run_at",
+   "fieldtype": "Datetime",
+   "label": "Last Run At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_run_status",
+   "fieldtype": "Data",
+   "label": "Last Run Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_history",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_fired_at",
+   "fieldtype": "Datetime",
+   "label": "Schedule Last Fired At",
+   "read_only": 1
+  },
+  {
    "fieldname": "section_spec",
    "fieldtype": "Section Break",
-   "label": "Spec"
+   "label": "Spec",
+   "collapsible": 1
   },
   {
    "fieldname": "draft_revision",
@@ -111,27 +190,42 @@
   }
  ],
  "links": [],
- "modified": "2026-10-26 00:00:00.000000",
+ "modified": "2026-10-26 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pridict",
  "name": "Automation",
- "naming_rule": "Expression",
  "owner": "Administrator",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "format:AUT-{#####}",
+ "naming_rule": "Expression",
+ "title_field": "title",
+ "show_title_field_in_link": 1,
+ "track_changes": 1,
  "permissions": [
   {
    "role": "System Manager",
    "read": 1,
+   "report": 1,
+   "export": 1,
    "write": 1,
    "create": 1,
-   "delete": 1,
+   "delete": 1
+  },
+  {
+   "role": "Automation Manager",
+   "read": 1,
    "report": 1,
-   "export": 1
+   "export": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Automation Viewer",
+   "read": 1,
+   "report": 1
   }
- ],
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": [],
- "title_field": "title",
- "show_title_field_in_link": 1,
- "track_changes": 1
+ ]
 }

@@ -10,6 +10,12 @@
  "roles": [
   {
    "role": "System Manager"
+  },
+  {
+   "role": "Automation Manager"
+  },
+  {
+   "role": "Automation Viewer"
   }
  ]
 }

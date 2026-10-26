@@ -1,0 +1,90 @@
+{
+ "actions": [],
+ "creation": "2026-10-26 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "pause_all",
+  "default_run_as",
+  "column_break_limits",
+  "max_chain_depth",
+  "max_failures_before_pause",
+  "site_max_emails_per_day",
+  "roles_granted"
+ ],
+ "fields": [
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enable Automations",
+   "default": "0",
+   "description": "Feature switch for this site. While off, no automation runs."
+  },
+  {
+   "fieldname": "pause_all",
+   "fieldtype": "Check",
+   "label": "Pause All Automations",
+   "default": "0",
+   "description": "Kill switch: stop starting new runs on this site."
+  },
+  {
+   "fieldname": "default_run_as",
+   "fieldtype": "Link",
+   "label": "Default Run As",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_limits",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "max_chain_depth",
+   "fieldtype": "Int",
+   "label": "Max Chain Depth",
+   "default": "3",
+   "description": "How many automations may trigger each other in a row."
+  },
+  {
+   "fieldname": "max_failures_before_pause",
+   "fieldtype": "Int",
+   "label": "Pause After Consecutive Failures",
+   "default": "5"
+  },
+  {
+   "fieldname": "site_max_emails_per_day",
+   "fieldtype": "Int",
+   "label": "Site Max Emails per Day",
+   "default": "1000"
+  },
+  {
+   "fieldname": "roles_granted",
+   "fieldtype": "Check",
+   "label": "Roles Granted",
+   "hidden": 1,
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-26 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pridict",
+ "name": "Automation Settings",
+ "owner": "Administrator",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "issingle": 1,
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "Automation Manager",
+   "read": 1,
+   "write": 1
+  }
+ ]
+}

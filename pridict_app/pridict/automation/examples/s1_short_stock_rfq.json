@@ -1,0 +1,264 @@
+{
+ "schema": 1,
+ "title": "Short-stock Material Request to RFQ",
+ "description": "When a purchase Material Request is submitted, check stock; if anything is short, create and submit an RFQ for the items' approved suppliers and email them.",
+ "trigger": {
+  "id": "trigger",
+  "type": "trigger.document_event",
+  "label": "Material Request submitted",
+  "config": {
+   "doctype": "Material Request",
+   "event": "on_submit",
+   "condition": "doc.material_request_type == 'Purchase'"
+  },
+  "position": [
+   0,
+   0
+  ]
+ },
+ "nodes": [
+  {
+   "id": "stock",
+   "type": "data.find_documents",
+   "label": "Stock for requested items",
+   "config": {
+    "doctype": "Bin",
+    "filters": [
+     [
+      "item_code",
+      "in",
+      "{{ trigger.doc['items'] | map(attribute='item_code') | list }}"
+     ]
+    ],
+    "fields": [
+     "item_code",
+     "warehouse",
+     "actual_qty",
+     "projected_qty"
+    ]
+   },
+   "position": [
+    0,
+    150
+   ]
+  },
+  {
+   "id": "short",
+   "type": "logic.if",
+   "label": "Anything short?",
+   "config": {
+    "condition": "any(sum(b.actual_qty for b in nodes.stock.rows if b.item_code == i.item_code and b.warehouse == i.warehouse) < i.stock_qty for i in trigger.doc['items'])"
+   },
+   "position": [
+    0,
+    300
+   ]
+  },
+  {
+   "id": "item_suppliers",
+   "type": "data.find_documents",
+   "label": "Items' approved suppliers",
+   "config": {
+    "doctype": "Item Supplier",
+    "parent_doctype": "Item",
+    "filters": [
+     [
+      "parent",
+      "in",
+      "{{ trigger.doc['items'] | map(attribute='item_code') | list }}"
+     ]
+    ],
+    "fields": [
+     "supplier",
+     "parent"
+    ]
+   },
+   "position": [
+    -220,
+    450
+   ]
+  },
+  {
+   "id": "suppliers",
+   "type": "data.find_documents",
+   "label": "Supplier contacts",
+   "config": {
+    "doctype": "Supplier",
+    "filters": [
+     [
+      "name",
+      "in",
+      "{{ nodes.item_suppliers.rows | map(attribute='supplier') | unique | list }}"
+     ],
+     [
+      "disabled",
+      "=",
+      0
+     ]
+    ],
+    "fields": [
+     "name",
+     "supplier_name",
+     "supplier_primary_contact",
+     "email_id"
+    ]
+   },
+   "position": [
+    -220,
+    600
+   ]
+  },
+  {
+   "id": "has_suppliers",
+   "type": "logic.if",
+   "label": "Any active approved supplier?",
+   "config": {
+    "condition": "nodes.suppliers.count > 0"
+   },
+   "position": [
+    -220,
+    750
+   ]
+  },
+  {
+   "id": "rfq",
+   "type": "action.create_document",
+   "label": "Create and submit RFQ",
+   "config": {
+    "doctype": "Request for Quotation",
+    "submit": true,
+    "values": {
+     "company": "{{ trigger.doc.company }}",
+     "transaction_date": "{{ today }}",
+     "subject": "Request for quotation: {{ trigger.doc.name }}",
+     "message_for_supplier": "Please quote for the items below.",
+     "items": {
+      "$each": "{{ trigger.doc['items'] }}",
+      "item_code": "{{ row.item_code }}",
+      "qty": "{{ row.qty }}",
+      "uom": "{{ row.uom }}",
+      "stock_uom": "{{ row.stock_uom }}",
+      "conversion_factor": "{{ row.conversion_factor }}",
+      "schedule_date": "{{ row.schedule_date }}",
+      "warehouse": "{{ row.warehouse }}",
+      "material_request": "{{ trigger.doc.name }}",
+      "material_request_item": "{{ row.name }}"
+     },
+     "suppliers": {
+      "$each": "{{ nodes.suppliers.rows }}",
+      "supplier": "{{ row.name }}",
+      "contact": "{{ row.supplier_primary_contact }}",
+      "send_email": 0
+     }
+    }
+   },
+   "position": [
+    -440,
+    900
+   ]
+  },
+  {
+   "id": "has_emails",
+   "type": "logic.if",
+   "label": "Suppliers have email?",
+   "config": {
+    "condition": "any(s.email_id for s in nodes.rfq.doc.suppliers)"
+   },
+   "position": [
+    -440,
+    1050
+   ]
+  },
+  {
+   "id": "email_suppliers",
+   "type": "action.send_email",
+   "label": "Email suppliers",
+   "config": {
+    "to": "{{ nodes.rfq.doc.suppliers | map(attribute='email_id') | select | join(',') }}",
+    "subject": "Request for quotation {{ nodes.rfq.doc.name }}",
+    "message": "<p>Hello,</p><p>Please send us your quotation for {{ nodes.rfq.doc['items'] | length }} item(s) on RFQ {{ nodes.rfq.doc.name }} (from Material Request {{ trigger.doc.name }}).</p><p>Regards,<br>Purchase team</p>"
+   },
+   "position": [
+    -660,
+    1200
+   ]
+  },
+  {
+   "id": "no_suppliers",
+   "type": "action.notify",
+   "label": "Tell purchase managers",
+   "config": {
+    "role": "Purchase Manager",
+    "subject": "Material Request {{ trigger.doc.name }} is short on stock but its items have no approved suppliers"
+   },
+   "position": [
+    0,
+    900
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "trigger",
+   "to": "stock"
+  },
+  {
+   "from": "stock",
+   "to": "short"
+  },
+  {
+   "from": "short",
+   "to": "item_suppliers",
+   "branch": "true"
+  },
+  {
+   "from": "short",
+   "to": "END",
+   "branch": "false"
+  },
+  {
+   "from": "item_suppliers",
+   "to": "suppliers"
+  },
+  {
+   "from": "suppliers",
+   "to": "has_suppliers"
+  },
+  {
+   "from": "has_suppliers",
+   "to": "rfq",
+   "branch": "true"
+  },
+  {
+   "from": "has_suppliers",
+   "to": "no_suppliers",
+   "branch": "false"
+  },
+  {
+   "from": "no_suppliers",
+   "to": "END"
+  },
+  {
+   "from": "rfq",
+   "to": "has_emails"
+  },
+  {
+   "from": "has_emails",
+   "to": "email_suppliers",
+   "branch": "true"
+  },
+  {
+   "from": "has_emails",
+   "to": "END",
+   "branch": "false"
+  },
+  {
+   "from": "email_suppliers",
+   "to": "END"
+  }
+ ],
+ "settings": {
+  "on_error": "stop_and_notify",
+  "max_steps": 30
+ }
+}

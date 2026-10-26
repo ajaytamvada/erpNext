@@ -1,80 +1,45 @@
-"""Engine and trigger tests: the S3 example compiled to LangGraph and run against real records."""
+"""Engine tests: specs compiled to LangGraph and run against real records."""
 
 from __future__ import annotations
 
 import json
-from unittest.mock import patch
 
 import frappe
-from frappe.tests.utils import FrappeTestCase
 
-from pridict.automation import engine, triggers
-from pridict.automation.examples import install, load_example
-
-MANAGER = "_test_automation_pm@example.com"
-
-
-def make_supplier(name: str, email: str | None = None) -> str:
-	if frappe.db.exists("Supplier", name):
-		frappe.delete_doc("Supplier", name, force=True)
-	supplier = frappe.get_doc(
-		{"doctype": "Supplier", "supplier_name": name, "supplier_group": "All Supplier Groups"}
-	)
-	supplier.insert()
-	if email:
-		# email_id is normally filled from the primary contact; set it directly for the test.
-		supplier.db_set("email_id", email)
-	return supplier.name
+from pridict.automation import engine, guards
+from pridict.automation.examples import load_example
+from pridict.automation.test_helpers import (
+	MANAGER,
+	AutomationTestCase,
+	install_example,
+	make_supplier,
+	manual_spec,
+	spec_automation,
+	step_list,
+	steps,
+)
 
 
-class TestAutomationEngine(FrappeTestCase):
+def supplier_trigger(name: str) -> dict:
+	return {"event": "after_insert", "doctype": "Supplier", "name": name}
+
+
+class TestS3Runs(AutomationTestCase):
 	@classmethod
 	def setUpClass(cls):
 		super().setUpClass()
-		# In tests Frappe sends assignment notification emails at once, and the Email Queue
-		# commits its status. Block commits so everything here is rolled back.
-		commit = patch.object(frappe.db, "commit")
-		commit.start()
-		cls.addClassCleanup(commit.stop)
-		if not frappe.db.exists("Email Account", {"default_outgoing": 1, "enable_outgoing": 1}):
-			# Emails need a default outgoing account to queue (SMTP is not contacted in tests).
-			frappe.get_doc(
-				{
-					"doctype": "Email Account",
-					"email_account_name": "_Test Automation Outgoing",
-					"email_id": "automation-test@example.com",
-					"enable_outgoing": 1,
-					"default_outgoing": 1,
-					"smtp_server": "smtp.example.com",
-					"password": "password",
-				}
-			).insert()
-		if not frappe.db.exists("User", MANAGER):
-			user = frappe.get_doc(
-				{"doctype": "User", "email": MANAGER, "first_name": "Automation PM", "send_welcome_email": 0}
-			).insert()
-			user.add_roles("Purchase Manager")
-		cls.automation = install(run_as="Administrator")
-
-	@classmethod
-	def tearDownClass(cls):
-		super().tearDownClass()
-		# The trigger index lives in Redis and survives the test rollback.
-		triggers.clear_index()
-
-	def steps(self, run):
-		return {step.node_id: step for step in frappe.get_doc("Agent Run", run).steps}
+		cls.automation = install_example("s3_supplier_onboarding")
 
 	def test_runs_email_branch(self):
 		supplier = make_supplier("_Test Automation Supplier A", "accounts@acme.example")
-		run = engine.start_run(
-			self.automation, {"event": "after_insert", "doctype": "Supplier", "name": supplier}, now=True
-		)
+		run = engine.start_run(self.automation, supplier_trigger(supplier), now=True)
 		doc = frappe.get_doc("Agent Run", run)
 		self.assertEqual(doc.status, "Completed", doc.error)
-		steps = self.steps(run)
-		self.assertEqual(list(steps), ["has_email", "welcome_email", "assign_check"])
-		self.assertEqual(json.loads(steps["has_email"].output_json)["route"], "true")
+		self.assertEqual(
+			doc.automation_version, frappe.db.get_value("Automation", self.automation, "active_version")
+		)
+		self.assertEqual(step_list(run), ["has_email", "welcome_email", "assign_check"])
+		self.assertEqual(json.loads(steps(run)["has_email"].output_json)["route"], "true")
 		self.assertTrue(
 			frappe.db.exists("Email Queue", {"reference_doctype": "Supplier", "reference_name": supplier})
 		)
@@ -89,76 +54,214 @@ class TestAutomationEngine(FrappeTestCase):
 
 	def test_runs_no_email_branch(self):
 		supplier = make_supplier("_Test Automation Supplier B")
-		run = engine.start_run(
-			self.automation, {"event": "after_insert", "doctype": "Supplier", "name": supplier}, now=True
-		)
+		run = engine.start_run(self.automation, supplier_trigger(supplier), now=True)
 		self.assertEqual(frappe.db.get_value("Agent Run", run, "status"), "Completed")
-		self.assertEqual(list(self.steps(run)), ["has_email", "assign_check"])
+		self.assertEqual(step_list(run), ["has_email", "assign_check"])
 		todo = frappe.get_all(
 			"ToDo", filters={"reference_type": "Supplier", "reference_name": supplier}, pluck="description"
 		)
 		self.assertTrue(todo and "no email address" in todo[0])
 
-	def test_test_run_does_not_send_email(self):
+	def test_test_run_uses_draft_and_does_not_send(self):
 		supplier = make_supplier("_Test Automation Supplier C", "sales@acme.example")
-		run = engine.start_run(
-			self.automation,
-			{"event": "after_insert", "doctype": "Supplier", "name": supplier},
-			is_test=True,
-			now=True,
-		)
-		output = json.loads(self.steps(run)["welcome_email"].output_json)["output"]
+		run = engine.start_run(self.automation, supplier_trigger(supplier), is_test=True, now=True)
+		self.assertFalse(frappe.db.get_value("Agent Run", run, "automation_version"))
+		output = json.loads(steps(run)["welcome_email"].output_json)["output"]
 		self.assertFalse(output["sent"])
 		self.assertIn("Dear _Test Automation Supplier C", output["message"])
 		self.assertFalse(
 			frappe.db.exists("Email Queue", {"reference_doctype": "Supplier", "reference_name": supplier})
 		)
 
-	def test_failed_node_fails_run(self):
+	def test_live_runs_need_an_active_version(self):
+		draft = frappe.get_doc(
+			{
+				"doctype": "Automation",
+				"title": "Never activated",
+				"draft_spec": json.dumps(load_example("s3_supplier_onboarding")),
+			}
+		).insert()
+		with self.assertRaises(frappe.ValidationError):
+			engine.start_run(draft.name, supplier_trigger("x"))
+
+	def test_switched_off_site_cancels_queued_runs(self):
+		supplier = make_supplier("_Test Automation Supplier K")
+		run = engine.start_run(self.automation, supplier_trigger(supplier))
+		frappe.db.set_single_value("Automation Settings", "pause_all", 1)
+		frappe.clear_document_cache(guards.SETTINGS, guards.SETTINGS)
+		try:
+			self.assertEqual(engine.execute(run), "Cancelled")
+		finally:
+			frappe.db.set_single_value("Automation Settings", "pause_all", 0)
+			frappe.clear_document_cache(guards.SETTINGS, guards.SETTINGS)
+
+
+class TestFailures(AutomationTestCase):
+	def broken_automation(self, **settings) -> str:
 		spec = load_example("s3_supplier_onboarding")
-		spec["nodes"][2]["config"]["role"] = "_Role Nobody Has"
-		frappe.db.set_value("Automation", self.automation, "draft_spec", json.dumps(spec))
+		spec["title"] = "Broken onboarding"
+		spec["nodes"][2]["config"]["role"] = "Guest"  # no enabled system user has it
+		spec["settings"].update(settings)
+		return spec_automation(spec)
+
+	def test_failed_node_fails_run_and_notifies_owner(self):
+		automation = self.broken_automation()
 		supplier = make_supplier("_Test Automation Supplier D")
-		run = engine.start_run(
-			self.automation, {"event": "after_insert", "doctype": "Supplier", "name": supplier}, now=True
-		)
+		run = engine.start_run(automation, supplier_trigger(supplier), now=True)
 		doc = frappe.get_doc("Agent Run", run)
 		self.assertEqual(doc.status, "Failed")
 		self.assertIn("Nobody to assign to", doc.error)
-		self.assertEqual(self.steps(run)["assign_check"].status, "Failed")
-		install(run_as="Administrator")
+		self.assertEqual(steps(run)["assign_check"].status, "Failed")
+		self.assertEqual(frappe.db.get_value("Automation", automation, "consecutive_failures"), 1)
+		self.assertTrue(
+			frappe.db.exists("Notification Log", {"document_type": "Automation", "document_name": automation})
+		)
 
-	def test_trigger_starts_run_only_when_active(self):
-		frappe.db.set_value("Automation", self.automation, "status", "Draft")
-		triggers.clear_index()
-		with patch.object(engine, "start_run") as start:
-			make_supplier("_Test Automation Supplier E")
-			start.assert_not_called()
+	def test_auto_pause_after_repeated_failures(self):
+		frappe.db.set_single_value("Automation Settings", "max_failures_before_pause", 2)
+		frappe.clear_document_cache(guards.SETTINGS, guards.SETTINGS)
+		automation = self.broken_automation()
+		supplier = make_supplier("_Test Automation Supplier E")
+		for _attempt in range(2):
+			engine.start_run(automation, supplier_trigger(supplier), now=True)
+		doc = frappe.get_doc("Automation", automation)
+		self.assertEqual(doc.status, "Paused")
+		self.assertIn("2 failed runs", doc.paused_reason)
+		frappe.db.set_single_value("Automation Settings", "max_failures_before_pause", 5)
+		frappe.clear_document_cache(guards.SETTINGS, guards.SETTINGS)
 
-		install(activate=True, run_as="Administrator")
-		with patch.object(engine, "start_run") as start:
-			supplier = make_supplier("_Test Automation Supplier F")
-			start.assert_called_once()
-			self.assertEqual(
-				start.call_args.args[1], {"event": "after_insert", "doctype": "Supplier", "name": supplier}
-			)
+	def test_success_resets_failures(self):
+		automation = install_example("s3_supplier_onboarding")
+		frappe.db.set_value("Automation", automation, "consecutive_failures", 3)
+		engine.start_run(automation, supplier_trigger(make_supplier("_Test Automation Supplier F")), now=True)
+		self.assertEqual(frappe.db.get_value("Automation", automation, "consecutive_failures"), 0)
 
-	def test_trigger_skips_own_chain_and_condition(self):
-		install(activate=True, run_as="Administrator")
-		with patch.object(engine, "start_run") as start:
-			frappe.flags.automation_chain = [self.automation]
-			try:
-				make_supplier("_Test Automation Supplier G")
-			finally:
-				frappe.flags.automation_chain = None
-			start.assert_not_called()
+	def test_on_error_continue(self):
+		automation = self.broken_automation(on_error="continue")
+		supplier = make_supplier("_Test Automation Supplier G")
+		run = engine.start_run(automation, supplier_trigger(supplier), now=True)
+		self.assertEqual(frappe.db.get_value("Agent Run", run, "status"), "Completed")
+		self.assertEqual(steps(run)["assign_check"].status, "Failed")
 
-		spec = load_example("s3_supplier_onboarding")
-		spec["trigger"]["config"]["condition"] = "doc.supplier_type == 'Individual'"
-		automation = frappe.get_doc("Automation", self.automation)
-		automation.draft_spec = json.dumps(spec)
-		automation.save()
-		with patch.object(engine, "start_run") as start:
-			make_supplier("_Test Automation Supplier H")
-			start.assert_not_called()
-		install(run_as="Administrator")
+
+class TestLogicNodes(AutomationTestCase):
+	def run_manual(self, spec: dict, **trigger) -> str:
+		automation = spec_automation(spec)
+		return engine.start_run(automation, {"event": "manual", **trigger}, now=True)
+
+	def test_set_variable_switch_and_stop(self):
+		spec = manual_spec(
+			[
+				{
+					"id": "total",
+					"type": "logic.set_variable",
+					"config": {"name": "total", "value": "{{ 40 + 2 }}"},
+				},
+				{
+					"id": "size",
+					"type": "logic.switch",
+					"config": {
+						"cases": [
+							{"name": "big", "condition": "vars.total > 100"},
+							{"name": "medium", "condition": "vars.total > 10"},
+						]
+					},
+				},
+				{
+					"id": "halt",
+					"type": "logic.stop",
+					"config": {"status": "Failed", "message": "Too {{ vars.total }}"},
+				},
+			],
+			[
+				{"from": "trigger", "to": "total"},
+				{"from": "total", "to": "size"},
+				{"from": "size", "to": "END", "branch": "big"},
+				{"from": "size", "to": "halt", "branch": "medium"},
+				{"from": "size", "to": "END", "branch": "default"},
+			],
+		)
+		run = self.run_manual(spec)
+		doc = frappe.get_doc("Agent Run", run)
+		self.assertEqual(step_list(run), ["total", "size", "halt"])
+		self.assertEqual(doc.status, "Failed")
+		self.assertEqual(doc.error, "Too 42")
+		result = json.loads(doc.result_json)
+		self.assertEqual(result["vars"], {"total": 42})
+
+	def test_loop_runs_body_per_item(self):
+		spec = manual_spec(
+			[
+				{
+					"id": "names",
+					"type": "logic.set_variable",
+					"config": {"name": "names", "value": "{{ ['a', 'b', 'c'] }}"},
+				},
+				{"id": "each", "type": "logic.loop", "config": {"items": "{{ vars.names }}"}},
+				{
+					"id": "seen",
+					"type": "logic.set_variable",
+					"config": {"name": "last", "value": "{{ nodes.each.item }}-{{ nodes.each.index }}"},
+				},
+			],
+			[
+				{"from": "trigger", "to": "names"},
+				{"from": "names", "to": "each"},
+				{"from": "each", "to": "seen", "branch": "body"},
+				{"from": "each", "to": "END", "branch": "done"},
+				{"from": "seen", "to": "each"},
+			],
+		)
+		run = self.run_manual(spec)
+		self.assertEqual(frappe.db.get_value("Agent Run", run, "status"), "Completed")
+		self.assertEqual(step_list(run), ["names", "each", "seen", "each", "seen", "each", "seen", "each"])
+		self.assertEqual(
+			json.loads(frappe.db.get_value("Agent Run", run, "result_json"))["vars"]["last"], "c-2"
+		)
+
+	def test_max_steps_stops_runaway_loops(self):
+		spec = manual_spec(
+			[
+				{
+					"id": "names",
+					"type": "logic.set_variable",
+					"config": {"name": "n", "value": "{{ range(50) | list }}"},
+				},
+				{"id": "each", "type": "logic.loop", "config": {"items": "{{ vars.n }}"}},
+				{
+					"id": "seen",
+					"type": "logic.set_variable",
+					"config": {"name": "x", "value": "{{ nodes.each.item }}"},
+				},
+			],
+			[
+				{"from": "trigger", "to": "names"},
+				{"from": "names", "to": "each"},
+				{"from": "each", "to": "seen", "branch": "body"},
+				{"from": "each", "to": "END", "branch": "done"},
+				{"from": "seen", "to": "each"},
+			],
+			max_steps=20,
+		)
+		run = self.run_manual(spec)
+		self.assertEqual(frappe.db.get_value("Agent Run", run, "status"), "Failed")
+
+
+class TestEmailCap(AutomationTestCase):
+	def test_per_automation_email_cap(self):
+		automation = install_example("s3_supplier_onboarding")
+		frappe.db.set_value("Automation", automation, "max_emails_per_day", 1)
+		first = engine.start_run(
+			automation,
+			supplier_trigger(make_supplier("_Test Automation Supplier H", "h@acme.example")),
+			now=True,
+		)
+		second = engine.start_run(
+			automation,
+			supplier_trigger(make_supplier("_Test Automation Supplier I", "i@acme.example")),
+			now=True,
+		)
+		self.assertEqual(frappe.db.get_value("Agent Run", first, "status"), "Completed")
+		doc = frappe.get_doc("Agent Run", second)
+		self.assertEqual(doc.status, "Failed")
+		self.assertIn("limit of 1 emails per day", doc.error)

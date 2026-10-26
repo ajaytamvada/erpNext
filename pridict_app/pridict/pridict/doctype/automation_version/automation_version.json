@@ -1,0 +1,113 @@
+{
+ "actions": [],
+ "creation": "2026-10-26 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "automation",
+  "version",
+  "spec_hash",
+  "column_break_meta",
+  "activated_by",
+  "activated_at",
+  "test_run",
+  "section_note",
+  "change_note",
+  "spec"
+ ],
+ "fields": [
+  {
+   "fieldname": "automation",
+   "fieldtype": "Link",
+   "label": "Automation",
+   "options": "Automation",
+   "reqd": 1,
+   "in_list_view": 1,
+   "search_index": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "version",
+   "fieldtype": "Int",
+   "label": "Version",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "spec_hash",
+   "fieldtype": "Data",
+   "label": "Spec Hash",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_meta",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "activated_by",
+   "fieldtype": "Link",
+   "label": "Activated By",
+   "options": "User",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "activated_at",
+   "fieldtype": "Datetime",
+   "label": "Activated At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "test_run",
+   "fieldtype": "Link",
+   "label": "Test Run",
+   "options": "Agent Run",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_note",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "change_note",
+   "fieldtype": "Small Text",
+   "label": "Change Note"
+  },
+  {
+   "fieldname": "spec",
+   "fieldtype": "JSON",
+   "label": "Spec",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-26 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pridict",
+ "name": "Automation Version",
+ "owner": "Administrator",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "format:{automation}-v{version}",
+ "naming_rule": "Expression",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Automation Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Automation Viewer",
+   "read": 1,
+   "report": 1
+  }
+ ]
+}

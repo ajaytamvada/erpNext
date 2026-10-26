@@ -1,0 +1,95 @@
+{
+ "schema": 1,
+ "title": "Overdue invoice reminders",
+ "description": "Every day at 09:00, email customers whose invoice became 7 days overdue and notify their account manager.",
+ "trigger": {
+  "id": "trigger",
+  "type": "trigger.schedule",
+  "label": "Every day at 09:00",
+  "config": {"frequency": "daily", "time": "09:00"},
+  "position": [0, 0]
+ },
+ "nodes": [
+  {
+   "id": "overdue",
+   "type": "data.find_documents",
+   "label": "Invoices 7 days overdue",
+   "config": {
+    "doctype": "Sales Invoice",
+    "filters": [
+     ["docstatus", "=", 1],
+     ["outstanding_amount", ">", 0],
+     ["due_date", "=", "{{ frappe.utils.add_days(today, -7) }}"]
+    ],
+    "fields": ["name", "customer", "customer_name", "contact_email", "due_date", "outstanding_amount", "currency"],
+    "order_by": "due_date asc"
+   },
+   "position": [0, 150]
+  },
+  {
+   "id": "each_invoice",
+   "type": "logic.loop",
+   "label": "For each invoice",
+   "config": {"items": "{{ nodes.overdue.rows }}"},
+   "position": [0, 300]
+  },
+  {
+   "id": "has_email",
+   "type": "logic.if",
+   "label": "Customer has an email?",
+   "config": {"condition": "nodes.each_invoice.item.contact_email"},
+   "position": [-220, 450]
+  },
+  {
+   "id": "remind",
+   "type": "action.send_email",
+   "label": "Email payment reminder",
+   "config": {
+    "to": "{{ nodes.each_invoice.item.contact_email }}",
+    "subject": "Payment reminder: invoice {{ nodes.each_invoice.item.name }}",
+    "message": "<p>Dear {{ nodes.each_invoice.item.customer_name }},</p><p>Our invoice {{ nodes.each_invoice.item.name }} for {{ nodes.each_invoice.item.currency }} {{ nodes.each_invoice.item.outstanding_amount }} was due on {{ nodes.each_invoice.item.due_date }}. Please arrange payment at your earliest convenience.</p><p>Regards,<br>Accounts team</p>"
+   },
+   "position": [-440, 600]
+  },
+  {
+   "id": "customer",
+   "type": "data.get_document",
+   "label": "Load customer",
+   "config": {"doctype": "Customer", "name": "{{ nodes.each_invoice.item.customer }}"},
+   "position": [-220, 750]
+  },
+  {
+   "id": "has_manager",
+   "type": "logic.if",
+   "label": "Has an account manager?",
+   "config": {"condition": "nodes.customer.doc.account_manager"},
+   "position": [-220, 900]
+  },
+  {
+   "id": "notify_manager",
+   "type": "action.notify",
+   "label": "Notify account manager",
+   "config": {
+    "users": "{{ nodes.customer.doc.account_manager }}",
+    "subject": "Invoice {{ nodes.each_invoice.item.name }} for {{ nodes.each_invoice.item.customer_name }} is 7 days overdue",
+    "doctype": "Sales Invoice",
+    "name": "{{ nodes.each_invoice.item.name }}"
+   },
+   "position": [-440, 1050]
+  }
+ ],
+ "edges": [
+  {"from": "trigger", "to": "overdue"},
+  {"from": "overdue", "to": "each_invoice"},
+  {"from": "each_invoice", "to": "has_email", "branch": "body"},
+  {"from": "each_invoice", "to": "END", "branch": "done"},
+  {"from": "has_email", "to": "remind", "branch": "true"},
+  {"from": "has_email", "to": "customer", "branch": "false"},
+  {"from": "remind", "to": "customer"},
+  {"from": "customer", "to": "has_manager"},
+  {"from": "has_manager", "to": "notify_manager", "branch": "true"},
+  {"from": "has_manager", "to": "each_invoice", "branch": "false"},
+  {"from": "notify_manager", "to": "each_invoice"}
+ ],
+ "settings": {"on_error": "stop_and_notify", "max_steps": 1500}
+}

@@ -46,6 +46,7 @@ services:
         bench set-config -g redis_queue redis://redis-queue:6379
         bench set-config -g redis_socketio redis://redis-queue:6379
         bench set-config -gp socketio_port 9000
+        bench set-config -gp workers '{"automation": {"timeout": 900}}'
   backend:
     <<: *app
     depends_on:
@@ -74,7 +75,8 @@ services:
         condition: service_completed_successfully
   worker:
     <<: *app
-    command: [bench, worker, --queue, 'long,default,short']
+    # Small sites: one worker also serves automation runs. Busy sites can split it out.
+    command: [bench, worker, --queue, 'long,default,short,automation']
     depends_on: [backend, redis-queue]
   scheduler:
     <<: *app
