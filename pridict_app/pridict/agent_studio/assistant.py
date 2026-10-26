@@ -83,7 +83,8 @@ def get_assistant() -> dict:
 def get_conversations(limit: int = 40) -> list[dict]:
 	rows = frappe.get_all(
 		chat.DOCTYPE,
-		filters={"user": frappe.session.user},
+		# Automation Builder chats live with their automation, not in the assistant.
+		filters={"user": frappe.session.user, "purpose": ["!=", "Automation Builder"]},
 		fields=["name", "title", "working", "pending_action_json", "active_run", "last_activity"],
 		order_by="last_activity desc",
 		limit=min(int(limit or 40), 100),

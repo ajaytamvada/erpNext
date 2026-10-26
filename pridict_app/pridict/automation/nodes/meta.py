@@ -43,7 +43,9 @@ def doctype_issues(
 			return [Issue("error", f"{doctype} is not a table of {parent_doctype}.")]
 		checked = parent_doctype
 	if run_as and not frappe.has_permission(checked, ptype, user=run_as):
-		issues.append(Issue("error", f"Run As user {run_as} has no {ptype} permission on {checked}."))
+		issues.append(
+			Issue("error", f"Run As user {run_as} has no {ptype} permission on {checked}.", "setup")
+		)
 	return issues
 
 

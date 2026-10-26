@@ -810,3 +810,40 @@ browser check is `~/agent-studio-scratch/automation/canvas_edit_flow.py`.
 Not in Phase 2 (as planned): the chat panel (Phase 3) and test runs with simulate buttons (Phase 4).
 Known limits: steps are placed by the server when added and by Tidy layout on request; the layout
 does not route edges around steps, so a hand-placed step can sit on top of an edge.
+
+---
+
+## 21. Phase 3 results (26 October 2026)
+
+**Done:** admins build and change automations by chatting. A *Build with AI* panel sits above
+the canvas; the architect looks things up, changes the draft through `apply_changes` (the same
+operations the canvas sends, logged as source "AI"), asks questions with quick-reply buttons, and
+the canvas redraws as it works. In Chrome on the dev bench, "When a Sales Order above 500000 is
+submitted, notify the Sales Manager role and add a comment" was built in about 15 seconds through
+the worker with the real model. 83 backend tests pass (13 for the architect with a scripted model).
+
+| Area | What |
+|---|---|
+| `automation/architect.py` | Turn loop as the admin (background job; up to 16 model calls, 150k tokens, 300 s per message); system prompt with the rules of Section 8.3, the operation and expression formats, a compact node catalog and a short list of ERPNext facts (Bin, Item Supplier, RFQ rows…); per-turn context with the current draft and its validation; an empty answer is retried once |
+| Tools | `search_doctypes`, `get_doctype_fields` (compact one-line fields, child tables), `get_sample_document` (fields the admin may read, long text trimmed), `list_users_and_roles`, `list_email_accounts`, `list_print_formats`, `list_reports`, `validate_expression`, `apply_changes` (conflicts hand back the latest draft; JSON-text ops accepted), `ask_user`. Tool errors go back to the model instead of ending the turn |
+| Chat storage | `Assistant Conversation` with `purpose = Automation Builder` and an `automation` link (hidden from the Procurement Assistant); `Automation.conversation`; deleted with the automation |
+| Model | `Automation Settings.architect_model`; setup creates `automation-architect` from `procurement-reasoning` (same deployment, `reasoning_effort: medium`, 16k output tokens, procurement config as fallback) |
+| UI | Chat panel (examples, quick replies, thinking indicator, live updates over `automation_chat`), **Ask AI** on each step (focuses the chat on that step), summary counts *setup items* separately |
+| Validation | Issues now have `kind`: `design` (the automation is wrong) or `setup` (Run As permissions, missing email account: the admin must grant them). The architect fixes design errors and lists setup items in its reply; activation still requires both to be clear |
+| Nodes | `action.send_email` gained `to_role` (everyone with a role), found missing by the eval |
+| Live eval | `automation/evals.py`: 6 scenarios (S1–S3, a large-PO comment, a weekly digest, an issue assignment) with canned answers, scored on design errors, trigger, step types, DocTypes, ≤ 3 questions; runs in a rolled-back transaction: `bench --site <site> execute pridict.automation.evals.run` |
+
+Eval progress with `gpt-5.4-mini` (medium reasoning):
+
+| Run | Result | Notes |
+|---|---|---|
+| First | 2/6 | Stopped on Run As permission errors; asked "Notification or automation?" repeatedly; questions in plain text |
+| After prompt fixes (setup issues, rule 6, ask_user only) | 5/6 | Weekly digest could not email a role |
+| Final complete run | 5/6 | S1 failed on empty answers (output limit) and repeated questions |
+| S1 × 3 after raising the output limit and adding ERPNext facts | 2/3 | The failure was an uncaught error in `apply_changes` on a malformed op; now caught and returned to the model |
+
+Cost: simple automations take 10k–35k tokens; S1 (stock check, approved suppliers, RFQ rows,
+email) takes 65k–210k. That is above the 30–60k estimate in Section 8.4 for complex graphs; the
+largest share is the system prompt and draft re-sent on every call. Options if it matters: shorter
+catalog text per turn, fewer lookups via the ERPNext facts list, or a stronger model that needs
+fewer calls (the full GPT-5.4 recommended for production).

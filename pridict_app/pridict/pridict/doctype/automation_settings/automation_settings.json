@@ -7,6 +7,7 @@
   "enabled",
   "pause_all",
   "default_run_as",
+  "architect_model",
   "column_break_limits",
   "max_chain_depth",
   "max_failures_before_pause",
@@ -63,10 +64,17 @@
    "label": "Roles Granted",
    "hidden": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "architect_model",
+   "fieldtype": "Link",
+   "label": "AI Architect Model",
+   "options": "LLM Model Config",
+   "description": "Model the AI architect uses to build automations from chat."
   }
  ],
  "links": [],
- "modified": "2026-10-26 12:00:00.000000",
+ "modified": "2026-10-26 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pridict",
  "name": "Automation Settings",

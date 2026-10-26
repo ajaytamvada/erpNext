@@ -27,6 +27,9 @@ class NodeResult:
 class Issue:
 	level: str  # "error" | "warning"
 	message: str
+	# "design": the automation itself is wrong. "setup": the site needs something first
+	# (the Run As user's permissions, an email account) that only an administrator can give.
+	kind: str = "design"
 
 
 class NodeType:

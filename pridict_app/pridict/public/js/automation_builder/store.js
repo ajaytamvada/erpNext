@@ -4,8 +4,10 @@ import { reactive, computed } from "vue";
 import { layout } from "./layout";
 
 const API = "pridict.automation.api";
+const ARCHITECT = "pridict.automation.architect";
 const UPDATE_EVENT = "automation_update";
 const RUN_EVENT = "agent_run_update";
+const CHAT_EVENT = "automation_chat";
 
 export function createStore() {
 	const state = reactive({
@@ -20,6 +22,7 @@ export function createStore() {
 		saving: 0,
 		history: null,
 		refs: {}, // node id -> expression references, cached per revision
+		chat: { messages: [], working: false, model: true, focus: null, open: true, sending: false },
 	});
 	let queue = Promise.resolve();
 	let subscribed = null;
@@ -28,13 +31,17 @@ export function createStore() {
 	const revision = () => state.data?.automation.draft_revision || 0;
 
 	async function load(name, run = null, follow = false) {
-		if (name !== state.name) {
+		const changed = name !== state.name;
+		if (changed) {
 			state.selectedNode = null;
 			state.selectedRun = null;
 			state.history = null;
+			state.chat.messages = [];
+			state.chat.focus = null;
 			subscribe(name);
 		}
 		state.name = name;
+		if (changed) loadChat();
 		// A refresh follows the newest run unless a past run was picked (pinned).
 		if (!follow) state.pinnedRun = run;
 		const wanted = follow ? state.pinnedRun : run;
@@ -68,6 +75,39 @@ export function createStore() {
 	}
 	frappe.realtime.on(UPDATE_EVENT, (data) => onRealtime(UPDATE_EVENT, data));
 	frappe.realtime.on(RUN_EVENT, (data) => onRealtime(RUN_EVENT, data));
+	frappe.realtime.on(CHAT_EVENT, (data) => {
+		if (data.automation === state.name && frappe.get_route()[0] === "automation-builder") loadChat();
+	});
+
+	async function loadChat() {
+		const name = state.name;
+		const { message } = await frappe.call({ method: `${ARCHITECT}.get_chat`, args: { name } });
+		if (name !== state.name) return;
+		const wasWorking = state.chat.working;
+		Object.assign(state.chat, { messages: message.messages, working: message.working, model: message.model });
+		// The architect finished: make sure the canvas shows its last changes.
+		if (wasWorking && !message.working) load(state.name, state.selectedRun, true);
+	}
+
+	async function sendChat(text) {
+		state.chat.sending = true;
+		try {
+			await frappe.call({
+				method: `${ARCHITECT}.send_message`,
+				args: { name: state.name, text, focus_node: state.chat.focus },
+			});
+			state.chat.working = true;
+			state.chat.focus = null;
+			await loadChat();
+		} finally {
+			state.chat.sending = false;
+		}
+	}
+
+	function askAbout(nodeId) {
+		state.chat.focus = nodeId;
+		state.chat.open = true;
+	}
 
 	function nodeById(id) {
 		const spec = state.data?.spec;
@@ -166,6 +206,9 @@ export function createStore() {
 		loadHistory,
 		restore,
 		autoLayout,
+		loadChat,
+		sendChat,
+		askAbout,
 		removeNode: (id) => applyOps([{ op: "remove_node", id, reconnect: true }]),
 		moveNode: (id, position) => applyOps([{ op: "move_node", id, position }]),
 		connect: (from, to, branch) => applyOps([{ op: "connect", from, to, ...(branch ? { branch } : {}) }]),

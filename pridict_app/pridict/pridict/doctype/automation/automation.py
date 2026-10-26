@@ -62,6 +62,12 @@ class Automation(Document):
 			frappe.throw(_("This automation has runs. Archive it instead of deleting it."))
 		for doctype in ("Automation Change", "Automation Version"):
 			frappe.db.delete(doctype, {"automation": self.name})
+		# The builder chat belongs to the automation and goes with it.
+		self.db_set("conversation", None, update_modified=False)
+		for conversation in frappe.get_all(
+			"Assistant Conversation", filters={"automation": self.name}, pluck="name"
+		):
+			frappe.delete_doc("Assistant Conversation", conversation, ignore_permissions=True, force=True)
 		triggers.clear_index()
 
 	# --- lifecycle ------------------------------------------------------------

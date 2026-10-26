@@ -13,7 +13,16 @@
 				<button v-else-if="warnings.length" type="button" class="ab-issue ab-issue-warning ab-link" @click="showProblems">
 					{{ warnings.length === 1 ? __("1 warning") : __("{0} warnings", [warnings.length]) }}
 				</button>
-				<span v-else class="ab-issue ab-issue-ok">{{ __("No problems found") }}</span>
+				<span v-else-if="!setup.length" class="ab-issue ab-issue-ok">{{ __("No problems found") }}</span>
+				<button
+					v-if="setup.length"
+					type="button"
+					class="ab-issue ab-issue-warning ab-link"
+					:title="setupTitle"
+					@click="showProblems"
+				>
+					{{ setup.length === 1 ? __("1 setup item") : __("{0} setup items", [setup.length]) }}
+				</button>
 				<span v-if="!store.canEdit.value" class="ab-muted ab-readonly">{{ __("Read only") }}</span>
 			</div>
 			<div v-if="!data.site.enabled" class="ab-banner">
@@ -27,9 +36,12 @@
 			</div>
 
 			<div class="ab-body">
-				<div class="ab-canvas">
-					<Canvas :store="store" />
-					<NodePicker v-if="state.picker" :store="store" />
+				<div class="ab-main">
+					<ChatPanel :store="store" />
+					<div class="ab-canvas">
+						<Canvas :store="store" />
+						<NodePicker v-if="state.picker" :store="store" />
+					</div>
 				</div>
 
 				<aside class="ab-side">
@@ -111,6 +123,7 @@
 <script setup>
 import { computed } from "vue";
 import Canvas from "./Canvas.vue";
+import ChatPanel from "./ChatPanel.vue";
 import NodePicker from "./NodePicker.vue";
 import SettingsPanel from "./SettingsPanel.vue";
 
@@ -118,7 +131,9 @@ const props = defineProps({ store: Object });
 const store = props.store;
 const state = store.state;
 const data = computed(() => state.data);
-const errors = computed(() => data.value.validation.filter((i) => i.level === "error"));
+const errors = computed(() => data.value.validation.filter((i) => i.level === "error" && i.kind !== "setup"));
+const setup = computed(() => data.value.validation.filter((i) => i.kind === "setup"));
+const setupTitle = computed(() => [...new Set(setup.value.map((i) => i.message))].join("\n"));
 const warnings = computed(() => data.value.validation.filter((i) => i.level === "warning"));
 const tabs = [
 	{ key: "step", label: __("Step") },
@@ -235,10 +250,18 @@ const docUrl = (doctype, name) => `/app/${frappe.router.slug(doctype)}/${encodeU
 	grid-template-columns: minmax(0, 1fr) 360px;
 	gap: 16px;
 }
+.ab-main {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	height: calc(100vh - 220px);
+	min-height: 600px;
+	min-width: 0;
+}
 .ab-canvas {
 	position: relative;
-	height: calc(100vh - 220px);
-	min-height: 520px;
+	flex: 1;
+	min-height: 360px;
 	border: 1px solid var(--border-color);
 	border-radius: var(--border-radius-lg);
 	background: var(--card-bg);
@@ -248,7 +271,7 @@ const docUrl = (doctype, name) => `/app/${frappe.router.slug(doctype)}/${encodeU
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
-	max-height: calc(100vh - 220px);
+	max-height: max(calc(100vh - 220px), 600px);
 	overflow-y: auto;
 }
 .ab-tabs {

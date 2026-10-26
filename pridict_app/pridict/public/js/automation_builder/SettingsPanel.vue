@@ -3,9 +3,20 @@
 		<template v-if="node">
 			<div class="ab-settings-head">
 				<span class="ab-muted">{{ meta.label || node.type }} · <code>{{ node.id }}</code></span>
-				<button v-if="canEdit && !isTrigger" type="button" class="btn btn-xs btn-default ab-danger" @click="remove">
-					{{ __("Delete step") }}
-				</button>
+				<span class="ab-settings-actions">
+					<button
+						v-if="canEdit && store.state.chat.model"
+						type="button"
+						class="btn btn-xs btn-default"
+						:title="__('Ask the AI architect to change this step')"
+						@click="store.askAbout(node.id)"
+					>
+						{{ __("Ask AI") }}
+					</button>
+					<button v-if="canEdit && !isTrigger" type="button" class="btn btn-xs btn-default ab-danger" @click="remove">
+						{{ __("Delete step") }}
+					</button>
+				</span>
 			</div>
 			<label class="ab-settings-label">{{ __("Name on the canvas") }}</label>
 			<input
@@ -371,6 +382,10 @@ onBeforeUnmount(flushPending);
 	align-items: center;
 	margin-bottom: 8px;
 }
+.ab-settings-actions {
+	display: flex;
+	gap: 4px;
+}
 .ab-settings-label {
 	display: block;
 	font-size: var(--text-sm);
@@ -388,7 +403,7 @@ onBeforeUnmount(flushPending);
 }
 /* Frappe caps short fields at half width (.input-max-width); the panel is narrow already. */
 .ab-settings-form .frappe-control.input-max-width {
-	max-width: none;
+	max-width: none !important;
 }
 .ab-settings-form .form-section {
 	padding: 0;

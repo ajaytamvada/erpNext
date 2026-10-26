@@ -225,6 +225,12 @@ class TestSpecOperations(FrappeTestCase):
 			specs.apply_ops(self.spec, [{"op": "add_node", "type": "trigger.manual"}])
 		with self.assertRaises(specs.OpError):
 			specs.apply_ops(self.spec, [{"op": "disconnect", "from": "x", "to": "y"}])
+		with self.assertRaises(specs.OpError):
+			specs.apply_ops(self.spec, [{"op": "update_node", "id": "has_email", "config_patch": "oops"}])
+		with self.assertRaises(specs.OpError):
+			specs.apply_ops(
+				self.spec, [{"op": "add_node", "type": "logic.if", "config": "x", "after": "has_email"}]
+			)
 
 	def test_set_trigger_and_meta(self):
 		new = specs.apply_ops(
@@ -316,3 +322,15 @@ class TestExpressions(FrappeTestCase):
 	def test_references_and_cap(self):
 		self.assertEqual(expressions.references({"a": ["{{ nodes.x.y }}", "nodes.z"]}), {"x", "z"})
 		self.assertEqual(len(expressions.cap(list(range(900)))), expressions.MAX_LIST_ITEMS)
+
+
+class TestTriggerLabels(FrappeTestCase):
+	def test_changing_trigger_type_resets_the_label(self):
+		spec = manual_spec([], [{"from": "trigger", "to": "END"}])
+		spec["trigger"]["label"] = "Manual"
+		new = specs.apply_ops(
+			spec, [{"op": "set_trigger", "type": "trigger.schedule", "config": {"frequency": "daily"}}]
+		)
+		self.assertEqual(new["trigger"]["label"], "Schedule")
+		same = specs.apply_ops(spec, [{"op": "set_trigger", "type": "trigger.manual", "config": {}}])
+		self.assertEqual(same["trigger"]["label"], "Manual")

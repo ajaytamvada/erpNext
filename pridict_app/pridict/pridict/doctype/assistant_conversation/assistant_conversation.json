@@ -8,6 +8,8 @@
   "title",
   "user",
   "agent",
+  "purpose",
+  "automation",
   "column_break_state",
   "working",
   "active_run",
@@ -24,34 +26,157 @@
   "steps"
  ],
  "fields": [
-  {"fieldname": "title", "fieldtype": "Data", "label": "Title", "in_list_view": 1, "read_only": 1},
-  {"fieldname": "user", "fieldtype": "Link", "label": "User", "options": "User", "in_list_view": 1, "in_standard_filter": 1, "read_only": 1},
-  {"fieldname": "agent", "fieldtype": "Link", "label": "Agent", "options": "Agent Definition", "read_only": 1},
-  {"fieldname": "column_break_state", "fieldtype": "Column Break"},
-  {"default": "0", "fieldname": "working", "fieldtype": "Check", "label": "Working", "read_only": 1},
-  {"fieldname": "active_run", "fieldtype": "Link", "label": "Active Sourcing Run", "options": "Agent Run", "read_only": 1},
-  {"fieldname": "last_activity", "fieldtype": "Datetime", "label": "Last Activity", "in_list_view": 1, "read_only": 1},
-  {"collapsible": 1, "fieldname": "section_pending", "fieldtype": "Section Break", "label": "Pending Action"},
-  {"fieldname": "pending_action_json", "fieldtype": "Code", "label": "Pending Action", "options": "JSON", "read_only": 1},
-  {"collapsible": 1, "fieldname": "section_usage", "fieldtype": "Section Break", "label": "Usage"},
-  {"fieldname": "llm_calls", "fieldtype": "Int", "label": "LLM Calls", "read_only": 1},
-  {"fieldname": "column_break_usage", "fieldtype": "Column Break"},
-  {"fieldname": "total_tokens", "fieldtype": "Int", "label": "Total Tokens", "read_only": 1},
-  {"fieldname": "section_messages", "fieldtype": "Section Break", "label": "Conversation"},
-  {"fieldname": "messages", "fieldtype": "Table", "label": "Messages", "options": "Agent Chat Message", "read_only": 1},
-  {"collapsible": 1, "fieldname": "section_trace", "fieldtype": "Section Break", "label": "Trace"},
-  {"fieldname": "steps", "fieldtype": "Table", "label": "Steps", "options": "Agent Run Step", "read_only": 1}
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "agent",
+   "fieldtype": "Link",
+   "label": "Agent",
+   "options": "Agent Definition",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_state",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "working",
+   "fieldtype": "Check",
+   "label": "Working",
+   "read_only": 1
+  },
+  {
+   "fieldname": "active_run",
+   "fieldtype": "Link",
+   "label": "Active Sourcing Run",
+   "options": "Agent Run",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_activity",
+   "fieldtype": "Datetime",
+   "label": "Last Activity",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_pending",
+   "fieldtype": "Section Break",
+   "label": "Pending Action"
+  },
+  {
+   "fieldname": "pending_action_json",
+   "fieldtype": "Code",
+   "label": "Pending Action",
+   "options": "JSON",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_usage",
+   "fieldtype": "Section Break",
+   "label": "Usage"
+  },
+  {
+   "fieldname": "llm_calls",
+   "fieldtype": "Int",
+   "label": "LLM Calls",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_usage",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_tokens",
+   "fieldtype": "Int",
+   "label": "Total Tokens",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_messages",
+   "fieldtype": "Section Break",
+   "label": "Conversation"
+  },
+  {
+   "fieldname": "messages",
+   "fieldtype": "Table",
+   "label": "Messages",
+   "options": "Agent Chat Message",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_trace",
+   "fieldtype": "Section Break",
+   "label": "Trace"
+  },
+  {
+   "fieldname": "steps",
+   "fieldtype": "Table",
+   "label": "Steps",
+   "options": "Agent Run Step",
+   "read_only": 1
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Select",
+   "label": "Purpose",
+   "options": "Assistant\nAutomation Builder",
+   "default": "Assistant",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "automation",
+   "fieldtype": "Link",
+   "label": "Automation",
+   "options": "Automation",
+   "depends_on": "eval:doc.purpose=='Automation Builder'",
+   "search_index": 1
+  }
  ],
  "links": [],
- "modified": "2026-10-19 00:00:00.000000",
+ "modified": "2026-10-26 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pridict",
  "name": "Assistant Conversation",
  "owner": "Administrator",
  "permissions": [
-  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "report": 1, "export": 1},
-  {"role": "Purchase Manager", "read": 1, "report": 1},
-  {"role": "Purchase User", "read": 1, "if_owner": 1}
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Purchase Manager",
+   "read": 1,
+   "report": 1
+  },
+  {
+   "role": "Purchase User",
+   "read": 1,
+   "if_owner": 1
+  }
  ],
  "sort_field": "modified",
  "sort_order": "DESC",

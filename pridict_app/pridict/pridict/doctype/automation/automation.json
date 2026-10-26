@@ -8,6 +8,7 @@
   "status",
   "run_as",
   "active_version",
+  "conversation",
   "column_break_state",
   "trigger_type",
   "trigger_doctype",
@@ -187,10 +188,17 @@
    "fieldname": "draft_spec",
    "fieldtype": "JSON",
    "label": "Draft Spec"
+  },
+  {
+   "fieldname": "conversation",
+   "fieldtype": "Link",
+   "label": "Builder Chat",
+   "options": "Assistant Conversation",
+   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2026-10-26 12:00:00.000000",
+ "modified": "2026-10-26 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pridict",
  "name": "Automation",

@@ -116,8 +116,8 @@ def validate(spec: dict, *, live: bool = False, run_as: str | None = None) -> li
 	"""
 	issues: list[dict] = []
 
-	def add(node_id, level, message):
-		issues.append({"node_id": node_id, "level": level, "message": message})
+	def add(node_id, level, message, kind="design"):
+		issues.append({"node_id": node_id, "level": level, "message": message, "kind": kind})
 
 	if spec.get("schema") != SCHEMA_VERSION:
 		add(None, "error", f"Unsupported spec schema {spec.get('schema')!r}; expected {SCHEMA_VERSION}.")
@@ -227,7 +227,7 @@ def validate(spec: dict, *, live: bool = False, run_as: str | None = None) -> li
 			for issue in node_type.check_live(config, run_as):
 				if issue.message not in seen_messages:
 					seen_messages.add(issue.message)
-					add(node_id, issue.level, issue.message)
+					add(node_id, issue.level, issue.message, issue.kind)
 	return issues
 
 
@@ -245,15 +245,21 @@ def _reference_issues(spec, nodes, edges, start, reachable) -> list[dict]:
 				message = f"nodes.{ref} does not exist."
 				if ref == start:
 					message = f"Use trigger.… instead of nodes.{ref}."
-				issues.append({"node_id": node_id, "level": "error", "message": message})
+				issues.append({"node_id": node_id, "level": "error", "message": message, "kind": "design"})
 			elif ref == node_id:
 				issues.append(
-					{"node_id": node_id, "level": "error", "message": "A step cannot use its own output."}
+					{
+						"node_id": node_id,
+						"level": "error",
+						"message": "A step cannot use its own output.",
+						"kind": "design",
+					}
 				)
 			elif node_id in dominators and ref not in dominators[node_id]:
 				issues.append(
 					{
 						"node_id": node_id,
+						"kind": "design",
 						"level": "warning",
 						"message": f"nodes.{ref} may not have run yet on every path to this step; "
 						"it will be empty then.",
@@ -340,6 +346,12 @@ def apply_ops(spec: dict, ops: list[dict]) -> dict:
 			OPS[op["op"]](spec, op)
 		except OpError as error:
 			raise OpError(f"Operation {index} ({op['op']}): {error}") from None
+		except (TypeError, AttributeError, KeyError, ValueError, IndexError) as error:
+			# Malformed fields (a config that is not an object, a missing key...) from an editor or model.
+			raise OpError(f"Operation {index} ({op['op']}) is malformed: {error!r}") from None
+	for node in spec["nodes"]:
+		if not isinstance(node.get("config", {}), dict):
+			raise OpError(f"Step {node.get('id')}: config must be an object.")
 	return spec
 
 
@@ -376,7 +388,10 @@ def _op_set_trigger(spec: dict, op: dict):
 	spec["trigger"] = {
 		"id": old.get("id") or "trigger",
 		"type": op["type"],
-		"label": op.get("label") or old.get("label") or found.label,
+		# A new trigger type gets its own label unless one is given; the old one would mislead.
+		"label": op.get("label")
+		or (old.get("label") if old.get("type") == op["type"] else None)
+		or found.label,
 		"config": op.get("config") or {},
 		"position": old.get("position") or [0, 0],
 	}
@@ -399,6 +414,11 @@ def _op_add_node(spec: dict, op: dict):
 	if not position:
 		if after:
 			x, y = nodes[after].get("position") or [0, 0]
+			parent_type = catalog.get(nodes[after].get("type"))
+			branches = parent_type.branch_names(nodes[after].get("config") or {}) if parent_type else ()
+			if branch in branches and len(branches) > 1:
+				# Branches side by side, so yes/no children do not land on top of each other.
+				x += round((branches.index(branch) - (len(branches) - 1) / 2) * 260)
 			position = [x, y + ROW_GAP]
 		else:
 			# Unconnected steps go beside the graph, out of the way of existing edges.

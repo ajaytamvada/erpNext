@@ -99,7 +99,7 @@ class _DocumentAction(NodeType):
 		if not meta.submittable(doctype):
 			return [Issue("error", f"{doctype} cannot be submitted.")]
 		if run_as and not frappe.has_permission(doctype, "submit", user=run_as):
-			return [Issue("error", f"Run As user {run_as} has no submit permission on {doctype}.")]
+			return [Issue("error", f"Run As user {run_as} has no submit permission on {doctype}.", "setup")]
 		return []
 
 
@@ -264,13 +264,17 @@ class SendEmail(NodeType):
 	label = "Send email"
 	category = "action"
 	icon = "✉"
-	description = "Sends an email, linked to the trigger document's timeline."
+	description = (
+		"Sends an email, linked to the trigger document's timeline. Send to addresses (to) and/or "
+		"to everyone with a role (to_role)."
+	)
 	outputs = ("recipients", "subject")
 	config_schema = {
 		"type": "object",
-		"required": ["to", "subject", "message"],
+		"required": ["subject", "message"],
 		"properties": {
 			"to": {"type": "string", "title": "To", "format": "template"},
+			"to_role": {"type": "string", "title": "To everyone with role", "format": "role"},
 			"cc": {"type": "string", "title": "CC", "format": "template"},
 			"subject": {"type": "string", "title": "Subject", "format": "template"},
 			"message": {"type": "string", "title": "Message", "format": "template"},
@@ -280,18 +284,27 @@ class SendEmail(NodeType):
 	}
 
 	def check_config(self, config: dict) -> list[str]:
-		return super().check_config(config) + _check_templates(config, ("to", "cc", "subject", "message"))
+		messages = super().check_config(config)
+		if not config.get("to") and not config.get("to_role"):
+			messages.append("Choose who receives the email: addresses (to) or a role (to_role).")
+		return messages + _check_templates(config, ("to", "cc", "subject", "message"))
 
 	def check_live(self, config: dict, run_as: str | None) -> list[Issue]:
+		if _role_issues(config.get("to_role")):
+			return _role_issues(config.get("to_role"))
 		account = config.get("email_account")
 		if account:
 			row = frappe.db.get_value("Email Account", account, ["enable_outgoing"], as_dict=True)
 			if not row:
 				return [Issue("error", f"Email Account {account!r} does not exist.")]
 			if not row.enable_outgoing:
-				return [Issue("error", f"Email Account {account} cannot send email (outgoing is off).")]
+				return [
+					Issue("error", f"Email Account {account} cannot send email (outgoing is off).", "setup")
+				]
 		elif not frappe.db.exists("Email Account", {"default_outgoing": 1, "enable_outgoing": 1}):
-			return [Issue("error", "No default outgoing Email Account. Set one up or choose an account.")]
+			return [
+				Issue("error", "No default outgoing Email Account. Set one up or choose an account.", "setup")
+			]
 		print_format = config.get("attach_print")
 		if print_format and not frappe.db.exists("Print Format", print_format) and print_format != "Standard":
 			return [Issue("error", f"Print Format {print_format!r} does not exist.")]
@@ -300,10 +313,23 @@ class SendEmail(NodeType):
 	def execute(self, ctx, config: dict, scope: dict) -> NodeResult:
 		from pridict.automation import guards
 
-		recipients = _split(expressions.resolve(config["to"], scope))
+		recipients = _split(expressions.resolve(config.get("to"), scope))
+		if config.get("to_role"):
+			users = users_with_role(config["to_role"])
+			recipients += [
+				e for e in frappe.get_all("User", filters={"name": ["in", users or [""]]}, pluck="email") if e
+			]
+			recipients = list(dict.fromkeys(recipients))
 		cc = _split(expressions.resolve(config.get("cc"), scope))
 		if not recipients:
-			raise ValueError(_("The email has no recipient."))
+			raise ValueError(
+				_("The email has no recipient.")
+				+ (
+					_(" No enabled user has role {0}.").format(config["to_role"])
+					if config.get("to_role")
+					else ""
+				)
+			)
 		if len(recipients) + len(cc) > MAX_RECIPIENTS:
 			raise ValueError(_("The email has more than {0} recipients.").format(MAX_RECIPIENTS))
 		for address in recipients + cc:

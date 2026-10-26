@@ -22,6 +22,9 @@ def ensure_automation_setup():
 	if not settings.default_run_as:
 		settings.default_run_as = ensure_automation_user()
 		changed = True
+	if not settings.architect_model:
+		settings.architect_model = ensure_architect_model()
+		changed = changed or bool(settings.architect_model)
 	if not settings.roles_granted:
 		# Once per site: admins can build automations from day one. Later removals stick.
 		grant_manager_role()
@@ -53,6 +56,40 @@ def ensure_automation_user() -> str:
 			}
 		).insert(ignore_permissions=True)
 	return email
+
+
+ARCHITECT_MODEL = "automation-architect"
+BASE_MODEL = "procurement-reasoning"
+
+
+def ensure_architect_model() -> str | None:
+	"""LLM Model Config for the AI architect, cloned from the procurement model on first setup.
+
+	Same deployment, more reasoning, the procurement config as fallback. Production sites can
+	point it at a full-size model later (design Section 8.4).
+	"""
+	if frappe.db.exists("LLM Model Config", ARCHITECT_MODEL):
+		return ARCHITECT_MODEL
+	base = frappe.db.get_value(
+		"LLM Model Config", BASE_MODEL, ["provider", "model_id", "status", "timeout_s"], as_dict=True
+	)
+	if not base:
+		return None
+	frappe.get_doc(
+		{
+			"doctype": "LLM Model Config",
+			"config_name": ARCHITECT_MODEL,
+			"provider": base.provider,
+			"model_id": base.model_id,
+			"status": base.status,
+			"reasoning_effort": "medium",
+			"max_tokens": 16000,
+			"timeout_s": max(base.timeout_s or 60, 120),
+			"fallback": BASE_MODEL,
+			"description": "AI architect for the Automation Builder.",
+		}
+	).insert(ignore_permissions=True)
+	return ARCHITECT_MODEL
 
 
 def grant_manager_role():

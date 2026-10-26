@@ -235,7 +235,7 @@ class RunReport(NodeType):
 		if report_type not in ("Query Report", "Script Report"):
 			return [Issue("error", f"{report} is a {report_type}; only Query and Script Reports can run.")]
 		if run_as and not frappe.has_permission("Report", "read", report, user=run_as):
-			return [Issue("error", f"Run As user {run_as} cannot open report {report}.")]
+			return [Issue("error", f"Run As user {run_as} cannot open report {report}.", "setup")]
 		return []
 
 	def execute(self, ctx, config: dict, scope: dict) -> NodeResult:
