@@ -850,7 +850,7 @@ fewer calls (the full GPT-5.4 recommended for production).
 
 ---
 
-## 22. Phase 4 results (27 October 2026)
+## 22. Phase 4 results (26 October 2026)
 
 **Done:** S4 works end to end, including the approve, reject and expire branches, and editing a
 draft after a test blocks activation until it is tested again. In Chrome on the dev bench, a test
@@ -881,7 +881,7 @@ Known limits:
 
 ---
 
-## 23. Phase 5 results (27 October 2026)
+## 23. Phase 5 results (26 October 2026)
 
 **Done:** the remaining triggers and steps, the remaining guardrails, housekeeping, starter
 templates, the load test and the documentation. 108 backend tests pass.
