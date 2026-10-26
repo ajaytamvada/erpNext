@@ -401,10 +401,9 @@ def _op_add_node(spec: dict, op: dict):
 			x, y = nodes[after].get("position") or [0, 0]
 			position = [x, y + ROW_GAP]
 		else:
-			position = [
-				0,
-				max((n.get("position") or [0, 0])[1] for n in nodes.values()) + ROW_GAP if nodes else 0,
-			]
+			# Unconnected steps go beside the graph, out of the way of existing edges.
+			points = [n.get("position") or [0, 0] for n in nodes.values()] or [[0, 0]]
+			position = [max(p[0] for p in points) + 300, min(p[1] for p in points) + ROW_GAP]
 	spec["nodes"].append(
 		{
 			"id": node_id,

@@ -1,0 +1,21 @@
+{
+ "doctype": "Page",
+ "name": "automations",
+ "page_name": "automations",
+ "title": "Automations",
+ "icon": "intelligence",
+ "module": "Pridict",
+ "standard": "Yes",
+ "system_page": 0,
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Automation Manager"
+  },
+  {
+   "role": "Automation Viewer"
+  }
+ ]
+}

@@ -785,3 +785,28 @@ Changes to the plan:
    themselves: owner notices are sent by the automation user to the owner's email.
 5. Test isolation: Frappe test classes roll back once per class, and Redis state (trigger index,
    cached settings, counters) survives the rollback; `test_helpers.AutomationTestCase` resets them.
+
+---
+
+## 20. Phase 2 results (26 October 2026)
+
+**Done:** the builder page is an editor. In Chrome on the dev bench an automation was created from
+the new Automations list, built on the canvas alone (trigger → If → Send email / Add comment,
+settings typed into the generated forms, a connection dragged between handles, a step deleted with
+the Delete key), and a second tab showed each edit within a second. 71 backend tests pass; the
+browser check is `~/agent-studio-scratch/automation/canvas_edit_flow.py`.
+
+| Area | What |
+|---|---|
+| Editing | Every edit is an operation through `apply_ops` (queued so each applies on the revision the last produced; conflicts reload with a notice; edits that change nothing add no revision). Drag to move, drag between handles to connect, Delete removes steps (reconnecting around them) or edges, **+** on edges inserts a step, **+** under open ends (including each unconnected branch) adds the next step, *Add step* adds a loose one beside the graph |
+| Node picker | Search plus categories, from the node catalog |
+| Settings panel | Form generated from each step's `config_schema` with `frappe.ui.FieldGroup` (Link fields autocomplete; JSON fields use the code editor; string lists are one per line); trigger type switch; automation title, description, error handling and step limit when nothing is selected; **{ }** expression picker listing trigger fields, outputs of steps that always run earlier (`get_references`), variables and loop items |
+| Sync | `automation_update` is published to the document room; other open editors reload when the revision changes. Run progress keeps colouring the canvas |
+| Tidy layout | In-house layered layout (longest path from the trigger, branches side by side, loop back edges ignored), sent as one batch of moves |
+| History | Change list with source (canvas, AI, form, restore) and restore |
+| Page actions | Activate / Activate changes (with a change note), Pause / Resume, Run now, Duplicate, Export JSON; banners for switched-off sites, paused automations and drafts that differ from the running version |
+| Automations list (`/app/automations`) | Title, trigger in words, status, version, runs and failures in the last 24 hours, last run; New automation (title + trigger), Import JSON, Pause / Resume / Duplicate |
+
+Not in Phase 2 (as planned): the chat panel (Phase 3) and test runs with simulate buttons (Phase 4).
+Known limits: steps are placed by the server when added and by Tidy layout on request; the layout
+does not route edges around steps, so a hand-placed step can sit on top of an edge.

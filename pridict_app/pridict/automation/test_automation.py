@@ -6,10 +6,10 @@ import json
 
 import frappe
 
-from pridict.automation import api
+from pridict.automation import api, engine
 from pridict.automation import spec as specs
 from pridict.automation.examples import load_example
-from pridict.automation.test_helpers import MANAGER, AutomationTestCase, install_example
+from pridict.automation.test_helpers import MANAGER, AutomationTestCase, install_example, make_supplier
 
 
 class TestLifecycle(AutomationTestCase):
@@ -151,3 +151,63 @@ class TestBuilderApi(AutomationTestCase):
 		self.assertTrue(data["site"]["enabled"])
 		api.activate(self.automation)
 		self.assertTrue(api.get_builder(self.automation)["automation"]["draft_matches_active"])
+
+
+class TestListAndImport(AutomationTestCase):
+	def test_create_list_duplicate_export_import(self):
+		created = api.create_automation(
+			"Canvas draft", "trigger.document_event", {"doctype": "Supplier", "event": "after_insert"}
+		)["name"]
+		doc = frappe.get_doc("Automation", created)
+		self.assertEqual(doc.status, "Draft")
+		self.assertEqual(specs.load(doc.draft_spec)["trigger"]["config"]["doctype"], "Supplier")
+		self.assertIn(created, [row.name for row in api.list_automations()])
+
+		copy = api.duplicate(created)["name"]
+		self.assertEqual(frappe.db.get_value("Automation", copy, "title"), "Canvas draft (copy)")
+
+		exported = api.export_spec(created)
+		imported = api.import_spec(json.dumps(exported))["name"]
+		self.assertEqual(
+			specs.load(frappe.db.get_value("Automation", imported, "draft_spec"))["trigger"],
+			exported["trigger"],
+		)
+		with self.assertRaises(frappe.ValidationError):
+			api.import_spec(json.dumps({"hello": "world"}))
+
+	def test_list_counts_recent_runs(self):
+		# Create the supplier first: once active, the automation would also fire on its insert.
+		supplier = make_supplier("_Test List Supplier")
+		automation = install_example("s3_supplier_onboarding")
+
+		def counts():
+			row = next(r for r in api.list_automations() if r.name == automation)
+			return row.runs_24h, row.failures_24h
+
+		runs, failures = counts()
+		engine.start_run(
+			automation, {"event": "after_insert", "doctype": "Supplier", "name": supplier}, now=True
+		)
+		self.assertEqual(counts(), (runs + 1, failures))
+
+	def test_references_follow_the_graph(self):
+		automation = install_example("s2_overdue_invoice_reminders", activate=False)
+		values = {r["value"] for r in api.get_references(automation, "notify_manager")}
+		self.assertIn("nodes.each_invoice.item.customer", values)
+		self.assertIn("nodes.customer.doc.account_manager", values)
+		self.assertIn("nodes.overdue.rows", values)
+		# remind is not on every path to notify_manager, so it is not offered.
+		self.assertFalse(any(v.startswith("nodes.remind") for v in values))
+		s3 = install_example("s3_supplier_onboarding", activate=False)
+		self.assertIn("trigger.doc.supplier_name", {r["value"] for r in api.get_references(s3, "has_email")})
+
+	def test_unchanged_ops_do_not_add_revisions(self):
+		automation = install_example("s3_supplier_onboarding", activate=False)
+		revision = frappe.db.get_value("Automation", automation, "draft_revision")
+		position = specs.all_nodes(api.export_spec(automation))["has_email"]["position"]
+		result = api.apply_ops(
+			automation, revision, [{"op": "move_node", "id": "has_email", "position": position}]
+		)
+		self.assertTrue(result["ok"])
+		self.assertEqual(result["revision"], revision)
+		self.assertFalse(api.get_history(automation))

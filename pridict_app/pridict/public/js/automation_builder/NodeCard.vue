@@ -3,10 +3,11 @@
 		class="ab-node"
 		:class="[`ab-cat-${category}`, status && `ab-node-${status}`, issue && `ab-has-${issue}`, { 'is-selected': selected }]"
 	>
-		<Handle v-if="!isTrigger" type="target" :position="Position.Top" :connectable="false" />
+		<Handle v-if="!isTrigger" type="target" :position="Position.Top" />
 		<div class="ab-node-head">
 			<span class="ab-node-icon">{{ icon }}</span>
 			<span class="ab-node-type">{{ isTrigger ? __("Trigger") : typeLabel }}</span>
+			<span v-if="times > 1" class="ab-node-times" :title="__('Ran {0} times', [times])">×{{ times }}</span>
 			<span v-if="issue" class="ab-node-issue" :title="issue === 'error' ? __('Has errors') : __('Has warnings')">!</span>
 			<span v-if="status" class="ab-node-status" :title="statusLabel"></span>
 		</div>
@@ -18,11 +19,23 @@
 				:key="branch"
 				type="source"
 				:position="Position.Bottom"
-				:connectable="false"
-				:style="{ left: `${((index + 1) * 100) / (branches.length + 1)}%` }"
+				:style="{ left: handleLeft(index) }"
 			/>
 		</template>
-		<Handle v-else type="source" :position="Position.Bottom" :connectable="false" />
+		<Handle v-else-if="!terminal" type="source" :position="Position.Bottom" />
+		<div v-if="openEnds.length" class="ab-node-ends nodrag">
+			<button
+				v-for="branch in openEnds"
+				:key="branch || 'next'"
+				type="button"
+				class="ab-node-add"
+				:style="{ left: branch ? handleLeft(branches.indexOf(branch)) : '50%' }"
+				:title="branch ? __('Add a step on the {0} branch', [branch]) : __('Add the next step')"
+				@click.stop="onAdd(branch)"
+			>
+				+<span v-if="branch" class="ab-node-add-label">{{ branch }}</span>
+			</button>
+		</div>
 	</div>
 </template>
 
@@ -36,10 +49,14 @@ const props = defineProps({
 	category: String,
 	icon: String,
 	branches: Array,
+	terminal: Boolean,
 	isTrigger: Boolean,
 	status: String,
+	times: Number,
 	issue: String,
 	selected: Boolean,
+	openEnds: { type: Array, default: () => [] },
+	onAdd: Function,
 });
 
 const STATUS_LABELS = {
@@ -49,10 +66,12 @@ const STATUS_LABELS = {
 	"not-reached": __("Not reached in this run"),
 };
 const statusLabel = computed(() => STATUS_LABELS[props.status] || props.status);
+const handleLeft = (index) => `${((index + 1) * 100) / (props.branches.length + 1)}%`;
 </script>
 
 <style>
 .ab-node {
+	position: relative;
 	width: 220px;
 	padding: 8px 12px 10px;
 	border-radius: var(--border-radius-lg);
@@ -94,6 +113,10 @@ const statusLabel = computed(() => STATUS_LABELS[props.status] || props.status);
 }
 .ab-node-type {
 	flex: 1;
+}
+.ab-node-times {
+	text-transform: none;
+	font-weight: 600;
 }
 .ab-node-label {
 	margin-top: 2px;
@@ -137,9 +160,40 @@ const statusLabel = computed(() => STATUS_LABELS[props.status] || props.status);
 	background: var(--red-500);
 }
 .ab-node .vue-flow__handle {
-	width: 8px;
-	height: 8px;
+	width: 9px;
+	height: 9px;
 	background: var(--gray-400);
 	border: 0;
+}
+.ab-node-ends {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -30px;
+	height: 0;
+}
+.ab-node-add {
+	position: absolute;
+	top: 6px;
+	transform: translateX(-50%);
+	display: flex;
+	align-items: center;
+	gap: 3px;
+	height: 20px;
+	padding: 0 6px;
+	border-radius: 999px;
+	border: 1px dashed var(--gray-400);
+	background: var(--card-bg);
+	color: var(--text-muted);
+	font-size: 13px;
+	line-height: 1;
+	white-space: nowrap;
+}
+.ab-node-add:hover {
+	border-color: var(--blue-500);
+	color: var(--blue-500);
+}
+.ab-node-add-label {
+	font-size: 11px;
 }
 </style>

@@ -9,7 +9,7 @@ frappe.pages["automation-builder"].on_page_load = (wrapper) => {
 frappe.pages["automation-builder"].on_page_show = async (wrapper) => {
 	const name = frappe.get_route()[1];
 	if (!name) {
-		frappe.set_route("List", "Automation");
+		frappe.set_route("automations");
 		return;
 	}
 	await frappe.require("automation_builder.bundle.js");
