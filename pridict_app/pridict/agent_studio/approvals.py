@@ -104,6 +104,21 @@ def notify_approvers(approval) -> None:
 	)
 
 
+def _automation_approver(approval: str) -> bool:
+	"""Automation approvals can name any role; holders of a required role may decide them."""
+	action, roles = frappe.db.get_value("Agent Approval", approval, ["action", "required_roles"]) or (
+		None,
+		None,
+	)
+	if not (action or "").startswith("automation:"):
+		return False
+	try:
+		required = set(json.loads(roles or "[]"))
+	except ValueError:
+		return False
+	return bool(required & set(frappe.get_roles()))
+
+
 @frappe.whitelist(methods=["POST"])
 def decide(approval: str, decision: str, note: str = "") -> dict:
 	"""Record the current user's decision ("approve" or "reject") on an Agent Approval."""
@@ -112,7 +127,7 @@ def decide(approval: str, decision: str, note: str = "") -> dict:
 	note = (note or "").strip()[:1000]
 	if decision == "reject" and not note:
 		frappe.throw(_("Please say why you are rejecting, so the agent can be improved."))
-	if not frappe.has_permission("Agent Approval", "write", approval):
+	if not frappe.has_permission("Agent Approval", "write", approval) and not _automation_approver(approval):
 		frappe.throw(_("You are not allowed to decide on agent proposals."), frappe.PermissionError)
 
 	# Lock the row so two approvers deciding at once cannot both close it.

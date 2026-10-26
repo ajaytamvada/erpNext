@@ -847,3 +847,34 @@ email) takes 65k–210k. That is above the 30–60k estimate in Section 8.4 for 
 largest share is the system prompt and draft re-sent on every call. Options if it matters: shorter
 catalog text per turn, fewer lookups via the ERPNext facts list, or a stronger model that needs
 fewer calls (the full GPT-5.4 recommended for production).
+
+---
+
+## 22. Phase 4 results (27 October 2026)
+
+**Done:** S4 works end to end, including the approve, reject and expire branches, and editing a
+draft after a test blocks activation until it is tested again. In Chrome on the dev bench, a test
+run of S4 against a ₹6.5 lakh draft Purchase Order stopped at the approval, *Approve* replayed it
+to the end (the PO was submitted during the test and was a draft again afterwards), and the page's
+primary button changed from *Test Run* to *Activate*. 95 backend tests pass.
+
+| Area | What |
+|---|---|
+| Test runs | `api.test_run`: the draft runs for real as Run As inside a **savepoint**, with commits blocked (counted and reported if anything tries) and jobs/realtime messages queued during the test discarded; the trace is captured and written back after the rollback. Emails are rendered, not sent. Saves made by a test never start other automations |
+| Simulation | Waiting steps in a test use the decision simulated for them, or stop the test (`Waiting`) with Simulate buttons: Approve / Reject (with note) / Let it expire, an answer for Ask, Skip for Wait. Each click replays the whole test from the start with the decisions so far, so nothing stays open between clicks |
+| Activation gate | `Automation.activate` requires a completed test run whose `spec_hash` equals the draft's; the version records it (`test_run`). Any edit changes the hash and needs a new test. `require_test=False` exists only for code that installs known-good examples |
+| Waiting steps | `human.approval` (role, message, optional timeout; branches approved / rejected / expired), `human.ask` (users or role, question, optional choices), `logic.wait` (duration or until a date, max 90 days). Live runs pause with a LangGraph interrupt and the MariaDB checkpointer; the step has no side effects before the pause, and the engine creates the Agent Approval or notifications when the run pauses |
+| Resuming | Approvals use the existing Agent Approval inbox and `approvals.decide` (holders of the requested role may decide automation approvals); `runtime.resume_run` hands automation runs to `engine.resume`. Asks are answered from the builder or the Agent Run form (**Answer** button, linked from the notification). The per-minute dispatcher resumes due waits and expires approvals nobody decided in time |
+| Agent Run | `Waiting` status; `spec_hash`, `resume_at`, `pending_json` |
+| UI | *Test Run* as the primary action until the draft passes; a banner explains test runs; the Runs tab shows what a run is waiting for with Simulate buttons (tests) or approval link / answer box (live) |
+
+Known limits:
+
+- An approval does not stop someone submitting the document by hand meanwhile (S4's "before it can
+  be submitted" would need a validation hook on the DocType).
+- A document-event trigger fires on every matching save, so saving a large PO twice while it waits
+  for approval starts two runs.
+- Behaviour that depends on a separate commit (for example a background job ERPNext starts on
+  submit) is not exercised by a test run; jobs queued without "after commit" may still run and find
+  the rolled-back records missing.
+- Simulated decisions are per step, so a step inside a loop gets the same decision every time.

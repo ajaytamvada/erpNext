@@ -86,7 +86,7 @@ class TestDocumentEvents(AutomationTestCase):
 			with patch.object(engine, "start_run") as start:
 				make_supplier("_Test Trigger Supplier F")
 			start.assert_not_called()
-			doc.activate("allow everyone")
+			doc.activate("allow everyone", require_test=False)
 			with patch.object(engine, "start_run") as start:
 				make_supplier("_Test Trigger Supplier G")
 			start.assert_called_once()

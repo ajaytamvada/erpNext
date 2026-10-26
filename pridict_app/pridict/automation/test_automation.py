@@ -21,13 +21,13 @@ class TestLifecycle(AutomationTestCase):
 		self.assertEqual(version.version, 1)
 		self.assertEqual(version.spec_hash, specs.spec_hash(specs.load(doc.draft_spec)))
 		# Activating an unchanged draft keeps the same version.
-		self.assertEqual(doc.activate(), version.name)
+		self.assertEqual(doc.activate(require_test=False), version.name)
 		# A changed draft becomes version 2; version 1 is untouched.
 		spec = specs.load(doc.draft_spec)
 		spec["nodes"][2]["label"] = "Check documents"
 		doc.draft_spec = json.dumps(spec)
 		doc.save()
-		second = doc.activate("relabel")
+		second = doc.activate("relabel", require_test=False)
 		self.assertNotEqual(second, version.name)
 		self.assertEqual(frappe.db.get_value("Automation Version", second, "version"), 2)
 		self.assertIn(
@@ -42,7 +42,7 @@ class TestLifecycle(AutomationTestCase):
 			{"doctype": "Automation", "title": "Broken", "draft_spec": json.dumps(spec)}
 		).insert()
 		with self.assertRaises(frappe.ValidationError) as caught:
-			doc.activate()
+			doc.activate(require_test=False)
 		self.assertIn("No Such Role", str(caught.exception))
 		self.assertEqual(frappe.db.get_value("Automation", doc.name, "status"), "Draft")
 
@@ -149,7 +149,7 @@ class TestBuilderApi(AutomationTestCase):
 		self.assertEqual(data["automation"]["status"], "Draft")
 		self.assertIn("logic.loop", data["catalog"])
 		self.assertTrue(data["site"]["enabled"])
-		api.activate(self.automation)
+		frappe.get_doc("Automation", self.automation).activate(require_test=False)
 		self.assertTrue(api.get_builder(self.automation)["automation"]["draft_matches_active"])
 
 

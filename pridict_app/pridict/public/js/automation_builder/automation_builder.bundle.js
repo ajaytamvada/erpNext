@@ -18,10 +18,17 @@ class Builder {
 
 		const state = this.store.state;
 		watch(
-			() => state.data && [state.data.automation.status, state.data.automation.draft_matches_active, state.data.automation.title],
-			() => state.data && this.setupActions(),
-			{ deep: true }
+			() =>
+				state.data &&
+				[
+					state.data.automation.status,
+					state.data.automation.draft_matches_active,
+					state.data.automation.tested,
+					state.data.automation.title,
+				].join("|"),
+			() => state.data && this.setupActions()
 		);
+		this.store.onTestRun = () => this.testRun();
 	}
 
 	load(name) {
@@ -38,8 +45,15 @@ class Builder {
 		page.clear_custom_actions?.();
 		if (automation.can_edit) {
 			const changed = automation.status === "Active" && !automation.draft_matches_active;
-			if (automation.status !== "Active" || changed) {
+			const needsActivation = automation.status !== "Active" || changed;
+			// A draft must pass a test run before it can be activated (any edit needs a new test).
+			if (needsActivation && automation.tested) {
 				page.set_primary_action(changed ? __("Activate Changes") : __("Activate"), () => this.activate());
+				page.add_menu_item(__("Test Run"), () => this.testRun());
+			} else if (needsActivation) {
+				page.set_primary_action(__("Test Run"), () => this.testRun(), "play");
+			} else {
+				page.add_menu_item(__("Test Run"), () => this.testRun());
 			}
 			if (automation.status === "Active") page.set_secondary_action(__("Pause"), () => this.call("pause"));
 			if (automation.status === "Paused" && automation.active_version) {
@@ -67,6 +81,34 @@ class Builder {
 			automation.active_version ? __("Activate Changes") : __("Activate"),
 			__("Activate")
 		);
+	}
+
+	testRun() {
+		const { spec, automation } = this.store.state.data;
+		const trigger = spec.trigger || {};
+		const doctype = trigger.config?.doctype;
+		const start = (docname) =>
+			frappe
+				.call({
+					method: `${API}.test_run`,
+					args: { name: automation.name, doctype: docname ? doctype : null, docname: docname || null },
+					freeze: true,
+				})
+				.then(({ message }) => {
+					frappe.show_alert({ message: __("Test run {0} started. Nothing it does is kept.", [message.run]), indicator: "blue" });
+					this.store.state.tab = "runs";
+					this.store.load(automation.name, message.run);
+				});
+		if (trigger.type === "trigger.document_event" || (trigger.type === "trigger.manual" && doctype)) {
+			frappe.prompt(
+				{ fieldname: "docname", fieldtype: "Link", options: doctype, label: __(doctype), reqd: trigger.type === "trigger.document_event" ? 1 : 0 },
+				(values) => start(values.docname),
+				__("Test with which {0}?", [__(doctype)]),
+				__("Start test")
+			);
+		} else {
+			start(null);
+		}
 	}
 
 	runNow() {

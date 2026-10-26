@@ -86,7 +86,7 @@ def spec_automation(spec: dict, *, activate: bool = True, run_as: str = "Adminis
 		}
 	).insert()
 	if activate:
-		doc.activate("test")
+		doc.activate("test", require_test=False)
 	return doc.name
 
 
@@ -190,4 +190,29 @@ def make_material_request(item_code: str, qty: float = 5) -> str:
 		}
 	).insert()
 	doc.submit()
+	return doc.name
+
+
+def make_purchase_order(supplier: str, item_code: str, rate: float, qty: float = 1) -> str:
+	"""A draft Purchase Order (not submitted)."""
+	company_name = company()
+	schedule = add_days(nowdate(), 14)
+	doc = frappe.get_doc(
+		{
+			"doctype": "Purchase Order",
+			"supplier": supplier,
+			"company": company_name,
+			"transaction_date": nowdate(),
+			"schedule_date": schedule,
+			"items": [
+				{
+					"item_code": item_code,
+					"qty": qty,
+					"rate": rate,
+					"schedule_date": schedule,
+					"warehouse": warehouse(company_name),
+				}
+			],
+		}
+	).insert()
 	return doc.name

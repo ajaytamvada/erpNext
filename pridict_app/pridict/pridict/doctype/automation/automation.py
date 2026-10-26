@@ -72,8 +72,12 @@ class Automation(Document):
 
 	# --- lifecycle ------------------------------------------------------------
 
-	def activate(self, change_note: str | None = None) -> str:
-		"""Freeze the draft into a new version and make it the one triggers run."""
+	def activate(self, change_note: str | None = None, require_test: bool = True) -> str:
+		"""Freeze the draft into a new version and make it the one triggers run.
+
+		A passing test run of exactly this draft is required (design R8); require_test=False is
+		for code that installs known-good examples (dev benches, tests).
+		"""
 		self.check_permission("write")
 		check_run_as(self.run_as)
 		spec = specs.load(self.draft_spec or "{}")
@@ -87,6 +91,14 @@ class Automation(Document):
 				_("Fix these problems before activating:") + "<br>" + "<br>".join(map(frappe.bold, errors))
 			)
 		spec_hash = specs.spec_hash(spec)
+		test_run = passing_test(self.name, spec_hash)
+		if require_test and not test_run:
+			frappe.throw(
+				_("Run a test of this draft first.")
+				+ " "
+				+ _("A test only counts for the draft it ran on, so any change needs a new test."),
+				title=_("Test run needed"),
+			)
 		current = self.active_version and frappe.db.get_value(
 			"Automation Version", self.active_version, "spec_hash"
 		)
@@ -104,6 +116,7 @@ class Automation(Document):
 					"activated_by": frappe.session.user,
 					"activated_at": now_datetime(),
 					"change_note": change_note,
+					"test_run": test_run,
 				}
 			).insert(ignore_permissions=True)
 			self.active_version = version.name
@@ -139,6 +152,16 @@ class Automation(Document):
 		self.status = status
 		self.flags.status_change = True
 		self.save()
+
+
+def passing_test(automation: str, spec_hash: str) -> str | None:
+	"""The newest completed test run of the draft with this hash, if any."""
+	return frappe.db.get_value(
+		"Agent Run",
+		{"automation": automation, "is_test": 1, "status": "Completed", "spec_hash": spec_hash},
+		"name",
+		order_by="creation desc",
+	)
 
 
 def log_change(doc, source: str, summary: str, ops):

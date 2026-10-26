@@ -1,0 +1,60 @@
+{
+ "schema": 1,
+ "title": "Large purchase order approval",
+ "description": "When a Purchase Order over 5 lakh is saved, ask the Purchase Manager to approve; submit it if approved, comment the reason if rejected.",
+ "trigger": {
+  "id": "trigger",
+  "type": "trigger.document_event",
+  "label": "Large PO saved",
+  "config": {
+   "doctype": "Purchase Order",
+   "event": "on_update",
+   "condition": "doc.docstatus == 0 and doc.grand_total > 500000"
+  },
+  "position": [0, 0]
+ },
+ "nodes": [
+  {
+   "id": "approve",
+   "type": "human.approval",
+   "label": "Purchase Manager approval",
+   "config": {
+    "role": "Purchase Manager",
+    "message": "Purchase Order {{ trigger.doc.name }} for {{ trigger.doc.supplier_name }} ({{ trigger.doc.currency }} {{ trigger.doc.grand_total }}) needs approval before it is submitted.",
+    "timeout_hours": 48
+   },
+   "position": [0, 150]
+  },
+  {
+   "id": "submit",
+   "type": "action.submit_document",
+   "label": "Submit the PO",
+   "config": {},
+   "position": [-260, 300]
+  },
+  {
+   "id": "rejected_note",
+   "type": "action.add_comment",
+   "label": "Comment the reason",
+   "config": {"comment": "Not approved by {{ nodes.approve.decided_by }}: {{ nodes.approve.note }}"},
+   "position": [0, 300]
+  },
+  {
+   "id": "expired_note",
+   "type": "action.add_comment",
+   "label": "Comment: no decision",
+   "config": {"comment": "Nobody approved this purchase order within 48 hours, so it was not submitted."},
+   "position": [260, 300]
+  }
+ ],
+ "edges": [
+  {"from": "trigger", "to": "approve"},
+  {"from": "approve", "to": "submit", "branch": "approved"},
+  {"from": "approve", "to": "rejected_note", "branch": "rejected"},
+  {"from": "approve", "to": "expired_note", "branch": "expired"},
+  {"from": "submit", "to": "END"},
+  {"from": "rejected_note", "to": "END"},
+  {"from": "expired_note", "to": "END"}
+ ],
+ "settings": {"on_error": "stop_and_notify", "max_steps": 20}
+}

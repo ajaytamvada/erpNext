@@ -104,6 +104,16 @@ export function createStore() {
 		}
 	}
 
+	async function simulate(run, node, decision, note = "") {
+		await frappe.call({ method: `${API}.simulate`, args: { run, node, decision, note }, freeze: true });
+		await load(state.name, run);
+	}
+
+	async function answer(run, text) {
+		await frappe.call({ method: `${API}.answer`, args: { run, answer: text }, freeze: true });
+		await load(state.name, run);
+	}
+
 	function askAbout(nodeId) {
 		state.chat.focus = nodeId;
 		state.chat.open = true;
@@ -209,6 +219,8 @@ export function createStore() {
 		loadChat,
 		sendChat,
 		askAbout,
+		simulate,
+		answer,
 		removeNode: (id) => applyOps([{ op: "remove_node", id, reconnect: true }]),
 		moveNode: (id, position) => applyOps([{ op: "move_node", id, position }]),
 		connect: (from, to, branch) => applyOps([{ op: "connect", from, to, ...(branch ? { branch } : {}) }]),

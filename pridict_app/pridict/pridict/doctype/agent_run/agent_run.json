@@ -22,6 +22,9 @@
   "trigger_doctype",
   "trigger_name",
   "trigger_event",
+  "spec_hash",
+  "resume_at",
+  "pending_json",
   "section_request",
   "request",
   "request_summary",
@@ -62,7 +65,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Queued\nRunning\nWaiting for buyer\nAwaiting approval\nCompleted\nFailed\nRejected\nCancelled",
+   "options": "Queued\nRunning\nWaiting for buyer\nAwaiting approval\nWaiting\nCompleted\nFailed\nRejected\nCancelled",
    "default": "Queued",
    "in_list_view": 1,
    "in_standard_filter": 1,
@@ -270,10 +273,30 @@
    "fieldtype": "Link",
    "label": "Automation Version",
    "options": "Automation Version"
+  },
+  {
+   "fieldname": "spec_hash",
+   "fieldtype": "Data",
+   "label": "Spec Hash",
+   "read_only": 1
+  },
+  {
+   "fieldname": "resume_at",
+   "fieldtype": "Datetime",
+   "label": "Resume At",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "pending_json",
+   "fieldtype": "Code",
+   "label": "Waiting For",
+   "options": "JSON",
+   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2026-10-26 12:00:00.000000",
+ "modified": "2026-10-27 09:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pridict",
  "name": "Agent Run",

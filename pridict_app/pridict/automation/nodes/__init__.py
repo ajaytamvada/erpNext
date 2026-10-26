@@ -98,4 +98,4 @@ def describe_all() -> list[dict]:
 
 
 # Import the modules that register node types.
-from pridict.automation.nodes import actions, data, logic, triggers  # noqa: E402, F401
+from pridict.automation.nodes import actions, data, human, logic, triggers  # noqa: E402, F401

@@ -56,6 +56,7 @@ def get_builder(name: str, run: str | None = None) -> dict:
 			"draft_revision": doc.draft_revision,
 			"active_version": doc.active_version,
 			"draft_matches_active": bool(active_hash) and active_hash == specs.spec_hash(spec),
+			"tested": bool(passing_test(doc.name, specs.spec_hash(spec))),
 			"paused_reason": doc.paused_reason,
 			"last_run_at": doc.last_run_at,
 			"last_run_status": doc.last_run_status,
@@ -126,6 +127,84 @@ def apply_ops(name: str, base_revision: int, ops, source: str = "canvas", summar
 def validate(name: str) -> list[dict]:
 	doc = _automation(name)
 	return specs.validate(specs.load(doc.draft_spec or "{}"), live=True, run_as=doc.run_as)
+
+
+@frappe.whitelist(methods=["POST"])
+def test_run(name: str, doctype: str | None = None, docname: str | None = None, input=None) -> dict:  # noqa: A002
+	"""Run the draft as a test: real during the run, rolled back afterwards, emails captured."""
+	from pridict.automation import engine
+
+	doc = _automation(name, "write")
+	spec = specs.load(doc.draft_spec or "{}")
+	design = [i["message"] for i in specs.validate(spec) if i["level"] == "error"]
+	if design:
+		frappe.throw(_("Fix these problems before testing:") + "<br>" + "<br>".join(map(frappe.bold, design)))
+	trigger = spec.get("trigger") or {}
+	config = trigger.get("config") or {}
+	event = {
+		"trigger.document_event": config.get("event"),
+		"trigger.schedule": "schedule",
+		"trigger.manual": "manual",
+	}.get(trigger.get("type"), "test")
+	if docname:
+		doctype = doctype or config.get("doctype")
+		frappe.get_doc(doctype, docname).check_permission("read")
+	elif trigger.get("type") == "trigger.document_event":
+		frappe.throw(_("Choose a {0} to test with.").format(_(config.get("doctype") or "document")))
+	run = engine.start_run(
+		name,
+		{
+			"event": event,
+			"doctype": doctype if docname else None,
+			"name": docname,
+			"input": frappe.parse_json(input),
+		},
+		is_test=True,
+		requested_by=frappe.session.user,
+	)
+	return {"run": run}
+
+
+@frappe.whitelist(methods=["POST"])
+def simulate(run: str, node: str, decision: str, note: str = "") -> dict:
+	"""Give a waiting test run the decision for a step (approve/reject/expire, an answer, skip)."""
+	from pridict.automation import engine
+
+	doc = frappe.get_doc("Agent Run", run)
+	_automation(doc.automation, "write")
+	pending = frappe.parse_json(doc.pending_json) or {}
+	if not doc.is_test or doc.status != "Waiting" or pending.get("node") != node:
+		frappe.throw(_("This test run is not waiting at that step."))
+	if pending.get("type") == "approval":
+		if decision not in ("approved", "rejected", "expired"):
+			frappe.throw(_("Choose approved, rejected or expired."))
+		value = {"decision": decision, "by": frappe.session.user, "note": note}
+	elif pending.get("type") == "ask":
+		value = {"answer": decision, "by": frappe.session.user}
+	else:
+		value = {"waited": True}
+	return {"status": engine.simulate(run, node, value)}
+
+
+@frappe.whitelist(methods=["POST"])
+def answer(run: str, answer: str) -> dict:
+	"""Answer the question a live run is waiting on (Ask step)."""
+	from pridict.automation import engine
+	from pridict.automation.nodes.human import can_answer
+
+	doc = frappe.get_doc("Agent Run", run)
+	pending = frappe.parse_json(doc.pending_json) or {}
+	if not doc.automation or doc.is_test or doc.status != "Waiting" or pending.get("type") != "ask":
+		frappe.throw(_("This run is not waiting for an answer."))
+	if not can_answer(pending, frappe.session.user):
+		frappe.throw(_("This question was asked to someone else."), frappe.PermissionError)
+	answer = (answer or "").strip()
+	if not answer:
+		frappe.throw(_("Type an answer."))
+	if pending.get("choices") and answer not in pending["choices"]:
+		frappe.throw(_("Choose one of: {0}").format(", ".join(pending["choices"])))
+	engine.resume(run, {"answer": answer[:2000], "by": frappe.session.user})
+	return {"run": run}
 
 
 @frappe.whitelist(methods=["POST"])
@@ -404,6 +483,12 @@ def _announce(doc):
 	)
 
 
+def passing_test(automation: str, spec_hash: str) -> str | None:
+	from pridict.pridict.doctype.automation.automation import passing_test as find
+
+	return find(automation, spec_hash)
+
+
 def _run_trace(run: str, automation: str) -> dict | None:
 	doc = frappe.get_doc("Agent Run", run)
 	if doc.automation != automation:
@@ -430,5 +515,8 @@ def _run_trace(run: str, automation: str) -> dict | None:
 		"duration_s": doc.duration_s,
 		"error": doc.error,
 		"outcome": doc.outcome,
+		"pending": frappe.parse_json(doc.pending_json) if doc.pending_json else None,
+		"spec_hash": doc.spec_hash,
+		"approval": frappe.db.get_value("Agent Approval", {"run": doc.name, "status": "Pending"}, "name"),
 		"steps": steps,
 	}

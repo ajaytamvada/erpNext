@@ -74,6 +74,9 @@ def on_doc_event(doc, method: str):
 	flags = frappe.flags
 	if flags.in_install or flags.in_migrate or flags.in_patch or flags.in_import or flags.in_uninstall:
 		return
+	if flags.automation_test_run:
+		# Documents a test run creates are rolled back; they must not start real runs.
+		return
 	names = get_index().get(f"{doc.doctype}::{method}")
 	if not names or not guards.enabled():
 		return
@@ -117,6 +120,7 @@ def dispatch_schedules():
 	"""Scheduler entry (every minute): start every schedule automation that is due."""
 	if not guards.enabled():
 		return
+	resume_due()
 	now = now_datetime()
 	for row in frappe.get_all(
 		"Automation",
@@ -125,6 +129,38 @@ def dispatch_schedules():
 	):
 		if is_due(row.trigger_cron, row.last_fired_at or row.modified, now):
 			_fire_schedule(row.name, now)
+
+
+def resume_due():
+	"""Resume runs whose wait is over, and expire approvals nobody decided in time."""
+	due = frappe.get_all(
+		"Agent Run",
+		filters={
+			"automation": ["is", "set"],
+			"is_test": 0,
+			"status": ["in", ["Waiting", "Awaiting approval"]],
+			"resume_at": ["<=", now_datetime()],
+		},
+		fields=["name", "status"],
+	)
+	for run in due:
+		try:
+			if run.status == "Awaiting approval":
+				for approval in frappe.get_all(
+					"Agent Approval", filters={"run": run.name, "status": "Pending"}, pluck="name"
+				):
+					frappe.db.set_value(
+						"Agent Approval",
+						approval,
+						{"status": "Expired", "decision_note": _("No decision in time")},
+					)
+				engine.resume(run.name, {"decision": "expired"})
+			else:
+				engine.resume(run.name, {"waited": True})
+		except Exception:
+			frappe.log_error(title=f"Automation run {run.name}: resume failed")
+	if due:
+		frappe.db.commit()
 
 
 def is_due(cron: str, since, now) -> bool:

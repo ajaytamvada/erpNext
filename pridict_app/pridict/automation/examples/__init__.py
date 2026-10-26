@@ -8,7 +8,12 @@ import os
 import frappe
 
 EXAMPLES_DIR = os.path.dirname(__file__)
-EXAMPLES = ("s1_short_stock_rfq", "s2_overdue_invoice_reminders", "s3_supplier_onboarding")
+EXAMPLES = (
+	"s1_short_stock_rfq",
+	"s2_overdue_invoice_reminders",
+	"s3_supplier_onboarding",
+	"s4_po_approval",
+)
 
 
 def load_example(key: str) -> dict:
@@ -35,7 +40,7 @@ def install(key: str = "s3_supplier_onboarding", activate: bool = False, run_as:
 		doc.run_as = run_as
 	doc.save()
 	if activate:
-		doc.activate("Installed from example")
+		doc.activate("Installed from example", require_test=False)
 	elif doc.status == "Active":
 		doc.pause("Reinstalled from example")
 	return doc.name

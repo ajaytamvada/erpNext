@@ -31,6 +31,12 @@
 			<div v-if="data.automation.status === 'Paused' && data.automation.paused_reason" class="ab-banner">
 				{{ data.automation.paused_reason }}
 			</div>
+			<div
+				v-if="store.canEdit.value && !data.automation.tested && (data.automation.status !== 'Active' || !data.automation.draft_matches_active)"
+				class="ab-banner ab-banner-info"
+			>
+				{{ __("Run a test before activating. A test does everything for real, then undoes it; emails are shown, not sent.") }}
+			</div>
 			<div v-if="data.automation.status === 'Active' && !data.automation.draft_matches_active" class="ab-banner ab-banner-info">
 				{{ __("You are editing a draft. Version {0} keeps running until you activate your changes.", [activeVersionNumber]) }}
 			</div>
@@ -88,6 +94,11 @@
 							</div>
 							<div v-if="data.run.outcome && data.run.status !== 'Failed'" class="ab-muted">{{ data.run.outcome }}</div>
 							<div v-if="data.run.error" class="ab-error">{{ data.run.error }}</div>
+							<WaitingPanel
+								v-if="data.run.pending && ['Waiting', 'Awaiting approval'].includes(data.run.status)"
+								:store="store"
+								:run="data.run"
+							/>
 							<p class="ab-muted">{{ __("Click a step on the canvas to see what it did.") }}</p>
 						</section>
 					</template>
@@ -126,6 +137,7 @@ import Canvas from "./Canvas.vue";
 import ChatPanel from "./ChatPanel.vue";
 import NodePicker from "./NodePicker.vue";
 import SettingsPanel from "./SettingsPanel.vue";
+import WaitingPanel from "./WaitingPanel.vue";
 
 const props = defineProps({ store: Object });
 const store = props.store;
@@ -373,6 +385,10 @@ const docUrl = (doctype, name) => `/app/${frappe.router.slug(doctype)}/${encodeU
 .ab-dot.ab-status-queued {
 	background: var(--blue-500);
 }
+.ab-dot.ab-status-waiting,
+.ab-dot.ab-status-awaiting-approval {
+	background: var(--orange-500);
+}
 .ab-badge.ab-status-completed {
 	background: var(--bg-green);
 	color: var(--text-on-green);
@@ -385,6 +401,11 @@ const docUrl = (doctype, name) => `/app/${frappe.router.slug(doctype)}/${encodeU
 .ab-badge.ab-status-queued {
 	background: var(--bg-blue);
 	color: var(--text-on-blue);
+}
+.ab-badge.ab-status-waiting,
+.ab-badge.ab-status-awaiting-approval {
+	background: var(--bg-orange);
+	color: var(--text-on-orange);
 }
 .ab-error {
 	color: var(--red-600);

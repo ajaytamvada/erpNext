@@ -546,6 +546,12 @@ def answer_paused_run(run: str, answer: str, post: bool = True):
 
 def resume_run(run: str, resume: dict):
 	"""Continue a paused run (used by the approval decision API)."""
+	if frappe.db.get_value("Agent Run", run, "automation"):
+		# Automation runs pause and resume in the automation engine.
+		from pridict.automation import engine
+
+		engine.resume(run, resume)
+		return
 	frappe.db.set_value(
 		"Agent Run", run, {"status": "Queued", "pending_question": None}, update_modified=False
 	)

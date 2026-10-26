@@ -9,18 +9,23 @@ use the draft.
 
 from __future__ import annotations
 
+import json
 import operator
 from typing import Annotated, TypedDict
 
 import frappe
 from frappe import _
-from frappe.utils import now_datetime, time_diff_in_seconds
+from frappe.utils import add_to_date, now_datetime, time_diff_in_seconds
+from langgraph.errors import GraphInterrupt
 
 from pridict.agent_studio import runtime
 from pridict.agent_studio.checkpointer import MariaDBSaver
 from pridict.automation import expressions, guards
 from pridict.automation import nodes as catalog
 from pridict.automation import spec as specs
+from pridict.automation.nodes.human import SimulationNeeded
+
+TEST_SAVEPOINT = "automation_test_run"
 
 QUEUE = "automation"
 FALLBACK_QUEUE = "long"
@@ -105,6 +110,10 @@ def _wrap(node: dict, on_error: str):
 		try:
 			result = node_type.execute(ctx, node.get("config") or {}, scope)
 			output = expressions.cap(expressions.to_data(result.output))
+		except (GraphInterrupt, SimulationNeeded):
+			# The step waits (live) or needs a simulated decision (test); not a failure.
+			ctx.end_step(node["id"], kind, "Interrupted", f"{label}: waiting")
+			raise
 		except Exception as error:
 			ctx.end_step(node["id"], kind, "Failed", f"{label}: {error}")
 			if on_error == "continue" and not branching and not isinstance(error, guards.GuardError):
@@ -213,39 +222,43 @@ def _spec_for(doc, automation) -> dict:
 	return specs.load(automation.draft_spec or "{}")
 
 
-def execute(run: str) -> str:
-	"""Run an automation run to the end. Safe to call from a worker."""
+def _state(doc, automation, extra: dict, decisions: dict | None = None) -> dict:
+	run = {
+		"name": doc.name,
+		"is_test": bool(doc.is_test),
+		"automation": automation.name,
+		"title": automation.title,
+	}
+	if decisions is not None:
+		run["decisions"] = decisions
+	return {"trigger": _trigger_state(doc, extra), "run": run, "nodes": {}, "vars": {}, "loops": {}}
+
+
+def execute(run: str, resume=None) -> str:
+	"""Run (or resume) an automation run until it ends or waits. Safe to call from a worker."""
+	from langgraph.types import Command
+
 	doc = frappe.get_doc("Agent Run", run)
 	if doc.status in runtime.FINISHED:
 		return doc.status
 	automation = frappe.get_doc("Automation", doc.automation)
-	if not doc.is_test and not guards.enabled():
+	if doc.is_test:
+		return _execute_test(doc, automation)
+	if not guards.enabled():
 		return _cancel(doc, _("Automations are switched off on this site."))
-	if not doc.is_test and automation.status != "Active":
+	if automation.status != "Active":
 		return _cancel(doc, _("The automation is {0}.").format(_(automation.status).lower()))
 
 	spec = _spec_for(doc, automation)
 	extra = frappe.parse_json(doc.result_json) or {}
-	chain = extra.get("chain") or []
 	checkpoints = specs.needs_checkpoints(spec)
-
-	previous_user = frappe.session.user
-	previous_chain = frappe.flags.automation_chain
+	previous_user, previous_chain = frappe.session.user, frappe.flags.automation_chain
 	frappe.set_user(automation.run_as)
 	# Saves made by this run carry the chain, so triggers can stop loops (see triggers.py).
-	frappe.flags.automation_chain = [*chain, automation.name]
-	ctx = runtime.RunContext(
-		run=run,
-		agent=None,
-		requested_by=automation.run_as,
-		max_llm_calls=0,
-		token_budget=0,
-		max_runtime_s=MAX_RUNTIME_S,
-		step_index=len(doc.steps),
-		saver=MariaDBSaver() if checkpoints else None,
-	)
+	frappe.flags.automation_chain = [*(extra.get("chain") or []), automation.name]
+	ctx = _context(doc, automation, MariaDBSaver() if checkpoints else None)
 	token = runtime._current.set(ctx)
-	values = {"status": "Running"}
+	values = {"status": "Running", "pending_question": None, "pending_json": None, "resume_at": None}
 	if not doc.started_at:
 		values["started_at"] = now_datetime()
 	doc.db_set(values, update_modified=False)
@@ -257,27 +270,18 @@ def execute(run: str) -> str:
 			"configurable": {"thread_id": doc.thread_id or run},
 			"recursion_limit": spec["settings"]["max_steps"] + 1,
 		}
-		state = {
-			"trigger": _trigger_state(doc, extra),
-			"run": {
-				"name": run,
-				"is_test": bool(doc.is_test),
-				"automation": automation.name,
-				"title": automation.title,
-			},
-			"nodes": {},
-			"vars": {},
-			"loops": {},
-		}
+		payload = Command(resume=resume) if resume is not None else _state(doc, automation, extra)
 		final = {}
-		for update in graph.stream(state, config, stream_mode="values", **_durability(checkpoints)):
+		for update in graph.stream(payload, config, stream_mode="values", **_durability(checkpoints)):
 			final = update
+		snapshot = None
 		if ctx.saver:
 			ctx.saver.flush()
-			if graph.get_state(config).interrupts:
-				# Approval, Ask and Wait nodes arrive in Phase 4.
-				raise RuntimeError(_("This automation paused, but pausing is not supported yet."))
-		status = _finish(doc, automation, final)
+			snapshot = graph.get_state(config)
+		if snapshot and snapshot.interrupts:
+			status = _pause(doc, automation, snapshot.interrupts[0].value or {})
+		else:
+			status = _finish(doc, automation, final)
 	except Exception as error:
 		status = _fail(doc, automation, ctx, error)
 	finally:
@@ -287,6 +291,272 @@ def execute(run: str) -> str:
 	runtime._commit()
 	runtime._publish(run, status)
 	return status
+
+
+def _context(doc, automation, saver=None, step_index=None):
+	return runtime.RunContext(
+		run=doc.name,
+		agent=None,
+		requested_by=automation.run_as,
+		max_llm_calls=0,
+		token_budget=0,
+		max_runtime_s=MAX_RUNTIME_S,
+		step_index=len(doc.steps) if step_index is None else step_index,
+		saver=saver,
+	)
+
+
+def _pause(doc, automation, pause: dict) -> str:
+	"""Record what a live run waits for: an approval, an answer, or a time."""
+	kind = pause.get("type")
+	status = "Awaiting approval" if kind == "approval" else "Waiting"
+	resume_at = None
+	if kind == "wait":
+		resume_at = pause.get("resume_at")
+	elif kind == "approval":
+		if pause.get("timeout_hours"):
+			resume_at = add_to_date(now_datetime(), hours=int(pause["timeout_hours"]))
+		pause["approval"] = _create_approval(doc, pause)
+	elif kind == "ask":
+		_notify_ask(doc, automation, pause)
+	frappe.db.set_value(
+		"Agent Run",
+		doc.name,
+		{
+			"status": status,
+			"pending_question": pause.get("message") or "",
+			"pending_json": runtime._json(pause),
+			"resume_at": resume_at,
+		},
+		update_modified=False,
+	)
+	return status
+
+
+def _create_approval(doc, pause: dict) -> str:
+	from pridict.agent_studio import approvals
+
+	approval = frappe.get_doc(
+		{
+			"doctype": "Agent Approval",
+			"run": doc.name,
+			"requested_by": doc.requested_by,
+			"status": "Pending",
+			"action": f"automation:{pause.get('node')}",
+			"required_roles": json.dumps(pause.get("roles") or []),
+			"required_approvals": len(pause.get("roles") or []) or 1,
+			"summary": (pause.get("message") or "")[:1000],
+			"proposal_json": runtime._json(pause),
+		}
+	).insert(ignore_permissions=True)
+	approvals.notify_approvers(approval)
+	return approval.name
+
+
+def _notify_ask(doc, automation, pause: dict):
+	from frappe.desk.doctype.notification_log.notification_log import enqueue_create_notification
+
+	emails = frappe.get_all(
+		"User", filters={"name": ["in", pause.get("users") or [""]], "enabled": 1}, pluck="email"
+	)
+	if emails:
+		enqueue_create_notification(
+			emails,
+			{
+				"type": "Alert",
+				"subject": _("{0} asks: {1}").format(automation.title, pause.get("question") or "")[:140],
+				"email_content": pause.get("question"),
+				"document_type": "Agent Run",
+				"document_name": doc.name,
+				"from_user": guards.settings().default_run_as or "Administrator",
+			},
+		)
+
+
+def resume(run: str, value: dict):
+	"""Continue a paused live run with a decision, an answer, or after a wait."""
+	frappe.db.set_value(
+		"Agent Run",
+		run,
+		{"status": "Queued", "pending_question": None, "pending_json": None, "resume_at": None},
+		update_modified=False,
+	)
+	if frappe.flags.in_test:
+		execute(run, value)
+		return
+	frappe.enqueue(
+		"pridict.automation.engine.execute",
+		queue=queue(),
+		timeout=MAX_RUNTIME_S + 300,
+		job_id=f"automation-run::{run}",
+		deduplicate=True,
+		enqueue_after_commit=True,
+		run=run,
+		resume=value,
+	)
+
+
+# ---------------------------------------------------------------------------
+# Test runs
+
+
+STEP_FIELDS = [
+	"name",
+	"idx",
+	"node_id",
+	"node_kind",
+	"status",
+	"started_at",
+	"duration_ms",
+	"tokens",
+	"tool_calls",
+	"summary",
+	"input_json",
+	"output_json",
+]
+
+
+def _execute_test(doc, automation) -> str:
+	"""Run the draft for real inside a savepoint, then roll everything back.
+
+	Documents, comments and assignments exist during the run and are gone afterwards; emails
+	are captured by the email step. Waiting steps use the decisions simulated so far; the first
+	one without a decision stops the test so the builder can offer Simulate buttons. Every
+	attempt replays from the start, so nothing has to stay open between clicks.
+	"""
+	run = doc.name
+	spec = specs.load(automation.draft_spec or "{}")
+	extra = frappe.parse_json(doc.result_json) or {}
+	decisions = extra.get("decisions") or {}
+	frappe.db.delete("Agent Run Step", {"parent": run, "parenttype": "Agent Run"})
+	started = now_datetime()
+	doc.db_set(
+		{
+			"status": "Running",
+			"started_at": started,
+			"error": None,
+			"pending_question": None,
+			"pending_json": None,
+		},
+		update_modified=False,
+	)
+	runtime._commit()
+	runtime._publish(run, "Running")
+
+	real_commit = frappe.db.commit
+	blocked = []
+	callbacks = (len(frappe.db.before_commit._functions), len(frappe.db.after_commit._functions))
+	previous_user, previous_eval = frappe.session.user, frappe.flags.agent_eval
+	outcome: dict = {}
+	frappe.db.savepoint(TEST_SAVEPOINT)
+	# Nothing in a test may save for good: block commits (Frappe internals included).
+	frappe.db.commit = lambda *args, **kwargs: blocked.append(1)
+	frappe.flags.agent_eval = True  # our own per-step commits become no-ops
+	frappe.flags.automation_test_run = True  # saves in the test do not start other automations
+	frappe.set_user(automation.run_as)
+	ctx = _context(doc, automation, None, step_index=0)
+	token = runtime._current.set(ctx)
+	try:
+		graph = compile_spec(spec)
+		config = {"configurable": {"thread_id": run}, "recursion_limit": spec["settings"]["max_steps"] + 1}
+		final = {}
+		for update in graph.stream(_state(doc, automation, extra, decisions), config, stream_mode="values"):
+			final = update
+		stop = final.get("stop") or {}
+		outcome = {
+			"status": "Failed" if stop.get("status") == "Failed" else "Completed",
+			"message": stop.get("message"),
+			"values": final,
+		}
+	except SimulationNeeded as waiting:
+		outcome = {"status": "Waiting", "pause": {**waiting.pause, "simulate": True}}
+	except Exception as error:
+		outcome = {"status": "Failed", "error": str(error)}
+	finally:
+		steps = frappe.get_all(
+			"Agent Run Step",
+			filters={"parent": run, "parenttype": "Agent Run"},
+			fields=STEP_FIELDS,
+			order_by="idx",
+		)
+		frappe.db.rollback(save_point=TEST_SAVEPOINT)
+		# Jobs and realtime messages queued during the test must not fire on the next commit.
+		for queue_, keep in zip((frappe.db.before_commit, frappe.db.after_commit), callbacks, strict=True):
+			while len(queue_._functions) > keep:
+				queue_._functions.pop()
+		frappe.db.commit = real_commit
+		frappe.flags.agent_eval = previous_eval
+		frappe.flags.automation_test_run = False
+		runtime._current.reset(token)
+		frappe.set_user(previous_user)
+
+	for row in steps:
+		step = frappe.new_doc("Agent Run Step")
+		step.update({**row, "parent": run, "parenttype": "Agent Run", "parentfield": "steps"})
+		step.db_insert()
+	values = outcome.get("values") or {}
+	result = {
+		**{k: extra.get(k) for k in ("decisions", "input", "chain") if extra.get(k) is not None},
+		"nodes": values.get("nodes") or {},
+		"vars": values.get("vars") or {},
+		"blocked_commits": len(blocked),
+	}
+	status = outcome["status"]
+	pause = outcome.get("pause")
+	frappe.db.set_value(
+		"Agent Run",
+		run,
+		{
+			"status": status,
+			"spec_hash": specs.spec_hash(spec),
+			"ended_at": None if status == "Waiting" else now_datetime(),
+			"duration_s": time_diff_in_seconds(now_datetime(), started),
+			"error": outcome.get("error") or (outcome.get("message") if status == "Failed" else None),
+			"outcome": _test_outcome(status, outcome, len(blocked)),
+			"pending_question": (pause or {}).get("message"),
+			"pending_json": runtime._json(pause) if pause else None,
+			"result_json": runtime._json(result),
+		},
+		update_modified=False,
+	)
+	runtime._commit()
+	runtime._publish(run, status)
+	return status
+
+
+def _test_outcome(status: str, outcome: dict, blocked: int) -> str:
+	text = {
+		"Completed": _("Test passed. Everything it changed was rolled back."),
+		"Waiting": _("Waiting at a step that needs a decision. Simulate one to continue."),
+		"Failed": _("Test failed. Everything it changed was rolled back."),
+	}[status]
+	if outcome.get("message"):
+		text += " " + outcome["message"]
+	if blocked:
+		text += " " + _(
+			"Something tried to save permanently {0} time(s) during the test; it was blocked."
+		).format(blocked)
+	return text
+
+
+def simulate(run: str, node: str, decision) -> str:
+	"""Record a simulated decision for a waiting test run and replay it."""
+	doc = frappe.get_doc("Agent Run", run)
+	extra = frappe.parse_json(doc.result_json) or {}
+	extra.setdefault("decisions", {})[node] = decision
+	doc.db_set({"status": "Queued", "result_json": runtime._json(extra)}, update_modified=False)
+	if frappe.flags.in_test:
+		return execute(run)
+	frappe.enqueue(
+		"pridict.automation.engine.execute",
+		queue=queue(),
+		timeout=MAX_RUNTIME_S + 300,
+		job_id=f"automation-run::{run}",
+		deduplicate=True,
+		enqueue_after_commit=True,
+		run=run,
+	)
+	return "Queued"
 
 
 def _durability(checkpoints: bool) -> dict:
