@@ -7,7 +7,7 @@
 	@page {
 		size: A4;
 		margin: 16mm 15mm 18mm;
-		@bottom-left { content: "Pridict · Automation Builder · proposal v1.0"; font: 8.5pt "Segoe UI", Arial, sans-serif; color: #8a94a3; }
+		@bottom-left { content: "Pridict · Automation Builder · v1.1 (proposal and build status)"; font: 8.5pt "Segoe UI", Arial, sans-serif; color: #8a94a3; }
 		@bottom-right { content: "Page " counter(page); font: 8.5pt "Segoe UI", Arial, sans-serif; color: #8a94a3; }
 	}
 	@page :first { @bottom-left { content: none; } @bottom-right { content: none; } }
@@ -89,6 +89,10 @@
 	.c-trig { background: #fff0e5; color: #c2410c; } .c-data { background: #eaf1ff; color: #2563eb; }
 	.c-logic { background: #fff7db; color: #a16207; } .c-act { background: #ecfdf3; color: #15803d; }
 	.c-human { background: #fdf0f7; color: #be185d; } .c-ai { background: #f3edff; color: #7c3aed; }
+
+	figure.shot { margin: 14px 0 18px; page-break-inside: avoid; break-inside: avoid; }
+	figure.shot img { width: 100%; border: 1px solid #d6dbe1; border-radius: 6px; }
+	figure.shot figcaption { font-size: 9.5pt; color: #555; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -135,6 +139,7 @@
 		<li>Cost and resources</li>
 		<li>Risks and how we handle them</li>
 		<li>Decisions taken and next steps</li>
+		<li>What has been built (October 2026)</li>
 	</ol>
 </section>
 
@@ -892,6 +897,62 @@
 	the companion document <code>documentation/automation-builder/AUTOMATION-BUILDER-TECHNICAL-DESIGN.md</code>.
 	Licence information about n8n is from n8n's official licence FAQ
 	(docs.n8n.io/n8n-community-license/community-license/license-faq), checked on 22 October 2026.</p></div>
+</section>
+
+<!-- ============================================================ 15 -->
+<section class="chapter">
+	<h2>15. What has been built (October 2026)</h2>
+
+	<p>All six build phases planned in Section 11 up to UAT are done on the development system: the engine, the canvas,
+	the AI architect, test runs with approvals, and the remaining triggers and safety features. Every phase was tested
+	automatically (108 checks) and by clicking through it in a browser. What remains is the UAT release (Phase 6).</p>
+
+	<table>
+		<tr><th style="width:28%">Part</th><th>What works today</th></tr>
+		<tr><td>Starting an automation</td><td>When a document changes, on a schedule, when an email arrives, when another system calls a web address (signed), or when someone clicks Run</td></tr>
+		<tr><td>Building blocks</td><td>Find data, aggregate, run a report; If, Switch, Loop, Wait, Stop; create, update, submit or cancel documents; comment, assign, notify, email (people or a role); approvals and questions; call another system; AI step</td></tr>
+		<tr><td>Building</td><td>Describe it in the chat, or draw it on the canvas; both edit the same automation and every change is in the history</td></tr>
+		<tr><td>Going live</td><td>A test run does everything for real, then undoes it; approvals and questions are simulated with buttons. Only a tested version can be activated</td></tr>
+		<tr><td>Safety</td><td>Runs with the permissions of a chosen user, limits on runs and emails, automatic pause after repeated failures, a site-wide off switch, an allowlist for outside systems</td></tr>
+		<tr><td>Running it</td><td>Health figures on the Automations page, run history kept 30 days (failed runs 90), automations checked again after every system update</td></tr>
+	</table>
+
+	<h3>A tour in pictures</h3>
+	<figure class="shot">
+		<img src="images/automations-list.png" alt="Automations list with health figures">
+		<figcaption>The Automations page: health figures for the last 24 hours, each automation's trigger in words, its status and recent runs. New automations start blank or from one of the six templates.</figcaption>
+	</figure>
+	<figure class="shot">
+		<img src="images/build-with-ai.png" alt="Build with AI chat above the canvas">
+		<figcaption>Building by chat. The administrator asked for a notification and a comment on large Sales Orders; the architect built it in about 15 seconds and named the one thing still to set up (a permission).</figcaption>
+	</figure>
+	<figure class="shot">
+		<img src="images/canvas-editing.png" alt="Editing an automation on the canvas">
+		<figcaption>Building on the canvas: steps are added with the + buttons, connected by dragging, and set up in the panel on the right. Other people looking at the same automation see each change within a second.</figcaption>
+	</figure>
+	<figure class="shot">
+		<img src="images/test-run-simulate.png" alt="A test run waiting at an approval">
+		<figcaption>A test run of the "large purchase order approval" automation, waiting at the approval step. The administrator plays the approver: Approve, Reject or Let it expire.</figcaption>
+	</figure>
+	<figure class="shot">
+		<img src="images/test-run-passed.png" alt="A passed test run unlocks Activate">
+		<figcaption>After "Approve" the test followed the approved branch and submitted the order, then undid it (the order is still a draft). The green path shows what ran; the button at the top now reads Activate.</figcaption>
+	</figure>
+
+	<h3>What we learned while building</h3>
+	<ul>
+		<li><b>The AI needs to be told what is "setup".</b> Missing permissions first made it stop and ask; now it builds and lists what the administrator must grant. Six test requests: 5 of 6 built correctly on the latest full run.</li>
+		<li><b>Cost.</b> A simple automation takes 10,000–35,000 AI tokens to build; the most complex example up to about 200,000. Running automations costs nothing extra unless they contain an AI step.</li>
+		<li><b>Speed.</b> With 20 active automations, a document save that no automation watches costs 0.01 ms extra; one that four automations watch costs about 0.6 ms.</li>
+	</ul>
+
+	<h3>Before going live with a client</h3>
+	<ol class="steps">
+		<li>Release to UAT with automations switched off, then switch on for the walkthrough.</li>
+		<li>Give the automation user the roles each automation needs; set up an outgoing email account.</li>
+		<li>Decide the production AI model (full GPT-5.4 is recommended for the architect).</li>
+		<li>Known limits to explain: an approval does not stop someone submitting the document by hand; saving a document twice while it waits starts two runs.</li>
+	</ol>
 </section>
 
 </body>

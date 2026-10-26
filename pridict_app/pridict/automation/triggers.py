@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import frappe
 from frappe import _
+from frappe.rate_limiter import rate_limit
 from frappe.utils import add_to_date, get_datetime, now_datetime
 
 from pridict.automation import engine, expressions, guards
@@ -44,19 +45,32 @@ IGNORED_DOCTYPES = frozenset(
 )
 
 
-def _build_index() -> dict[str, list[str]]:
-	index: dict[str, list[str]] = {}
+def _build_index() -> dict[str, list[dict]]:
+	"""(doctype::event) -> [{name, config}] for active automations, from their active versions.
+
+	Carrying the trigger config here keeps a matching save free of database reads. The index
+	lives in Redis and is cleared whenever an automation is activated, paused or changed; if it
+	is ever stale, the engine still refuses to run an automation that is not active.
+	"""
+	index: dict[str, list[dict]] = {}
 	for row in frappe.get_all(
 		"Automation",
-		filters={"status": "Active", "trigger_type": "trigger.document_event"},
-		fields=["name", "trigger_doctype", "trigger_event"],
+		filters={
+			"status": "Active",
+			"trigger_type": ["in", ["trigger.document_event", "trigger.inbound_email"]],
+		},
+		fields=["name", "trigger_doctype", "trigger_event", "active_version"],
 		order_by="name",
 	):
-		index.setdefault(f"{row.trigger_doctype}::{row.trigger_event}", []).append(row.name)
+		spec = specs.load(frappe.db.get_value("Automation Version", row.active_version, "spec") or "{}")
+		config = (spec.get("trigger") or {}).get("config") or {}
+		index.setdefault(f"{row.trigger_doctype}::{row.trigger_event}", []).append(
+			{"name": row.name, "config": config}
+		)
 	return index
 
 
-def get_index() -> dict[str, list[str]]:
+def get_index() -> dict[str, list[dict]]:
 	return frappe.cache().get_value(INDEX_CACHE_KEY, generator=_build_index)
 
 
@@ -77,34 +91,36 @@ def on_doc_event(doc, method: str):
 	if flags.automation_test_run:
 		# Documents a test run creates are rolled back; they must not start real runs.
 		return
-	names = get_index().get(f"{doc.doctype}::{method}")
-	if not names or not guards.enabled():
+	index = get_index()
+	candidates = [(entry, method) for entry in index.get(f"{doc.doctype}::{method}") or []]
+	if doc.doctype == "Communication" and method == "after_insert":
+		candidates += [(entry, "inbound_email") for entry in index.get("Communication::inbound_email") or []]
+	if not candidates or not guards.enabled():
 		return
 	chain = list(flags.automation_chain or [])
-	for name in names:
+	scope = {}  # the document as condition data, built once per save and only if needed
+	for entry, event in candidates:
+		name = entry["name"]
 		# A run never re-triggers its own automation, and chains of automations stay short.
 		if name in chain or len(chain) >= guards.max_chain_depth():
 			continue
-		version = _active_version(name)
-		if not version or not _condition_holds(name, version, doc):
+		if not _matches(name, entry["config"], doc, event, scope):
 			continue
 		if not guards.allow_run(name):
 			continue
-		engine.start_run(name, {"event": method, "doctype": doc.doctype, "name": doc.name}, chain=chain)
+		engine.start_run(name, {"event": event, "doctype": doc.doctype, "name": doc.name}, chain=chain)
 
 
-def _active_version(automation: str) -> str | None:
-	# The cached index is not transactional, so re-check the automation is still active.
-	row = frappe.db.get_value("Automation", automation, ["status", "active_version"], as_dict=True)
-	return row.active_version if row and row.status == "Active" else None
+def _matches(automation: str, config: dict, doc, event: str, scope: dict) -> bool:
+	if event == "inbound_email":
+		from pridict.automation.nodes.triggers import InboundEmail
 
-
-def _condition_holds(automation: str, version: str, doc) -> bool:
-	spec = specs.load(frappe.db.get_value("Automation Version", version, "spec") or "{}")
-	condition = ((spec.get("trigger") or {}).get("config") or {}).get("condition")
+		return InboundEmail.matches(config, doc)
+	condition = config.get("condition")
 	if not condition:
 		return True
-	scope = {"doc": expressions.attr_dicts(expressions.to_data(doc.as_dict()))}
+	if "doc" not in scope:
+		scope["doc"] = expressions.attr_dicts(expressions.to_data(doc.as_dict()))
 	try:
 		return bool(expressions.evaluate(condition, scope))
 	except Exception:
@@ -204,3 +220,82 @@ def run_now(automation: str, doctype: str | None = None, name: str | None = None
 	trigger = {"event": "manual", "doctype": doctype, "name": name, "input": frappe.parse_json(input)}
 	run = engine.start_run(automation, trigger, requested_by=frappe.session.user)
 	return {"run": run}
+
+
+# ---------------------------------------------------------------------------
+# Webhooks
+
+WEBHOOK_MAX_BYTES = 1_000_000
+SIGNATURE_HEADER = "X-Pridict-Signature"
+
+
+def webhook_url(key: str) -> str:
+	return frappe.utils.get_url(f"/api/method/pridict.automation.triggers.webhook?key={key}")
+
+
+def sign(secret: str, body: bytes) -> str:
+	import hashlib
+	import hmac
+
+	return "sha256=" + hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+
+
+@frappe.whitelist(allow_guest=True, methods=["POST"])
+@rate_limit(key="key", limit=120, seconds=60, ip_based=False)
+def webhook(key: str) -> dict:
+	"""Start a webhook automation. The body must be signed: X-Pridict-Signature: sha256=<hmac>."""
+	import hmac
+
+	from frappe.utils.password import get_decrypted_password
+
+	body = frappe.request.get_data(cache=True) or b""
+	if len(body) > WEBHOOK_MAX_BYTES:
+		frappe.throw(_("The body is larger than 1 MB."), frappe.ValidationError)
+	automation = (
+		frappe.db.get_value(
+			"Automation",
+			{"webhook_key": key, "trigger_type": "trigger.webhook"},
+			["name", "status"],
+			as_dict=True,
+		)
+		if key
+		else None
+	)
+	# Unknown keys and bad signatures get the same answer, so keys cannot be probed.
+	refused = _("Unknown webhook or bad signature.")
+	if not automation:
+		frappe.throw(refused, frappe.PermissionError)
+	secret = get_decrypted_password("Automation", automation.name, "webhook_secret", raise_exception=False)
+	given = frappe.request.headers.get(SIGNATURE_HEADER) or ""
+	if not secret or not hmac.compare_digest(given, sign(secret, body)):
+		frappe.throw(refused, frappe.PermissionError)
+	if automation.status != "Active" or not guards.enabled():
+		frappe.throw(_("This automation is not active."), frappe.ValidationError)
+	try:
+		payload = frappe.parse_json(body.decode("utf-8")) if body else {}
+	except Exception:
+		frappe.throw(_("The body must be JSON."))
+	headers = {
+		name: value
+		for name, value in frappe.request.headers.items()
+		if name.lower() in ("content-type", "user-agent")
+		or (name.lower().startswith("x-") and name != SIGNATURE_HEADER)
+	}
+	if not guards.allow_run(automation.name):
+		frappe.throw(_("Too many runs this hour."), frappe.ValidationError)
+	run = engine.start_run(
+		automation.name, {"event": "webhook", "input": {"body": payload, "headers": headers}}
+	)
+	return {"run": run}
+
+
+def ensure_webhook_secret(doc, rotate: bool = False) -> str | None:
+	"""Give a webhook automation its key and secret (new ones when rotating). Returns a new secret."""
+	if doc.trigger_type != "trigger.webhook":
+		return None
+	if doc.webhook_key and doc.get_password("webhook_secret", raise_exception=False) and not rotate:
+		return None
+	secret = frappe.generate_hash(length=40)
+	doc.webhook_key = doc.webhook_key if (doc.webhook_key and not rotate) else frappe.generate_hash(length=32)
+	doc.webhook_secret = secret
+	return secret

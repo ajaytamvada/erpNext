@@ -25,6 +25,10 @@ def ensure_automation_setup():
 	if not settings.architect_model:
 		settings.architect_model = ensure_architect_model()
 		changed = changed or bool(settings.architect_model)
+	if not settings.ai_step_model and frappe.db.exists("LLM Model Config", BASE_MODEL):
+		# AI steps do short, bounded jobs: the cheaper procurement model is enough.
+		settings.ai_step_model = BASE_MODEL
+		changed = True
 	if not settings.roles_granted:
 		# Once per site: admins can build automations from day one. Later removals stick.
 		grant_manager_role()
@@ -33,6 +37,9 @@ def ensure_automation_setup():
 	if changed:
 		settings.flags.ignore_permissions = True
 		settings.save()
+	from pridict.automation.maintenance import revalidate_active
+
+	revalidate_active()
 
 
 def automation_user_email() -> str:

@@ -220,6 +220,54 @@ class SubmitDocument(_DocumentAction):
 
 
 @register
+class CancelDocument(_DocumentAction):
+	defaults_to_trigger_doc = True
+	type = "action.cancel_document"
+	label = "Cancel document"
+	icon = "⊘"
+	description = (
+		"Cancels a submitted document (the trigger document by default). Cancelling cannot be undone."
+	)
+	outputs = ("doc",)
+	config_schema = {
+		"type": "object",
+		"properties": {
+			"doctype": {"type": "string", "title": "DocType", "format": "doctype"},
+			"name": {"type": "string", "title": "Document", "format": "template"},
+		},
+	}
+
+	def check_config(self, config: dict) -> list[str]:
+		return super().check_config(config) + _check_templates(config, ("name",))
+
+	def check_live(self, config: dict, run_as: str | None) -> list[Issue]:
+		doctype = config.get("doctype")
+		issues = [
+			Issue(
+				"warning",
+				"Cancelling a submitted document cannot be undone. Test the branch that reaches it.",
+			)
+		]
+		if doctype and not meta.is_expression(doctype) and frappe.db.exists("DocType", doctype):
+			if not meta.submittable(doctype):
+				return [Issue("error", f"{doctype} cannot be submitted, so it cannot be cancelled.")]
+			if run_as and not frappe.has_permission(doctype, "cancel", user=run_as):
+				issues.append(
+					Issue("error", f"Run As user {run_as} has no cancel permission on {doctype}.", "setup")
+				)
+		return issues
+
+	def execute(self, ctx, config: dict, scope: dict) -> NodeResult:
+		doctype, name = _target(config, scope)
+		doc = frappe.get_doc(doctype, name)
+		if doc.docstatus != 1:
+			raise ValueError(_("{0} {1} is not submitted, so it cannot be cancelled.").format(doctype, name))
+		doc.cancel()
+		_attribute(doc, scope, _("Cancelled"))
+		return NodeResult(output={"doc": doc.as_dict()}, summary=_("Cancelled {0} {1}").format(doctype, name))
+
+
+@register
 class AddComment(NodeType):
 	defaults_to_trigger_doc = True
 	type = "action.add_comment"

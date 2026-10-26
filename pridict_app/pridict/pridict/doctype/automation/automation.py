@@ -126,6 +126,8 @@ class Automation(Document):
 		if self.trigger_type == "trigger.schedule":
 			# Start counting from now, not from past slots.
 			self.last_fired_at = now_datetime()
+		# Webhooks get their key and signing secret on first activation (shown once, see api).
+		self.flags.new_webhook_secret = triggers.ensure_webhook_secret(self)
 		self._set_status("Active")
 		return self.active_version
 

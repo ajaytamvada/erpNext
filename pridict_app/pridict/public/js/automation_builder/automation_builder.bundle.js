@@ -69,7 +69,12 @@ class Builder {
 	}
 
 	async call(method, args = {}) {
-		await frappe.call({ method: `${API}.${method}`, args: { name: this.store.state.name, ...args }, freeze: true });
+		const { message } = await frappe.call({
+			method: `${API}.${method}`,
+			args: { name: this.store.state.name, ...args },
+			freeze: true,
+		});
+		if (message?.webhook?.secret) showWebhookSecret(message.webhook);
 		await this.store.load(this.store.state.name, null, true);
 	}
 
@@ -148,5 +153,24 @@ class Builder {
 	}
 }
 
+// The secret is only ever shown here, once; afterwards it can only be replaced.
+function showWebhookSecret(info) {
+	const esc = frappe.utils.escape_html;
+	const example = `curl -X POST '${info.url}' \
+  -H 'Content-Type: application/json' \
+  -H "${info.header}: sha256=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac '${info.secret}' | cut -d' ' -f2)" \
+  -d "$BODY"`;
+	frappe.msgprint({
+		title: __("Webhook address and secret"),
+		indicator: "orange",
+		message: `
+			<p>${__("Copy the secret now: it is not shown again.")}</p>
+			<p><b>${__("Address")}</b><br><code>${esc(info.url)}</code></p>
+			<p><b>${__("Secret")}</b><br><code>${esc(info.secret)}</code></p>
+			<p><b>${__("Example")}</b></p><pre style="white-space:pre-wrap">${esc(example)}</pre>`,
+	});
+}
+
 frappe.provide("pridict.automation");
 pridict.automation.Builder = Builder;
+pridict.automation.showWebhookSecret = showWebhookSecret;

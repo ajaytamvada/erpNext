@@ -12,6 +12,12 @@
   "max_chain_depth",
   "max_failures_before_pause",
   "site_max_emails_per_day",
+  "ai_step_model",
+  "section_outbound",
+  "http_allowlist",
+  "section_retention",
+  "run_retention_days",
+  "failed_run_retention_days",
   "roles_granted"
  ],
  "fields": [
@@ -71,10 +77,45 @@
    "label": "AI Architect Model",
    "options": "LLM Model Config",
    "description": "Model the AI architect uses to build automations from chat."
+  },
+  {
+   "fieldname": "ai_step_model",
+   "fieldtype": "Link",
+   "label": "AI Step Model",
+   "options": "LLM Model Config",
+   "description": "Model used by AI steps inside automations."
+  },
+  {
+   "fieldname": "section_outbound",
+   "fieldtype": "Section Break",
+   "label": "Outside systems"
+  },
+  {
+   "fieldname": "http_allowlist",
+   "fieldtype": "Small Text",
+   "label": "Allowed hosts for HTTP steps",
+   "description": "One host per line, e.g. api.example.com or *.example.com. HTTP steps can only call these hosts; private and local addresses are always blocked."
+  },
+  {
+   "fieldname": "section_retention",
+   "fieldtype": "Section Break",
+   "label": "Run history"
+  },
+  {
+   "fieldname": "run_retention_days",
+   "fieldtype": "Int",
+   "label": "Keep completed runs (days)",
+   "default": "30"
+  },
+  {
+   "fieldname": "failed_run_retention_days",
+   "fieldtype": "Int",
+   "label": "Keep failed runs (days)",
+   "default": "90"
   }
  ],
  "links": [],
- "modified": "2026-10-26 18:00:00.000000",
+ "modified": "2026-10-27 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pridict",
  "name": "Automation Settings",

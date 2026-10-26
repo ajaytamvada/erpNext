@@ -33,6 +33,19 @@
 				</select>
 			</template>
 			<p v-if="meta.description" class="ab-muted ab-settings-desc">{{ meta.description }}</p>
+			<div v-if="isTrigger && node.type === 'trigger.webhook'" class="ab-webhook">
+				<template v-if="data.webhook">
+					<label class="ab-settings-label">{{ __("Address other systems POST to") }}</label>
+					<input class="form-control input-sm" :value="data.webhook.url" readonly @focus="$event.target.select()" />
+					<p class="ab-muted">
+						{{ __("Sign the JSON body with the secret: header {0}: sha256=<HMAC-SHA256 of the body>.", [data.webhook.header]) }}
+					</p>
+					<button v-if="canEdit" type="button" class="btn btn-xs btn-default" @click="rotateSecret">
+						{{ __("New address and secret") }}
+					</button>
+				</template>
+				<p v-else class="ab-muted">{{ __("The address and secret are created when you activate the automation.") }}</p>
+			</div>
 			<div v-for="issue in issues" :key="issue.message" class="ab-issue-line" :class="'ab-issue-' + issue.level">
 				{{ issue.message }}
 			</div>
@@ -76,6 +89,7 @@ const LINKS = {
 	email_account: "Email Account",
 	report: "Report",
 	print_format: "Print Format",
+	credential: "Automation Credential",
 };
 
 const props = defineProps({ store: Object });
@@ -306,6 +320,18 @@ function saveLabel() {
 	}
 }
 
+function rotateSecret() {
+	frappe.confirm(__("Make a new address and secret? The old ones stop working at once."), async () => {
+		const { message } = await frappe.call({
+			method: "pridict.automation.api.rotate_webhook_secret",
+			args: { name: store.state.name },
+			freeze: true,
+		});
+		pridict.automation.showWebhookSecret(message);
+		store.load(store.state.name, store.state.selectedRun, true);
+	});
+}
+
 function changeTrigger(type) {
 	if (type === node.value.type) return;
 	frappe.confirm(__("Change the trigger? Its settings will be cleared."), () => store.setTrigger(type));
@@ -381,6 +407,12 @@ onBeforeUnmount(flushPending);
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 8px;
+}
+.ab-webhook {
+	margin: 8px 0;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
 }
 .ab-settings-actions {
 	display: flex;

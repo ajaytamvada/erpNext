@@ -1,0 +1,69 @@
+{
+ "schema": 1,
+ "title": "Weekly late receipts summary",
+ "description": "Every Monday at 09:00, email the purchase managers a summary of purchase orders still waiting to be received more than 14 days after their schedule date.",
+ "trigger": {
+  "id": "trigger",
+  "type": "trigger.schedule",
+  "label": "Every Monday at 09:00",
+  "config": {"frequency": "weekly", "weekday": "Monday", "time": "09:00"},
+  "position": [0, 0]
+ },
+ "nodes": [
+  {
+   "id": "late",
+   "type": "data.find_documents",
+   "label": "Late purchase orders",
+   "config": {
+    "doctype": "Purchase Order",
+    "filters": [
+     ["docstatus", "=", 1],
+     ["per_received", "<", 100],
+     ["status", "not in", ["Closed", "Completed", "On Hold"]],
+     ["schedule_date", "<", "{{ frappe.utils.add_days(today, -14) }}"]
+    ],
+    "fields": ["name", "supplier", "schedule_date", "grand_total", "per_received"],
+    "order_by": "schedule_date asc",
+    "limit": 100
+   },
+   "position": [0, 150]
+  },
+  {
+   "id": "any_late",
+   "type": "logic.if",
+   "label": "Any late?",
+   "config": {"condition": "nodes.late.count > 0"},
+   "position": [0, 300]
+  },
+  {
+   "id": "summary",
+   "type": "ai.step",
+   "label": "Write the summary",
+   "config": {
+    "instruction": "Write a short summary for the purchase manager: how many orders are late, the oldest one, and which suppliers are most behind. Plain sentences, under 120 words.",
+    "input": "{{ nodes.late.rows }}"
+   },
+   "position": [-220, 450]
+  },
+  {
+   "id": "email",
+   "type": "action.send_email",
+   "label": "Email purchase managers",
+   "config": {
+    "to_role": "Purchase Manager",
+    "subject": "{{ nodes.late.count }} purchase orders are waiting to be received",
+    "message": "<p>{{ nodes.summary.result.result }}</p><table border=\"1\" cellpadding=\"4\" style=\"border-collapse:collapse\"><tr><th>Order</th><th>Supplier</th><th>Due</th><th>Received</th></tr>{% for po in nodes.late.rows %}<tr><td>{{ po.name }}</td><td>{{ po.supplier }}</td><td>{{ po.schedule_date }}</td><td>{{ po.per_received }}%</td></tr>{% endfor %}</table>"
+   },
+   "position": [-220, 600]
+  }
+ ],
+ "edges": [
+  {"from": "trigger", "to": "late"},
+  {"from": "late", "to": "any_late"},
+  {"from": "any_late", "to": "summary", "branch": "true"},
+  {"from": "any_late", "to": "END", "branch": "false"},
+  {"from": "summary", "to": "email"},
+  {"from": "email", "to": "END"}
+ ],
+ "settings": {"on_error": "stop_and_notify", "max_steps": 20}
+}

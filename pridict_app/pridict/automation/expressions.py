@@ -7,6 +7,7 @@ values are always passed in as data (the scope), never pasted into the expressio
 
 from __future__ import annotations
 
+import functools
 import json
 import re
 
@@ -143,12 +144,31 @@ def render_all(value, scope: dict):
 	return render(value, scope)
 
 
+@functools.lru_cache(maxsize=512)
+def _compiled(condition: str):
+	"""Compile a condition exactly as frappe.safe_eval does (restricted), once per text.
+
+	Compiling is the slow part of safe_eval; conditions run on every matching save.
+	"""
+	import unicodedata
+
+	from frappe.utils.safe_exec import FrappeTransformer, _validate_safe_eval_syntax
+	from RestrictedPython import compile_restricted
+
+	code = unicodedata.normalize("NFKC", condition)
+	_validate_safe_eval_syntax(code)
+	return compile_restricted(code, filename="<safe_eval>", policy=FrappeTransformer, mode="eval")
+
+
 def evaluate(condition: str, scope: dict):
 	if not condition or not str(condition).strip():
 		raise ExpressionError(_("The condition is empty."))
 	try:
+		from frappe.utils.safe_exec import WHITELISTED_SAFE_EVAL_GLOBALS
+
 		# The scope goes in as globals: nested generator expressions cannot see eval locals.
-		return frappe.safe_eval(str(condition), {**CONDITION_BUILTINS, **scope}, None)
+		env = {**CONDITION_BUILTINS, **scope, "__builtins__": {}, **WHITELISTED_SAFE_EVAL_GLOBALS}
+		return eval(_compiled(str(condition)), env, None)  # noqa: S307 - restricted code, see _compiled
 	except Exception as error:
 		raise ExpressionError(_("Could not evaluate {0}: {1}").format(condition, error)) from error
 

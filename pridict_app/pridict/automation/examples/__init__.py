@@ -13,6 +13,8 @@ EXAMPLES = (
 	"s2_overdue_invoice_reminders",
 	"s3_supplier_onboarding",
 	"s4_po_approval",
+	"s5_email_to_sales_order",
+	"s6_weekly_receipt_summary",
 )
 
 

@@ -27,8 +27,29 @@ class AutomationsPage {
 	}
 
 	async refresh() {
-		const { message } = await frappe.call({ method: `${AUTOMATIONS_API}.list_automations` });
-		this.render(message || []);
+		const [list, health] = await Promise.all([
+			frappe.call({ method: `${AUTOMATIONS_API}.list_automations` }),
+			frappe.call({ method: "pridict.automation.maintenance.health" }),
+		]);
+		this.render(list.message || []);
+		this.renderHealth(health.message);
+	}
+
+	renderHealth(h) {
+		if (!h) return;
+		const tile = (label, value, tone = "") =>
+			`<div class="automations-tile ${tone}"><div class="automations-tile-value">${value}</div><div class="automations-tile-label">${label}</div></div>`;
+		const strip = $(`<div class="automations-health">
+			${h.enabled ? "" : `<div class="automations-off">${__("Automations are switched off on this site. Turn them on in Automation Settings.")}</div>`}
+			${tile(__("Active"), h.active)}
+			${tile(__("Runs (24 h)"), h.runs_24h)}
+			${tile(__("Failure rate"), `${h.failure_rate}%`, h.failure_rate > 10 ? "bad" : "")}
+			${tile(__("Waiting for people"), h.waiting)}
+			${tile(__("Paused"), h.paused, h.paused ? "warn" : "")}
+			${tile(__("Emails today"), h.emails_today)}
+			${h.queued === null || h.queued === undefined ? "" : tile(__("In queue"), h.queued, h.queued > 50 ? "warn" : "")}
+		</div>`);
+		this.$body.prepend(strip);
 	}
 
 	render(rows) {
@@ -95,13 +116,30 @@ class AutomationsPage {
 		this.refresh();
 	}
 
-	create() {
+	async create() {
+		if (!this.templates) {
+			const { message } = await frappe.call({ method: `${AUTOMATIONS_API}.list_templates` });
+			this.templates = message || [];
+		}
 		const dialog = new frappe.ui.Dialog({
 			title: __("New Automation"),
 			fields: [
+				{
+					fieldname: "template",
+					fieldtype: "Select",
+					label: __("Start from"),
+					options: [{ value: "", label: __("A blank automation") }, ...this.templates.map((t) => ({ value: t.key, label: t.title }))],
+					onchange: () => {
+						const chosen = this.templates.find((t) => t.key === dialog.get_value("template"));
+						dialog.set_df_property("template_help", "options", chosen ? `<p class="text-muted">${frappe.utils.escape_html(chosen.description)}</p>` : "");
+						if (chosen && !dialog.get_value("title")) dialog.set_value("title", chosen.title);
+					},
+				},
+				{ fieldname: "template_help", fieldtype: "HTML" },
 				{ fieldname: "title", fieldtype: "Data", label: __("Title"), reqd: 1 },
 				{
 					fieldname: "trigger_type",
+					depends_on: "eval:!doc.template",
 					fieldtype: "Select",
 					label: __("Starts when"),
 					reqd: 1,
@@ -117,8 +155,8 @@ class AutomationsPage {
 					fieldtype: "Link",
 					options: "DocType",
 					label: __("Document type"),
-					depends_on: "eval:doc.trigger_type != 'trigger.schedule'",
-					mandatory_depends_on: "eval:doc.trigger_type == 'trigger.document_event'",
+					depends_on: "eval:!doc.template && doc.trigger_type != 'trigger.schedule'",
+					mandatory_depends_on: "eval:!doc.template && doc.trigger_type == 'trigger.document_event'",
 					get_query: () => ({ filters: { istable: 0, issingle: 0 } }),
 				},
 				{
@@ -127,7 +165,7 @@ class AutomationsPage {
 					label: __("When it"),
 					default: "after_insert",
 					options: DOCUMENT_EVENTS.map(([value, label]) => ({ value, label })),
-					depends_on: "eval:doc.trigger_type == 'trigger.document_event'",
+					depends_on: "eval:!doc.template && doc.trigger_type == 'trigger.document_event'",
 				},
 				{
 					fieldname: "frequency",
@@ -135,18 +173,28 @@ class AutomationsPage {
 					label: __("Every"),
 					default: "daily",
 					options: ["hourly", "daily", "weekly", "monthly"],
-					depends_on: "eval:doc.trigger_type == 'trigger.schedule'",
+					depends_on: "eval:!doc.template && doc.trigger_type == 'trigger.schedule'",
 				},
 				{
 					fieldname: "time",
 					fieldtype: "Data",
 					label: __("At (HH:MM)"),
 					default: "09:00",
-					depends_on: "eval:doc.trigger_type == 'trigger.schedule'",
+					depends_on: "eval:!doc.template && doc.trigger_type == 'trigger.schedule'",
 				},
 			],
 			primary_action_label: __("Create"),
 			primary_action: async (values) => {
+				if (values.template) {
+					const { message } = await frappe.call({
+						method: `${AUTOMATIONS_API}.create_from_template`,
+						args: { template: values.template, title: values.title },
+						freeze: true,
+					});
+					dialog.hide();
+					frappe.show_alert({ message: __("Created from the template. Check the settings, test it, then activate."), indicator: "green" });
+					return frappe.set_route("automation-builder", message.name);
+				}
 				const config = {};
 				if (values.trigger_type === "trigger.document_event") Object.assign(config, { doctype: values.doctype, event: values.event });
 				if (values.trigger_type === "trigger.manual" && values.doctype) config.doctype = values.doctype;
@@ -191,4 +239,11 @@ frappe.dom.set_style(`
 	.automations-title { font-weight: 600; }
 	.automations-empty { text-align: center; padding: 64px 16px; }
 	.automations-actions { white-space: nowrap; }
+	.automations-health { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+	.automations-off { width: 100%; padding: 8px 12px; border-radius: var(--border-radius); background: var(--bg-orange); color: var(--text-on-orange); }
+	.automations-tile { min-width: 120px; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); background: var(--card-bg); }
+	.automations-tile-value { font-size: var(--text-xl); font-weight: 600; }
+	.automations-tile-label { font-size: var(--text-sm); color: var(--text-muted); }
+	.automations-tile.bad .automations-tile-value { color: var(--red-600); }
+	.automations-tile.warn .automations-tile-value { color: var(--orange-600); }
 `);

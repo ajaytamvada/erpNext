@@ -1,0 +1,110 @@
+{
+ "schema": 1,
+ "title": "Order email to draft Sales Order",
+ "description": "When an order email arrives, extract the customer, items and quantities and create a draft Sales Order for the sales team to check.",
+ "trigger": {
+  "id": "trigger",
+  "type": "trigger.inbound_email",
+  "label": "Order email received",
+  "config": {"email_account": "", "subject_contains": "order"},
+  "position": [0, 0]
+ },
+ "nodes": [
+  {
+   "id": "extract",
+   "type": "ai.step",
+   "label": "Read the order",
+   "config": {
+    "instruction": "Extract the customer's company name and the ordered items (item code or name as written, and quantity) from this order email.",
+    "input": "Subject: {{ trigger.email.subject }}\nFrom: {{ trigger.email.from_name }} <{{ trigger.email.from }}>\n\n{{ trigger.email.body }}",
+    "output_schema": {
+     "type": "object",
+     "properties": {
+      "customer": {"type": "string"},
+      "items": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {"item": {"type": "string"}, "qty": {"type": "number"}},
+        "required": ["item", "qty"],
+        "additionalProperties": false
+       }
+      }
+     },
+     "required": ["customer", "items"],
+     "additionalProperties": false
+    }
+   },
+   "position": [0, 150]
+  },
+  {
+   "id": "customer",
+   "type": "data.find_documents",
+   "label": "Find the customer",
+   "config": {
+    "doctype": "Customer",
+    "filters": [["customer_name", "like", "%{{ nodes.extract.result.customer }}%"], ["disabled", "=", 0]],
+    "fields": ["name", "customer_name"],
+    "limit": 1
+   },
+   "position": [0, 300]
+  },
+  {
+   "id": "found",
+   "type": "logic.if",
+   "label": "Customer found?",
+   "config": {"condition": "nodes.customer.count > 0 and len(nodes.extract.result['items']) > 0"},
+   "position": [0, 450]
+  },
+  {
+   "id": "sales_order",
+   "type": "action.create_document",
+   "label": "Create draft Sales Order",
+   "config": {
+    "doctype": "Sales Order",
+    "submit": false,
+    "values": {
+     "customer": "{{ nodes.customer.rows[0].name }}",
+     "delivery_date": "{{ frappe.utils.add_days(today, 7) }}",
+     "items": {"$each": "{{ nodes.extract.result['items'] }}", "item_code": "{{ row.item }}", "qty": "{{ row.qty }}"}
+    }
+   },
+   "position": [-260, 600]
+  },
+  {
+   "id": "tell_sales",
+   "type": "action.notify",
+   "label": "Tell the sales team",
+   "config": {
+    "role": "Sales User",
+    "subject": "Draft Sales Order {{ nodes.sales_order.doc.name }} created from an order email ({{ trigger.email.subject }}). Please check it.",
+    "doctype": "Sales Order",
+    "name": "{{ nodes.sales_order.doc.name }}"
+   },
+   "position": [-260, 750]
+  },
+  {
+   "id": "not_found",
+   "type": "action.notify",
+   "label": "Ask for a manual check",
+   "config": {
+    "role": "Sales Manager",
+    "subject": "Order email from {{ trigger.email.from }} needs a manual check: customer '{{ nodes.extract.result.customer }}' was not found.",
+    "doctype": "Communication",
+    "name": "{{ trigger.doc.name }}"
+   },
+   "position": [260, 600]
+  }
+ ],
+ "edges": [
+  {"from": "trigger", "to": "extract"},
+  {"from": "extract", "to": "customer"},
+  {"from": "customer", "to": "found"},
+  {"from": "found", "to": "sales_order", "branch": "true"},
+  {"from": "found", "to": "not_found", "branch": "false"},
+  {"from": "sales_order", "to": "tell_sales"},
+  {"from": "tell_sales", "to": "END"},
+  {"from": "not_found", "to": "END"}
+ ],
+ "settings": {"on_error": "stop_and_notify", "max_steps": 20}
+}

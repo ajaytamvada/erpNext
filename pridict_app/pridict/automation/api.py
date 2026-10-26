@@ -63,6 +63,7 @@ def get_builder(name: str, run: str | None = None) -> dict:
 			"can_edit": doc.has_permission("write"),
 		},
 		"site": {"enabled": guards.enabled()},
+		"webhook": _webhook_info(doc) if doc.trigger_type == "trigger.webhook" and doc.webhook_key else None,
 		"spec": spec,
 		"validation": specs.validate(spec, live=True, run_as=doc.run_as),
 		"catalog": {node["type"]: node for node in catalog.describe_all()},
@@ -212,7 +213,33 @@ def activate(name: str, change_note: str | None = None) -> dict:
 	doc = _automation(name, "write")
 	version = doc.activate(change_note)
 	_announce(doc)
-	return {"status": doc.status, "active_version": version}
+	result = {"status": doc.status, "active_version": version}
+	if doc.flags.new_webhook_secret:
+		result["webhook"] = _webhook_info(doc, doc.flags.new_webhook_secret)
+	return result
+
+
+@frappe.whitelist(methods=["POST"])
+def rotate_webhook_secret(name: str) -> dict:
+	"""Make a new webhook address and secret (the old ones stop working). The secret is shown once."""
+	from pridict.automation import triggers
+
+	doc = _automation(name, "write")
+	if doc.trigger_type != "trigger.webhook":
+		frappe.throw(_("This automation is not started by a webhook (activate it first)."))
+	secret = triggers.ensure_webhook_secret(doc, rotate=True)
+	doc.flags.status_change = True
+	doc.save()
+	return _webhook_info(doc, secret)
+
+
+def _webhook_info(doc, secret: str | None = None) -> dict:
+	from pridict.automation import triggers
+
+	info = {"url": triggers.webhook_url(doc.webhook_key), "header": triggers.SIGNATURE_HEADER}
+	if secret:
+		info["secret"] = secret
+	return info
 
 
 @frappe.whitelist(methods=["POST"])
@@ -367,6 +394,39 @@ def duplicate(name: str) -> dict:
 	title = _("{0} (copy)").format(doc.title)
 	spec["title"] = title
 	return {"name": _insert(title, spec)}
+
+
+@frappe.whitelist()
+def list_templates() -> list[dict]:
+	"""Starter templates (design S1-S6) for the New automation dialog."""
+	from pridict.automation.examples import EXAMPLES, load_example
+
+	templates = []
+	for key in EXAMPLES:
+		spec = load_example(key)
+		trigger_type = (spec.get("trigger") or {}).get("type")
+		node_type = catalog.get(trigger_type)
+		templates.append(
+			{
+				"key": key,
+				"title": spec["title"],
+				"description": spec.get("description"),
+				"trigger": node_type.label if node_type else trigger_type,
+			}
+		)
+	return templates
+
+
+@frappe.whitelist(methods=["POST"])
+def create_from_template(template: str, title: str | None = None) -> dict:
+	"""A new draft from a starter template; it still needs checking, a test and activation."""
+	from pridict.automation.examples import EXAMPLES, load_example
+
+	if template not in EXAMPLES:
+		frappe.throw(_("Unknown template {0}.").format(template))
+	spec = load_example(template)
+	spec["title"] = (title or "").strip() or spec["title"]
+	return {"name": _insert(spec["title"], spec)}
 
 
 @frappe.whitelist()

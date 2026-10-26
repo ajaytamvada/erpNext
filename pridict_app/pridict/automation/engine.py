@@ -213,7 +213,30 @@ def _trigger_state(run, extra: dict) -> dict:
 			trigger["doc"] = {"doctype": run.trigger_doctype, "name": run.trigger_name}
 		else:
 			trigger["doc"] = frappe.get_doc(run.trigger_doctype, run.trigger_name).as_dict()
+	if run.trigger_event == "inbound_email" and trigger.get("doc"):
+		trigger["email"] = _email(trigger["doc"])
+	if run.trigger_event == "webhook":
+		trigger["body"] = (extra.get("input") or {}).get("body")
+		trigger["headers"] = (extra.get("input") or {}).get("headers") or {}
 	return expressions.to_data(trigger)
+
+
+def _email(communication: dict) -> dict:
+	"""The parts of a received email that steps use (trigger.email)."""
+	from frappe.utils import strip_html
+
+	files = frappe.get_all(
+		"File",
+		filters={"attached_to_doctype": "Communication", "attached_to_name": communication.get("name")},
+		fields=["file_name", "file_url"],
+	)
+	return {
+		"from": communication.get("sender"),
+		"from_name": communication.get("sender_full_name"),
+		"subject": communication.get("subject"),
+		"body": communication.get("text_content") or strip_html(communication.get("content") or ""),
+		"attachments": files,
+	}
 
 
 def _spec_for(doc, automation) -> dict:

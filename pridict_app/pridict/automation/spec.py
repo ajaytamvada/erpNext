@@ -97,10 +97,15 @@ def trigger_summary(spec: dict) -> dict:
 			cron = to_cron(config)
 		except (ValueError, TypeError):
 			cron = None
+	doctype, event = config.get("doctype"), config.get("event")
+	if trigger.get("type") == "trigger.inbound_email":
+		doctype, event = "Communication", "inbound_email"
+	elif trigger.get("type") == "trigger.webhook":
+		doctype, event = None, "webhook"
 	return {
 		"trigger_type": trigger.get("type"),
-		"trigger_doctype": config.get("doctype"),
-		"trigger_event": config.get("event"),
+		"trigger_doctype": doctype,
+		"trigger_event": event,
 		"trigger_cron": cron,
 	}
 

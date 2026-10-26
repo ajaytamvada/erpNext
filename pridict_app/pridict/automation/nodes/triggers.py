@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import frappe
+
 from pridict.automation import expressions
 from pridict.automation.nodes import Issue, NodeType, meta, register
 
@@ -105,6 +107,68 @@ class Schedule(NodeType):
 		if cron.split()[0] in ("*", "*/1"):
 			return ["Schedules need a fixed minute; running every minute is not allowed."]
 		return []
+
+
+@register
+class InboundEmail(NodeType):
+	type = "trigger.inbound_email"
+	label = "Email received"
+	category = "trigger"
+	icon = "📥"
+	description = (
+		"Starts when an email arrives in a chosen Email Account; optional sender and subject filters."
+	)
+	outputs = ("trigger.email", "trigger.doc")
+	config_schema = {
+		"type": "object",
+		"required": ["email_account"],
+		"properties": {
+			"email_account": {"type": "string", "title": "Email Account", "format": "email_account"},
+			"from_contains": {"type": "string", "title": "Sender contains"},
+			"subject_contains": {"type": "string", "title": "Subject contains"},
+		},
+	}
+
+	def check_live(self, config: dict, run_as: str | None) -> list[Issue]:
+		account = config.get("email_account")
+		if not account:
+			return []
+		row = frappe.db.get_value("Email Account", account, ["enable_incoming"], as_dict=True)
+		if not row:
+			return [Issue("error", f"Email Account {account!r} does not exist.")]
+		if not row.enable_incoming:
+			return [
+				Issue("error", f"Email Account {account} does not receive email (incoming is off).", "setup")
+			]
+		return meta.doctype_issues("Communication", run_as, "read")
+
+	@staticmethod
+	def matches(config: dict, doc) -> bool:
+		if doc.get("sent_or_received") != "Received" or doc.get("communication_type") != "Communication":
+			return False
+		if config.get("email_account") and doc.get("email_account") != config["email_account"]:
+			return False
+		sender = (doc.get("sender") or "").lower()
+		subject = (doc.get("subject") or "").lower()
+		if config.get("from_contains") and config["from_contains"].lower() not in sender:
+			return False
+		if config.get("subject_contains") and config["subject_contains"].lower() not in subject:
+			return False
+		return True
+
+
+@register
+class Webhook(NodeType):
+	type = "trigger.webhook"
+	label = "Webhook"
+	category = "trigger"
+	icon = "🔗"
+	description = (
+		"Starts when another system POSTs JSON to the automation's address, signed with its secret "
+		"(trigger.body, trigger.headers)."
+	)
+	outputs = ("trigger.body", "trigger.headers")
+	config_schema = {"type": "object", "properties": {}}
 
 
 @register

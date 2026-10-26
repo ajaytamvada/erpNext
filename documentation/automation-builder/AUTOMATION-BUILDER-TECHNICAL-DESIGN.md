@@ -878,3 +878,43 @@ Known limits:
   submit) is not exercised by a test run; jobs queued without "after commit" may still run and find
   the rolled-back records missing.
 - Simulated decisions are per step, so a step inside a loop gets the same decision every time.
+
+---
+
+## 23. Phase 5 results (27 October 2026)
+
+**Done:** the remaining triggers and steps, the remaining guardrails, housekeeping, starter
+templates, the load test and the documentation. 108 backend tests pass.
+
+| Area | What |
+|---|---|
+| Inbound email | `trigger.inbound_email` (Email Account, sender / subject filters) through the `Communication` after-insert hook; steps see `trigger.email` (from, subject, body, attachments) |
+| Webhook | `trigger.webhook`: unguessable key in the address plus HMAC-SHA256 signature (`X-Pridict-Signature`) with a per-automation secret created on activation and shown once; 1 MB limit; 120 calls a minute per webhook; unknown keys and bad signatures get the same answer; rotation replaces key and secret |
+| HTTP step | `action.http_request` with `Automation Credential` (encrypted; Bearer, Basic or header; optional host limit), site host allowlist (empty allows nothing), private/loopback/link-local/reserved addresses refused, no redirects, 1 MB responses, retries with backoff; in test runs only GETs marked safe are sent, otherwise a sample response |
+| AI step | `ai.step`: instruction + input → JSON in a given schema through the gateway (`Automation Settings.ai_step_model`); input is treated as data, the step cannot act; tokens counted on the step |
+| Cancel | `action.cancel_document` (canvas warning: cannot be undone) |
+| Housekeeping | `automation/maintenance.py`: daily purge (completed 30 d, failed 90 d, test runs 7 d except those that unlocked a version); re-validation of active automations after every migrate (design errors pause and notify); `health()` for the Automations page |
+| Templates | S1–S6 in `automation/examples/` (S5 order email → AI → draft Sales Order; S6 weekly late-receipts summary), offered in New Automation |
+| UI | Health strip and *Start from template* on the Automations page; webhook address, signing help and secret rotation in the trigger panel |
+| Performance | The trigger index now carries each automation's trigger config; conditions are compiled once (restricted, as `safe_eval`); the document is converted once per save |
+| Docs | `OPERATIONS.md` (operator guide); explainer section 15 *What has been built* with screenshots (PDF v1.1) |
+
+Load test (`pridict.automation.loadtest.run`, dev bench, 20 active document-event automations and
+20 schedules):
+
+| Measure | Before optimisation | After | Target |
+|---|---|---|---|
+| Hook on a save no automation watches | 0.011 ms | 0.011 ms | — |
+| Hook on a save four automations watch (conditions false) | 11.85 ms | 0.64 ms | < 2 ms |
+| Schedule dispatcher (per minute) | 13 ms | 16 ms | < 5 s |
+
+Known limits added in this phase:
+
+- Approvers outside System, Purchase and Accounts Manager can decide automation approvals but
+  cannot open the Agent Approvals page or document yet (needs a permission change or an approvals
+  view for any role).
+- The HTTP library resolves the host again when it connects; a host that changes its DNS answer
+  between the check and the connection could reach another address. The admin-chosen allowlist is
+  the main control.
+- The stale-index case (an automation activated in a transaction that later rolled back) starts a
+  run that the engine then cancels, because it re-checks the automation's status.
